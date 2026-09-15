@@ -1,0 +1,25 @@
+flowchart TD
+    Inicio([Inicio]) --> Login[Ingresar credenciales ficticias]
+    Login --> V1{¿Credenciales válidas?}
+    V1 -- No --> Login
+    V1 -- Sí --> Principal[Pantalla Principal según rol]
+    Principal --> D1{¿Qué desea hacer?}
+
+    D1 -- Nueva muestra<br/>(Operador) --> Form[Seleccionar Centro, Tren y Línea<br/>Fecha, hora y tramo]
+    Form --> Foto[Capturar o adjuntar fotografía]
+    Foto --> Conteo[Ingresar conteo manual<br/>y observaciones]
+    Conteo --> Preview[Vista previa de la muestra]
+    Preview --> V2{¿Datos completos<br/>y correctos?}
+    V2 -- No, corregir --> Form
+    V2 -- Sí --> Guardar[Guardar y enviar a revisión<br/>Estado: Pendiente]
+    Guardar --> Historial
+
+    D1 -- Historial --> Historial[Historial de muestras<br/>filtrar por centro, línea, fecha o estado]
+    Historial --> Detalle[Detalle de la muestra]
+    Detalle --> D2{¿Rol supervisor?}
+    D2 -- Sí --> Revision[Revisión: cambiar estado<br/>y agregar comentario técnico]
+    Revision --> D3{Estado asignado}
+    D3 -- Observado --> Corregir[Operador corrige la muestra]
+    Corregir --> Preview
+    D3 -- Corregido / Validado --> Fin([Fin])
+    D2 -- No --> Fin

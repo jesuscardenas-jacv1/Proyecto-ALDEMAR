@@ -1,0 +1,18 @@
+# Herramientas locales
+.claude/
+docs/diseno/canvas/
+
+# Caso académico (material del docente, no publicar)
+docs/caso/
+
+# Android / Gradle (para cuando exista el proyecto)
+*.iml
+.gradle/
+build/
+local.properties
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
