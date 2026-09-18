@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/diseno/logo.png" alt="Logo MusselApp" width="120">
+  <img src="docs/diseno/logo-192.png" alt="Logo MusselApp" width="120">
 </p>
 
 <h1 align="center">MusselApp</h1>
@@ -27,6 +27,8 @@ En el muestreo de líneas de cultivo de choritos, el operador extrae un tramo re
 > Proyecto académico con datos ficticios. No reemplaza el criterio técnico de ALDEMAR ni realiza conteo automático.
 
 ## 2. Identidad visual
+
+![Logotipo MusselApp](docs/diseno/logo-192.png)
 
 | Elemento | Definición |
 |---|---|
@@ -81,16 +83,18 @@ flowchart TD
 
 Diseños generados con **Google Stitch** (Material Design 3) y guardados en [`docs/diseno/interfaces/`](docs/diseno/interfaces/).
 
-| # | Pantalla | Usuario principal | Acción principal | Archivo |
-|---|---|---|---|---|
-| 1 | Login | Operador, Supervisor, Admin | Ingresar con usuario ficticio y rol | `01-login.png` |
-| 2 | Principal | Operador, Supervisor, Admin | Menú de opciones según permisos | `02-principal.png` |
-| 3 | Muestra | Operador | Formulario: centro, tren, línea, fecha, tramo, conteo | `03-muestra.png` |
-| 4 | Captura | Operador | Tomar fotografía o elegir de galería | `04-captura.png` |
-| 5 | Vista previa | Operador | Confirmar datos y foto antes de enviar | `05-vista-previa.png` |
-| 6 | Historial | Operador, Supervisor | Listar, buscar y filtrar muestras | `06-historial.png` |
-| 7 | Detalle | Operador, Supervisor | Ver datos, foto y trazabilidad de una muestra | `07-detalle.png` |
-| 8 | Revisión del Supervisor | Supervisor | Cambiar estado y agregar comentario técnico | `08-revision.png` |
+| Pantalla | Objetivo | Archivo esperado |
+|---|---|---|
+| Login | Verificación de credenciales de los usuarios | `docs/diseno/interfaces/01-login.png` |
+| Principal | Menú de opciones según el rol | `docs/diseno/interfaces/02-principal.png` |
+| Muestra | Iniciar un muestreo | `docs/diseno/interfaces/03-muestra.png` |
+| Captura | Capturar un registro visual de la muestra | `docs/diseno/interfaces/04-captura.png` |
+| Vista previa | Previsualizar fotografía y datos, y confirmar el muestreo | `docs/diseno/interfaces/05-vista-previa.png` |
+| Historial | Listar las muestras registradas | `docs/diseno/interfaces/06-historial.png` |
+| Detalle | Ver en detalle una muestra seleccionada | `docs/diseno/interfaces/07-detalle.png` |
+| Revisión del Supervisor | Gestionar el estado de las muestras | `docs/diseno/interfaces/08-revision.png` |
+
+> Interfaces visuales pendientes de subir por el equipo (ver `docs/diseno/interfaces/`).
 
 ### Navegación
 
