@@ -94,7 +94,7 @@ Diseños generados con **Google Stitch** (Material Design 3) y guardados en [`do
 | Detalle | Ver en detalle una muestra seleccionada | `docs/diseno/interfaces/07-detalle.png` |
 | Revisión del Supervisor | Gestionar el estado de las muestras | `docs/diseno/interfaces/08-revision.png` |
 
-> Interfaces visuales pendientes de subir por el equipo (ver `docs/diseno/interfaces/`).
+> Las 8 interfaces ya están exportadas en [`docs/diseno/interfaces/`](docs/diseno/interfaces/).
 
 ### Navegación
 
@@ -125,11 +125,31 @@ Diseños generados con **Google Stitch** (Material Design 3) y guardados en [`do
 ## 7. Estructura del repositorio
 
 ```
-docs/
-├── diseno/
-│   ├── logo.png · logo.svg
-│   ├── flujo-usuario-uml.png · flujo-usuario-uml.mmd
-│   └── interfaces/          # pantallas exportadas desde Stitch
-└── evidencias/
-    └── clase-02/            # Evidencia_Clase_02_Diseno_EquipoPipeno
+├── README.md
+├── CONTRIBUTING.md          # flujo de trabajo Git/GitHub del equipo
+├── app/                     # proyecto Android (pendiente: lo crea un integrante en Android Studio)
+└── docs/
+    ├── diseno/
+    │   ├── logo.png · logo.svg
+    │   ├── flujo-usuario-uml.png · flujo-usuario-uml.mmd
+    │   └── interfaces/      # pantallas exportadas desde Stitch
+    └── evidencias/
+        └── clase-02/        # Evidencia_Clase_02_Diseno_EquipoPipeno
 ```
+
+## 8. Flujo de trabajo en equipo
+
+`main` siempre contiene la versión estable e integrada. **Nadie desarrolla directamente sobre `main`**: cada funcionalidad se trabaja en su propia rama `feature/...` y se integra mediante un Pull Request revisado por otro integrante.
+
+```
+main
+│
+├── feature/login
+├── feature/home
+├── feature/muestra
+├── feature/captura
+├── feature/historial
+└── feature/revision
+```
+
+Pasos, reglas y checklist antes de un PR: ver [`CONTRIBUTING.md`](CONTRIBUTING.md).
