@@ -3,7 +3,6 @@ package cl.aldemar.musselapp.ui.login
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,7 +28,6 @@ import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Sailing
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -43,7 +41,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -248,8 +245,6 @@ fun LoginScreen(
                         }
                     }
                 }
-
-                TarjetaCredencialQr(onActivar = { avisar("Lectura de credencial RFID / QR disponible próximamente") })
             }
         }
     }
@@ -502,42 +497,6 @@ private fun BotonIngresar(cargando: Boolean, onClick: () -> Unit) {
             Text("INGRESAR AL SISTEMA", fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
             Spacer(Modifier.width(12.dp))
             Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
-        }
-    }
-}
-
-@Composable
-private fun TarjetaCredencialQr(onActivar: () -> Unit) {
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainer),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(Icons.Filled.QrCodeScanner, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
-            }
-            Spacer(Modifier.width(14.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Credencial RFID / QR", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                Text(
-                    "Escaneo directo con guantes",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary,
-                )
-            }
-            FilledTonalButton(onClick = onActivar, shape = RoundedCornerShape(8.dp)) {
-                Text("ACTIVAR", fontWeight = FontWeight.Bold)
-            }
         }
     }
 }
