@@ -1,6 +1,5 @@
 package cl.aldemar.musselapp.ui.principal
 
-import android.app.Activity
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -73,12 +72,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,15 +83,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.aldemar.musselapp.R
@@ -113,7 +107,6 @@ import cl.aldemar.musselapp.ui.theme.EstadoPendienteTexto
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoTexto
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -141,6 +134,8 @@ fun PrincipalRoute(
     usuario: Usuario,
     centro: CentroCultivo,
     onCerrarSesion: () -> Unit,
+    onNavegar: (Destino) -> Unit,
+    onVerMuestra: (Long) -> Unit,
     viewModel: PrincipalViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -150,6 +145,8 @@ fun PrincipalRoute(
         uiState = uiState,
         onSincronizar = viewModel::sincronizar,
         onCerrarSesion = onCerrarSesion,
+        onNavegar = onNavegar,
+        onVerMuestra = onVerMuestra,
         onMensajeMostrado = viewModel::onMensajeMostrado,
     )
 }
@@ -162,10 +159,11 @@ fun PrincipalScreen(
     uiState: PrincipalUiState,
     onSincronizar: () -> Unit,
     onCerrarSesion: () -> Unit,
+    onNavegar: (Destino) -> Unit,
+    onVerMuestra: (Long) -> Unit,
     onMensajeMostrado: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     val destinos = Destino.disponiblesPara(usuario.rol)
 
     LaunchedEffect(uiState.mensaje) {
@@ -174,13 +172,6 @@ fun PrincipalScreen(
             onMensajeMostrado()
         }
     }
-    // Pantallas que aún se desarrollan en otras ramas (feature/...)
-    fun proximamente(destino: Destino) {
-        scope.launch { snackbarHostState.showSnackbar("«${destino.etiqueta}» disponible próximamente") }
-    }
-
-    IconosBarraEstadoClaros()
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -197,7 +188,7 @@ fun PrincipalScreen(
                 destinos.forEach { destino ->
                     NavigationBarItem(
                         selected = destino == Destino.MUESTRAS,
-                        onClick = { if (destino != Destino.MUESTRAS) proximamente(destino) },
+                        onClick = { if (destino != Destino.MUESTRAS) onNavegar(destino) },
                         icon = { Icon(destino.icono, contentDescription = null) },
                         label = { Text(destino.etiqueta) },
                         colors = NavigationBarItemDefaults.colors(
@@ -212,7 +203,7 @@ fun PrincipalScreen(
         floatingActionButton = {
             if (usuario.rol == Rol.OPERARIO) {
                 FloatingActionButton(
-                    onClick = { proximamente(Destino.NUEVA_MUESTRA) },
+                    onClick = { onNavegar(Destino.NUEVA_MUESTRA) },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                     shape = RoundedCornerShape(16.dp),
@@ -237,11 +228,11 @@ fun PrincipalScreen(
                 rol = usuario.rol,
                 pendientesRevision = uiState.resumen.pendientes,
                 onClick = {
-                    proximamente(if (usuario.rol == Rol.OPERARIO) Destino.NUEVA_MUESTRA else Destino.SUPERVISION)
+                    onNavegar(if (usuario.rol == Rol.OPERARIO) Destino.NUEVA_MUESTRA else Destino.SUPERVISION)
                 },
             )
             MetricasJornada(resumen = uiState.resumen)
-            TarjetaHistorial(resumen = uiState.resumen, onVerTodo = { proximamente(Destino.HISTORIAL) })
+            TarjetaHistorial(resumen = uiState.resumen, onVerTodo = { onNavegar(Destino.HISTORIAL) })
             TarjetaSincronizacion(
                 pendientes = uiState.resumen.pendientesSincronizar,
                 sincronizando = uiState.sincronizando,
@@ -250,25 +241,9 @@ fun PrincipalScreen(
             MuestrasRecientes(
                 muestras = uiState.recientes,
                 ultimaRegistradaEn = uiState.resumen.ultimaRegistradaEn,
-                onMuestraClick = {
-                    scope.launch { snackbarHostState.showSnackbar("Detalle de muestra disponible próximamente") }
-                },
+                onMuestraClick = { onVerMuestra(it.id) },
             )
         }
-    }
-}
-
-/** La barra superior es oscura: los íconos de la barra de estado deben ser claros. */
-@Composable
-private fun IconosBarraEstadoClaros() {
-    if (LocalInspectionMode.current) return
-    val view = LocalView.current
-    DisposableEffect(view) {
-        val window = (view.context as Activity).window
-        val controlador = WindowCompat.getInsetsController(window, view)
-        val anterior = controlador.isAppearanceLightStatusBars
-        controlador.isAppearanceLightStatusBars = false
-        onDispose { controlador.isAppearanceLightStatusBars = anterior }
     }
 }
 
@@ -864,6 +839,8 @@ private fun PrincipalOperarioPreview() {
             ),
             onSincronizar = {},
             onCerrarSesion = {},
+            onNavegar = {},
+            onVerMuestra = {},
             onMensajeMostrado = {},
         )
     }
