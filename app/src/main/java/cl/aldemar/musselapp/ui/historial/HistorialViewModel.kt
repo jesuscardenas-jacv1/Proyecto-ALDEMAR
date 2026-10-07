@@ -20,7 +20,6 @@ class HistorialViewModel(
         val criterios: CriteriosHistorial = CriteriosHistorial(),
         val sincronizando: Boolean = false,
         val mensaje: String? = null,
-        val actualizadoEn: Long = System.currentTimeMillis(),
     )
 
     private val local = MutableStateFlow(EstadoLocal())
@@ -34,7 +33,6 @@ class HistorialViewModel(
                 conteos = resultado.conteos,
                 tallaPromedioMm = resultado.tallaPromedioMm,
                 pendientesSincronizar = todas.count { !it.sincronizada },
-                actualizadoEn = estado.actualizadoEn,
                 sincronizando = estado.sincronizando,
                 mensaje = estado.mensaje,
             )
@@ -59,7 +57,6 @@ class HistorialViewModel(
             local.update {
                 it.copy(
                     sincronizando = false,
-                    actualizadoEn = System.currentTimeMillis(),
                     mensaje = if (enviadas == 0) "Todo estaba sincronizado" else "$enviadas muestras sincronizadas",
                 )
             }
