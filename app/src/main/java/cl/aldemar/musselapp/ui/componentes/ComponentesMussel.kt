@@ -8,6 +8,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,6 +57,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -86,6 +88,8 @@ fun BarraSuperiorMussel(
     sincronizando: Boolean,
     onSincronizar: () -> Unit,
     onCerrarSesion: () -> Unit,
+    /** Al tocar el logo de la app se vuelve a la Pantalla Principal. */
+    onIrAInicio: () -> Unit,
 ) {
     var menuAbierto by remember { mutableStateOf(false) }
     Surface(color = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary) {
@@ -100,7 +104,8 @@ fun BarraSuperiorMussel(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color.White),
+                    .background(Color.White)
+                    .clickable(onClickLabel = "Ir a la pantalla principal", role = Role.Button, onClick = onIrAInicio),
                 contentAlignment = Alignment.Center,
             ) {
                 Image(painterResource(R.drawable.logo_musselapp), contentDescription = "Logo MusselApp", modifier = Modifier.size(32.dp))

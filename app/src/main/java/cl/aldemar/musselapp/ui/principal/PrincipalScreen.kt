@@ -147,6 +147,7 @@ fun PrincipalScreen(
                 sincronizando = uiState.sincronizando,
                 onSincronizar = onSincronizar,
                 onCerrarSesion = onCerrarSesion,
+                onIrAInicio = {}, // ya estamos en la Principal
             )
         },
         bottomBar = {

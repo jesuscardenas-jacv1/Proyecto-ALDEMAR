@@ -162,6 +162,7 @@ fun HistorialScreen(
                 sincronizando = uiState.sincronizando,
                 onSincronizar = onSincronizar,
                 onCerrarSesion = onCerrarSesion,
+                onIrAInicio = { onNavegar(Destino.MUESTRAS) },
             )
         },
         bottomBar = { NavegacionInferior(rol = usuario.rol, seleccionado = Destino.HISTORIAL, onNavegar = onNavegar) },
