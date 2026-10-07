@@ -1,8 +1,16 @@
 package cl.aldemar.musselapp.ui.login
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +29,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.Anchor
 import androidx.compose.material.icons.filled.Badge
@@ -109,6 +118,7 @@ fun LoginRoute(
     LoginScreen(
         uiState = uiState,
         onRolChange = viewModel::onRolChange,
+        onCambiarPerfil = viewModel::onCambiarPerfil,
         onRutChange = viewModel::onRutChange,
         onRutFocusLost = viewModel::onRutFocusLost,
         onPasswordChange = viewModel::onPasswordChange,
@@ -120,11 +130,15 @@ fun LoginRoute(
     )
 }
 
-/** UI sin estado del Login (diseño "1. Login - MusselApp" de Stitch). */
+/**
+ * UI sin estado del Login (diseño "1. Login - MusselApp" de Stitch) en dos pasos:
+ * 1) selección de perfil operativo, 2) ingreso de credenciales.
+ */
 @Composable
 fun LoginScreen(
     uiState: LoginUiState,
     onRolChange: (Rol) -> Unit,
+    onCambiarPerfil: () -> Unit,
     onRutChange: (String) -> Unit,
     onRutFocusLost: () -> Unit,
     onPasswordChange: (String) -> Unit,
@@ -136,17 +150,17 @@ fun LoginScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val focusManager = LocalFocusManager.current
-    val pinFocus = remember { FocusRequester() }
+    // Perfil recién tocado cuya animación se está mostrando
+    var rolEnAnimacion by remember { mutableStateOf<Rol?>(null) }
+    val paso = uiState.rol?.let { PasoLogin.Credenciales(it) }
+        ?: rolEnAnimacion?.let { PasoLogin.Animacion(it) }
+        ?: PasoLogin.Perfil
 
     LaunchedEffect(uiState.mensajeError) {
         uiState.mensajeError?.let {
             snackbarHostState.showSnackbar(it)
             onMensajeMostrado()
         }
-    }
-    fun avisar(mensaje: String) {
-        scope.launch { snackbarHostState.showSnackbar(mensaje) }
     }
 
     Scaffold(
@@ -168,83 +182,238 @@ fun LoginScreen(
                 modifier = Modifier.widthIn(max = 480.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
             ) {
-                SelectorRol(rolSeleccionado = uiState.rol, onRolChange = onRolChange)
-
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        CampoFormulario(
-                            etiqueta = "RUT / Código de Operario",
-                            valor = uiState.rut,
-                            onValorChange = onRutChange,
-                            icono = Icons.Filled.Fingerprint,
-                            placeholder = "Ej: 15.482.901-6",
-                            error = uiState.rutError,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Ascii,
-                                imeAction = ImeAction.Next,
-                            ),
-                            // "Siguiente" va directo al PIN, sin pasar por "¿Olvidó PIN?"
-                            keyboardActions = KeyboardActions(onNext = { pinFocus.requestFocus() }),
-                            modifier = Modifier.onFocusChanged { if (!it.isFocused) onRutFocusLost() },
-                        )
-
-                        CampoFormulario(
-                            etiqueta = "Contraseña de Seguridad",
-                            valor = uiState.password,
-                            onValorChange = onPasswordChange,
-                            icono = Icons.Filled.Lock,
-                            placeholder = "PIN",
-                            error = uiState.passwordError,
-                            accionEtiqueta = {
-                                TextButton(
-                                    onClick = { avisar("Solicite el restablecimiento del PIN a su supervisor") },
-                                    contentPadding = ButtonDefaults.TextButtonContentPadding,
-                                ) {
-                                    Text(
-                                        "¿Olvidó PIN?",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.secondary,
-                                    )
-                                }
-                            },
-                            trailingIcon = {
-                                IconButton(onClick = onTogglePasswordVisible) {
-                                    Icon(
-                                        if (uiState.passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                                        contentDescription = if (uiState.passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
-                                    )
-                                }
-                            },
-                            visualTransformation = if (uiState.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.NumberPassword,
-                                imeAction = ImeAction.Done,
-                            ),
-                            keyboardActions = KeyboardActions(onDone = {
-                                focusManager.clearFocus()
-                                onIngresar()
-                            }),
-                            modifier = Modifier.focusRequester(pinFocus),
-                        )
-
-                        SelectorCentro(centro = uiState.centro, onCentroChange = onCentroChange)
-
-                        TarjetaModoOffline(activo = uiState.modoOffline, onCambio = onModoOfflineChange)
-
-                        BotonIngresar(cargando = uiState.cargando) {
-                            focusManager.clearFocus()
-                            onIngresar()
+                AnimatedContent(
+                    targetState = paso,
+                    transitionSpec = {
+                        (fadeIn(tween(300)) + slideInVertically(tween(300)) { it / 12 }) togetherWith fadeOut(tween(150))
+                    },
+                    label = "pasoLogin",
+                ) { p ->
+                    Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                        when (p) {
+                            PasoLogin.Perfil -> PasoSeleccionPerfil(onRolChange = { rolEnAnimacion = it })
+                            is PasoLogin.Animacion -> AnimacionPerfil(
+                                rol = p.rol,
+                                onTerminada = {
+                                    onRolChange(p.rol)
+                                    rolEnAnimacion = null
+                                },
+                            )
+                            is PasoLogin.Credenciales -> {
+                                // El botón Atrás del teléfono vuelve a la selección de perfil
+                                BackHandler(enabled = !uiState.cargando, onBack = onCambiarPerfil)
+                                PasoCredenciales(
+                                    rol = p.rol,
+                                    uiState = uiState,
+                                    onCambiarPerfil = onCambiarPerfil,
+                                    onRutChange = onRutChange,
+                                    onRutFocusLost = onRutFocusLost,
+                                    onPasswordChange = onPasswordChange,
+                                    onTogglePasswordVisible = onTogglePasswordVisible,
+                                    onCentroChange = onCentroChange,
+                                    onModoOfflineChange = onModoOfflineChange,
+                                    onIngresar = onIngresar,
+                                    onOlvidoPin = {
+                                        scope.launch { snackbarHostState.showSnackbar("Solicite el restablecimiento del PIN a su supervisor") }
+                                    },
+                                )
+                            }
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+/** Pasos visibles del Login. */
+private sealed interface PasoLogin {
+    data object Perfil : PasoLogin
+    data class Animacion(val rol: Rol) : PasoLogin
+    data class Credenciales(val rol: Rol) : PasoLogin
+}
+
+/** Paso 1: el usuario elige con qué perfil operativo ingresa. */
+@Composable
+private fun PasoSeleccionPerfil(onRolChange: (Rol) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            EtiquetaConIcono("Perfil Operativo", Icons.Filled.Badge)
+            Text(
+                "Seleccione con qué perfil desea ingresar",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.secondary,
+            )
+        }
+        Column(
+            modifier = Modifier.selectableGroup(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Rol.entries.forEach { rol ->
+                TarjetaPerfil(rol = rol, onClick = { onRolChange(rol) })
+            }
+        }
+    }
+}
+
+@Composable
+private fun TarjetaPerfil(rol: Rol, onClick: () -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 2.dp,
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(selected = false, role = Role.Button, onClick = onClick),
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(iconoRol(rol), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(28.dp))
+            }
+            Spacer(Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(rol.etiqueta, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(2.dp))
+                Text(rol.descripcion, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+            }
+            Spacer(Modifier.width(8.dp))
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+        }
+    }
+}
+
+private fun iconoRol(rol: Rol): ImageVector = when (rol) {
+    Rol.OPERARIO -> Icons.Filled.Sailing
+    Rol.SUPERVISOR -> Icons.Filled.FactCheck
+}
+
+/** Paso 2: credenciales del perfil elegido. */
+@Composable
+private fun PasoCredenciales(
+    rol: Rol,
+    uiState: LoginUiState,
+    onCambiarPerfil: () -> Unit,
+    onRutChange: (String) -> Unit,
+    onRutFocusLost: () -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onTogglePasswordVisible: () -> Unit,
+    onCentroChange: (CentroCultivo) -> Unit,
+    onModoOfflineChange: (Boolean) -> Unit,
+    onIngresar: () -> Unit,
+    onOlvidoPin: () -> Unit,
+) {
+    val focusManager = LocalFocusManager.current
+    val pinFocus = remember { FocusRequester() }
+
+    PerfilSeleccionado(rol = rol, habilitado = !uiState.cargando, onCambiar = onCambiarPerfil)
+
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            CampoFormulario(
+                etiqueta = "RUT / Código de Operario",
+                valor = uiState.rut,
+                onValorChange = onRutChange,
+                icono = Icons.Filled.Fingerprint,
+                placeholder = "Ej: 15.482.901-6",
+                error = uiState.rutError,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Ascii,
+                    imeAction = ImeAction.Next,
+                ),
+                // "Siguiente" va directo al PIN, sin pasar por "¿Olvidó PIN?"
+                keyboardActions = KeyboardActions(onNext = { pinFocus.requestFocus() }),
+                modifier = Modifier.onFocusChanged { if (!it.isFocused) onRutFocusLost() },
+            )
+
+            CampoFormulario(
+                etiqueta = "Contraseña de Seguridad",
+                valor = uiState.password,
+                onValorChange = onPasswordChange,
+                icono = Icons.Filled.Lock,
+                placeholder = "PIN",
+                error = uiState.passwordError,
+                accionEtiqueta = {
+                    TextButton(
+                        onClick = onOlvidoPin,
+                        contentPadding = ButtonDefaults.TextButtonContentPadding,
+                    ) {
+                        Text(
+                            "¿Olvidó PIN?",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                    }
+                },
+                trailingIcon = {
+                    IconButton(onClick = onTogglePasswordVisible) {
+                        Icon(
+                            if (uiState.passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                            contentDescription = if (uiState.passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
+                        )
+                    }
+                },
+                visualTransformation = if (uiState.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.NumberPassword,
+                    imeAction = ImeAction.Done,
+                ),
+                keyboardActions = KeyboardActions(onDone = {
+                    focusManager.clearFocus()
+                    onIngresar()
+                }),
+                modifier = Modifier.focusRequester(pinFocus),
+            )
+
+            SelectorCentro(centro = uiState.centro, onCentroChange = onCentroChange)
+
+            TarjetaModoOffline(activo = uiState.modoOffline, onCambio = onModoOfflineChange)
+
+            BotonIngresar(cargando = uiState.cargando) {
+                focusManager.clearFocus()
+                onIngresar()
+            }
+        }
+    }
+}
+
+/** Resumen del perfil elegido en el paso 1, con opción de volver a elegir. */
+@Composable
+private fun PerfilSeleccionado(rol: Rol, habilitado: Boolean, onCambiar: () -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(iconoRol(rol), contentDescription = null, modifier = Modifier.size(24.dp))
+            Spacer(Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Perfil Operativo", style = MaterialTheme.typography.labelSmall)
+                Text(rol.etiqueta, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            }
+            TextButton(onClick = onCambiar, enabled = habilitado) {
+                Text("Cambiar", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -285,52 +454,6 @@ private fun EtiquetaConIcono(texto: String, icono: ImageVector) {
         Icon(icono, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(6.dp))
         Text(texto, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-@Composable
-private fun SelectorRol(rolSeleccionado: Rol, onRolChange: (Rol) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        EtiquetaConIcono("Perfil Operativo", Icons.Filled.Badge)
-        Row(
-            modifier = Modifier.selectableGroup(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Rol.entries.forEach { rol ->
-                val seleccionado = rol == rolSeleccionado
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = if (seleccionado) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainer,
-                    contentColor = if (seleccionado) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                    shadowElevation = 1.dp,
-                    modifier = Modifier
-                        .weight(1f)
-                        .heightIn(min = 72.dp)
-                        .selectable(selected = seleccionado, role = Role.RadioButton, onClick = { onRolChange(rol) }),
-                ) {
-                    Column(
-                        modifier = Modifier.padding(vertical = 10.dp, horizontal = 8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Icon(
-                            if (rol == Rol.OPERARIO) Icons.Filled.Sailing else Icons.Filled.FactCheck,
-                            contentDescription = null,
-                            tint = if (seleccionado) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.size(22.dp),
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            rol.etiqueta.replace(" ", "\n"),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Center,
-                            lineHeight = 16.sp,
-                        )
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -501,21 +624,28 @@ private fun BotonIngresar(cargando: Boolean, onClick: () -> Unit) {
     }
 }
 
-@Preview(showBackground = true, heightDp = 1000)
+@Preview(showBackground = true, heightDp = 900)
 @Composable
-private fun LoginScreenPreview() {
+private fun PasoPerfilPreview() {
     MusselAppTheme {
         LoginScreen(
-            uiState = LoginUiState(rut = "11.111.111-1", password = "1234"),
-            onRolChange = {},
-            onRutChange = {},
-            onRutFocusLost = {},
-            onPasswordChange = {},
-            onTogglePasswordVisible = {},
-            onCentroChange = {},
-            onModoOfflineChange = {},
-            onIngresar = {},
-            onMensajeMostrado = {},
+            uiState = LoginUiState(),
+            onRolChange = {}, onCambiarPerfil = {}, onRutChange = {}, onRutFocusLost = {},
+            onPasswordChange = {}, onTogglePasswordVisible = {}, onCentroChange = {},
+            onModoOfflineChange = {}, onIngresar = {}, onMensajeMostrado = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, heightDp = 1000)
+@Composable
+private fun PasoCredencialesPreview() {
+    MusselAppTheme {
+        LoginScreen(
+            uiState = LoginUiState(rol = Rol.OPERARIO, rut = "11.111.111-1", password = "1234"),
+            onRolChange = {}, onCambiarPerfil = {}, onRutChange = {}, onRutFocusLost = {},
+            onPasswordChange = {}, onTogglePasswordVisible = {}, onCentroChange = {},
+            onModoOfflineChange = {}, onIngresar = {}, onMensajeMostrado = {},
         )
     }
 }

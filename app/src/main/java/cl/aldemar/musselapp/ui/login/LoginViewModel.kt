@@ -20,7 +20,13 @@ class LoginViewModel(
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
+    /** Paso 1: elige el perfil y avanza al ingreso de credenciales. */
     fun onRolChange(rol: Rol) = _uiState.update { it.copy(rol = rol, mensajeError = null) }
+
+    /** Vuelve al paso 1 descartando el PIN y los errores. */
+    fun onCambiarPerfil() = _uiState.update {
+        it.copy(rol = null, password = "", passwordVisible = false, rutError = null, passwordError = null, mensajeError = null)
+    }
 
     fun onRutChange(rut: String) =
         _uiState.update { it.copy(rut = rut, rutError = null, mensajeError = null) }
@@ -41,10 +47,11 @@ class LoginViewModel(
 
     fun onMensajeMostrado() = _uiState.update { it.copy(mensajeError = null) }
 
-    fun onCerrarSesion() = _uiState.update { LoginUiState(rol = it.rol, centro = it.centro) }
+    fun onCerrarSesion() = _uiState.update { LoginUiState(centro = it.centro) }
 
     fun ingresar() {
         val estado = _uiState.value
+        val rol = estado.rol ?: return
         if (estado.cargando) return
 
         val rutError = when {
@@ -60,7 +67,7 @@ class LoginViewModel(
 
         _uiState.update { it.copy(cargando = true, mensajeError = null) }
         viewModelScope.launch {
-            authRepository.login(estado.rut, estado.password, estado.rol)
+            authRepository.login(estado.rut, estado.password, rol)
                 .onSuccess { usuario ->
                     _uiState.update { it.copy(cargando = false, usuario = usuario, password = "") }
                 }
