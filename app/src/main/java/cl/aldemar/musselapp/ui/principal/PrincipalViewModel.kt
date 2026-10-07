@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cl.aldemar.musselapp.data.repository.FakeMuestraRepository
 import cl.aldemar.musselapp.data.repository.MuestraRepository
+import cl.aldemar.musselapp.util.Fechas
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +22,9 @@ class PrincipalViewModel(
     private val local = MutableStateFlow(EstadoLocal())
 
     val uiState: StateFlow<PrincipalUiState> =
-        combine(muestraRepository.muestras, local) { muestras, estado ->
+        combine(muestraRepository.muestras, local) { todas, estado ->
+            // La Principal resume solo la jornada de hoy; el Historial muestra todo
+            val muestras = todas.filter { it.registradaEn >= Fechas.inicioDelDia() }
             PrincipalUiState(
                 resumen = ResumenJornada.desde(muestras),
                 recientes = muestras.sortedByDescending { it.registradaEn }.take(CANTIDAD_RECIENTES),

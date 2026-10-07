@@ -23,3 +23,8 @@ val EstadoPendienteFondo = Color(0xFFE2E8F0)
 val EstadoPendienteTexto = Color(0xFF334155)
 val EstadoCorregidoFondo = Color(0xFFFEF3C7)
 val EstadoCorregidoTexto = Color(0xFF92400E)
+
+// Franja lateral de las tarjetas del Historial según el estado
+val AcentoValidado = Color(0xFF16A34A)
+val AcentoPendiente = Color(0xFFD97706)
+val AcentoObservado = Color(0xFFDC2626)
