@@ -97,7 +97,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.aldemar.musselapp.R
 import cl.aldemar.musselapp.data.model.CentroCultivo
 import cl.aldemar.musselapp.data.model.Rol
-import cl.aldemar.musselapp.data.model.Usuario
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.selection.selectable
@@ -105,15 +104,8 @@ import androidx.compose.foundation.selection.selectableGroup
 
 /** Punto de entrada con estado: conecta el ViewModel con la UI. */
 @Composable
-fun LoginRoute(
-    onLoginExitoso: (Usuario) -> Unit,
-    viewModel: LoginViewModel = viewModel(),
-) {
+fun LoginRoute(viewModel: LoginViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(uiState.usuario) {
-        uiState.usuario?.let(onLoginExitoso)
-    }
 
     LoginScreen(
         uiState = uiState,

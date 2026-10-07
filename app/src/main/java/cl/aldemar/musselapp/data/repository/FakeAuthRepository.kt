@@ -19,8 +19,8 @@ class FakeAuthRepository(
     private data class Credencial(val password: String, val usuario: Usuario)
 
     private val credenciales = mapOf(
-        "111111111" to Credencial("1234", Usuario("11.111.111-1", "Operario de Prueba", Rol.OPERARIO)),
-        "222222222" to Credencial("1234", Usuario("22.222.222-2", "Supervisor de Prueba", Rol.SUPERVISOR)),
+        "111111111" to Credencial("1234", Usuario("11.111.111-1", "Carla Vera", Rol.OPERARIO)),
+        "222222222" to Credencial("1234", Usuario("22.222.222-2", "Diego Muñoz", Rol.SUPERVISOR)),
     )
 
     override suspend fun login(rut: String, password: String, rol: Rol): Result<Usuario> {
