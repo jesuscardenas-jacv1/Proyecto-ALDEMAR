@@ -28,7 +28,6 @@ import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.ErrorOutline
@@ -211,7 +210,6 @@ fun HistorialScreen(
                     )
                 }
             }
-            item { TarjetaCondiciones() }
         }
     }
 }
@@ -641,42 +639,6 @@ private fun EstadoVacio(onRestablecer: () -> Unit) {
         )
         OutlinedButton(onClick = onRestablecer, shape = RoundedCornerShape(10.dp)) {
             Text("Restablecer filtros", fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
-/** Contexto ambiental del centro (datos ficticios del caso académico). */
-@Composable
-private fun TarjetaCondiciones() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surface),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(Icons.Filled.Cloud, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
-        }
-        Spacer(Modifier.width(12.dp))
-        Column {
-            Text(
-                "CONDICIONES DE CULTIVO EN SENO",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.secondary,
-            )
-            Text(
-                "Salinidad: 31.8 PSU • Temp. agua: 11.4 °C • Marea: Bajamar",
-                style = MaterialTheme.typography.bodySmall,
-            )
         }
     }
 }
