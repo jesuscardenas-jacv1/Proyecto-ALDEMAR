@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -24,23 +23,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.AddCircleOutline
-import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.ChecklistRtl
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.Dataset
 import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.HistoryEdu
 import androidx.compose.material.icons.filled.ManageAccounts
-import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.Straighten
-import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.filled.WifiTethering
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -71,7 +62,6 @@ import cl.aldemar.musselapp.data.model.Muestra
 import cl.aldemar.musselapp.data.model.Rol
 import cl.aldemar.musselapp.data.model.Usuario
 import cl.aldemar.musselapp.data.repository.FakeMuestraRepository
-import cl.aldemar.musselapp.ui.componentes.Avatar
 import cl.aldemar.musselapp.ui.componentes.BarraSuperiorMussel
 import cl.aldemar.musselapp.ui.componentes.BotonNuevaMuestra
 import cl.aldemar.musselapp.ui.componentes.ChipEstado
@@ -79,9 +69,7 @@ import cl.aldemar.musselapp.ui.componentes.NavegacionInferior
 import cl.aldemar.musselapp.ui.theme.EstadoObservadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoObservadoTexto
 import cl.aldemar.musselapp.ui.theme.EstadoPendienteFondo
-import cl.aldemar.musselapp.ui.theme.EstadoPendienteTexto
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
-import cl.aldemar.musselapp.ui.theme.EstadoValidadoTexto
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -154,6 +142,7 @@ fun PrincipalScreen(
             BarraSuperiorMussel(
                 seccion = "Muestras",
                 usuario = usuario,
+                centro = centro,
                 pendientesSincronizar = uiState.resumen.pendientesSincronizar,
                 sincronizando = uiState.sincronizando,
                 onSincronizar = onSincronizar,
@@ -176,8 +165,6 @@ fun PrincipalScreen(
                 .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 88.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            TarjetaOperador(usuario = usuario, centro = centro)
-            BannerRol(rol = usuario.rol)
             AccionPrincipal(
                 rol = usuario.rol,
                 pendientesRevision = uiState.resumen.pendientes,
@@ -187,97 +174,10 @@ fun PrincipalScreen(
             )
             MetricasJornada(resumen = uiState.resumen)
             TarjetaHistorial(resumen = uiState.resumen, onVerTodo = { onNavegar(Destino.HISTORIAL) })
-            TarjetaSincronizacion(
-                pendientes = uiState.resumen.pendientesSincronizar,
-                sincronizando = uiState.sincronizando,
-                onSincronizar = onSincronizar,
-            )
             MuestrasRecientes(
                 muestras = uiState.recientes,
                 ultimaRegistradaEn = uiState.resumen.ultimaRegistradaEn,
                 onMuestraClick = { onVerMuestra(it.id) },
-            )
-        }
-    }
-}
-
-@Composable
-private fun TarjetaOperador(usuario: Usuario, centro: CentroCultivo) {
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        shadowElevation = 3.dp,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Avatar(nombre = usuario.nombre, tamano = 56, claro = false)
-            Spacer(Modifier.width(14.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    if (usuario.rol == Rol.OPERARIO) "OPERARIO DE TERRENO" else "SUPERVISOR DE CALIDAD",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f),
-                )
-                Text(usuario.nombre, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Text(
-                    centro.nombre,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-            Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(Color.White.copy(alpha = 0.15f))
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(Icons.Filled.Sensors, contentDescription = null, modifier = Modifier.size(14.dp))
-                Spacer(Modifier.width(4.dp))
-                Text("ONLINE", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
-            }
-        }
-    }
-}
-
-@Composable
-private fun BannerRol(rol: Rol) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(EstadoValidadoFondo),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(Icons.Filled.Badge, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-        }
-        Spacer(Modifier.width(12.dp))
-        Column {
-            Text(
-                if (rol == Rol.OPERARIO) "ROL: OPERARIO (MUESTREADOR DE CAMPO)" else "ROL: SUPERVISOR (CONTROL DE CALIDAD)",
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                if (rol == Rol.OPERARIO) "Acceso autorizado: captura fotográfica, conteo y registro"
-                else "Acceso autorizado: revisión, observación y validación",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.secondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -498,68 +398,6 @@ private fun IconoCuadrado(icono: ImageVector, fondo: Color) {
         contentAlignment = Alignment.Center,
     ) {
         Icon(icono, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
-    }
-}
-
-@Composable
-private fun TarjetaSincronizacion(pendientes: Int, sincronizando: Boolean, onSincronizar: () -> Unit) {
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 1.dp,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconoCuadrado(Icons.Filled.CloudSync, fondo = EstadoValidadoFondo)
-                Spacer(Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Sincronización Satelital", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    Text(
-                        if (pendientes == 0) "Todas las muestras están sincronizadas" else "$pendientes muestras almacenadas localmente",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.secondary,
-                    )
-                }
-                Text(
-                    if (pendientes == 0) "Al día" else "En cola",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = if (pendientes == 0) EstadoValidadoTexto else EstadoPendienteTexto,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(if (pendientes == 0) EstadoValidadoFondo else EstadoPendienteFondo)
-                        .padding(horizontal = 8.dp, vertical = 3.dp),
-                )
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.WifiTethering, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    "Enlace Iridium activo",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.weight(1f),
-                )
-                Button(
-                    onClick = onSincronizar,
-                    enabled = !sincronizando && pendientes > 0,
-                    shape = RoundedCornerShape(10.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                ) {
-                    if (sincronizando) {
-                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onSecondary)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Sincronizando…", fontWeight = FontWeight.Bold)
-                    } else {
-                        Icon(Icons.Filled.Sync, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Sincronizar ahora", fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-        }
     }
 }
 

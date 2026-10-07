@@ -8,6 +8,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,19 +18,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Anchor
+import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,10 +45,10 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +60,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cl.aldemar.musselapp.R
+import cl.aldemar.musselapp.data.model.CentroCultivo
 import cl.aldemar.musselapp.data.model.EstadoMuestra
 import cl.aldemar.musselapp.data.model.Rol
 import cl.aldemar.musselapp.data.model.Usuario
@@ -74,6 +81,7 @@ import cl.aldemar.musselapp.ui.theme.EstadoValidadoTexto
 fun BarraSuperiorMussel(
     seccion: String,
     usuario: Usuario,
+    centro: CentroCultivo,
     pendientesSincronizar: Int,
     sincronizando: Boolean,
     onSincronizar: () -> Unit,
@@ -130,7 +138,14 @@ fun BarraSuperiorMussel(
                 IconButton(onClick = { menuAbierto = true }) {
                     Avatar(nombre = usuario.nombre, tamano = 36, claro = true)
                 }
-                DropdownMenu(expanded = menuAbierto, onDismissRequest = { menuAbierto = false }) {
+                DropdownMenu(
+                    expanded = menuAbierto,
+                    onDismissRequest = { menuAbierto = false },
+                    shape = RoundedCornerShape(16.dp),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ) {
+                    PerfilUsuario(usuario = usuario, centro = centro)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainer)
                     DropdownMenuItem(
                         text = { Text("Cerrar sesión") },
                         leadingIcon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null) },
@@ -141,6 +156,51 @@ fun BarraSuperiorMussel(
                     )
                 }
             }
+        }
+    }
+}
+
+/** Datos de la sesión que se muestran al tocar el avatar. */
+@Composable
+private fun PerfilUsuario(usuario: Usuario, centro: CentroCultivo) {
+    val operario = usuario.rol == Rol.OPERARIO
+    Column(
+        modifier = Modifier
+            .widthIn(min = 260.dp, max = 300.dp)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Avatar(nombre = usuario.nombre, tamano = 48, claro = false)
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text(usuario.nombre, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    if (operario) "Operario de Terreno" else "Supervisor de Calidad",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+            }
+        }
+        DatoPerfil(Icons.Filled.Badge, "RUT", usuario.rut)
+        DatoPerfil(Icons.Filled.Anchor, "Centro de cultivo", centro.nombre)
+        DatoPerfil(
+            Icons.Filled.VerifiedUser,
+            "Acceso autorizado",
+            if (operario) "Captura fotográfica, conteo y registro de muestras"
+            else "Revisión, observación y validación de muestras",
+        )
+    }
+}
+
+@Composable
+private fun DatoPerfil(icono: ImageVector, etiqueta: String, valor: String) {
+    Row(verticalAlignment = Alignment.Top) {
+        Icon(icono, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(18.dp).padding(top = 2.dp))
+        Spacer(Modifier.width(10.dp))
+        Column {
+            Text(etiqueta, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
+            Text(valor, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
         }
     }
 }

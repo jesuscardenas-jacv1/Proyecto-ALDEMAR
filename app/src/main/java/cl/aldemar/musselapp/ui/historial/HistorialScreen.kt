@@ -158,6 +158,7 @@ fun HistorialScreen(
             BarraSuperiorMussel(
                 seccion = "Historial",
                 usuario = usuario,
+                centro = centro,
                 pendientesSincronizar = uiState.pendientesSincronizar,
                 sincronizando = uiState.sincronizando,
                 onSincronizar = onSincronizar,
