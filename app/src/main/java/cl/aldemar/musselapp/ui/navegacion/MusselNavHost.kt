@@ -17,8 +17,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import cl.aldemar.musselapp.ui.historial.HistorialRoute
 import cl.aldemar.musselapp.ui.login.LoginRoute
 import cl.aldemar.musselapp.ui.login.LoginViewModel
+import cl.aldemar.musselapp.ui.principal.Destino
 import cl.aldemar.musselapp.ui.principal.PrincipalRoute
 
 /**
@@ -65,6 +67,18 @@ fun MusselNavHost(
         navController.popBackStack()
     }
 
+    // Menú inferior: funciona como pestañas sobre la Principal, sin apilar pantallas repetidas
+    fun navegarDesdeMenu(destino: Destino) {
+        if (destino == Destino.MUESTRAS) {
+            navController.popBackStack(Rutas.PRINCIPAL, inclusive = false)
+        } else {
+            navController.navigate(destino.ruta) {
+                popUpTo(Rutas.PRINCIPAL)
+                launchSingleTop = true
+            }
+        }
+    }
+
     NavHost(navController = navController, startDestination = Rutas.LOGIN) {
 
         composable(Rutas.LOGIN) {
@@ -77,7 +91,7 @@ fun MusselNavHost(
                 usuario = sesion,
                 centro = loginState.centro,
                 onCerrarSesion = loginViewModel::onCerrarSesion,
-                onNavegar = { destino -> navController.navigate(destino.ruta) { launchSingleTop = true } },
+                onNavegar = ::navegarDesdeMenu,
                 onVerMuestra = { id -> navController.navigate(Rutas.detalle(id)) },
             )
         }
@@ -117,12 +131,15 @@ fun MusselNavHost(
 
         // ── Consulta (Ramón Osorio) ───────────────────────────────────────
         composable(Rutas.HISTORIAL) {
-            PantallaEnConstruccion(
-                titulo = "Historial",
-                objetivo = "Listado de las muestras registradas, con filtros por centro, línea, fecha o estado.",
-                responsable = "Ramón Osorio",
-                onVolver = ::volver,
-                accion = AccionProvisoria("Ver detalle de ejemplo") { navController.navigate(Rutas.detalle(10)) },
+            val sesion = usuario ?: return@composable
+            HistorialRoute(
+                usuario = sesion,
+                centro = loginState.centro,
+                onNavegar = ::navegarDesdeMenu,
+                onVerMuestra = { id -> navController.navigate(Rutas.detalle(id)) },
+                // Por ahora el reconteo abre el formulario de Nueva Muestra
+                onRecontar = { navController.navigate(Rutas.MUESTRA) },
+                onCerrarSesion = loginViewModel::onCerrarSesion,
             )
         }
 

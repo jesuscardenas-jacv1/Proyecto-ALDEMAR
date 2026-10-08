@@ -1,12 +1,5 @@
 package cl.aldemar.musselapp.ui.principal
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,48 +16,34 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.Badge
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ChecklistRtl
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.Dataset
-import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.HistoryEdu
 import androidx.compose.material.icons.filled.ManageAccounts
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.WifiTethering
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -72,18 +51,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -91,15 +66,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cl.aldemar.musselapp.R
 import cl.aldemar.musselapp.data.model.CentroCultivo
-import cl.aldemar.musselapp.data.model.EstadoMuestra
 import cl.aldemar.musselapp.data.model.Muestra
 import cl.aldemar.musselapp.data.model.Rol
 import cl.aldemar.musselapp.data.model.Usuario
 import cl.aldemar.musselapp.data.repository.FakeMuestraRepository
-import cl.aldemar.musselapp.ui.theme.EstadoCorregidoFondo
-import cl.aldemar.musselapp.ui.theme.EstadoCorregidoTexto
+import cl.aldemar.musselapp.ui.componentes.Avatar
+import cl.aldemar.musselapp.ui.componentes.BarraSuperiorMussel
+import cl.aldemar.musselapp.ui.componentes.BotonNuevaMuestra
+import cl.aldemar.musselapp.ui.componentes.ChipEstado
+import cl.aldemar.musselapp.ui.componentes.NavegacionInferior
 import cl.aldemar.musselapp.ui.theme.EstadoObservadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoObservadoTexto
 import cl.aldemar.musselapp.ui.theme.EstadoPendienteFondo
@@ -175,7 +151,8 @@ fun PrincipalScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            BarraSuperior(
+            BarraSuperiorMussel(
+                seccion = "Muestras",
                 usuario = usuario,
                 pendientesSincronizar = uiState.resumen.pendientesSincronizar,
                 sincronizando = uiState.sincronizando,
@@ -184,33 +161,10 @@ fun PrincipalScreen(
             )
         },
         bottomBar = {
-            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                destinos.forEach { destino ->
-                    NavigationBarItem(
-                        selected = destino == Destino.MUESTRAS,
-                        onClick = { if (destino != Destino.MUESTRAS) onNavegar(destino) },
-                        icon = { Icon(destino.icono, contentDescription = null) },
-                        label = { Text(destino.etiqueta) },
-                        colors = NavigationBarItemDefaults.colors(
-                            indicatorColor = EstadoValidadoFondo,
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                        ),
-                    )
-                }
-            }
+            NavegacionInferior(rol = usuario.rol, seleccionado = Destino.MUESTRAS, onNavegar = onNavegar)
         },
         floatingActionButton = {
-            if (usuario.rol == Rol.OPERARIO) {
-                FloatingActionButton(
-                    onClick = { onNavegar(Destino.NUEVA_MUESTRA) },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Registrar muestra rápida")
-                }
-            }
+            if (usuario.rol == Rol.OPERARIO) BotonNuevaMuestra(onClick = { onNavegar(Destino.NUEVA_MUESTRA) })
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
@@ -244,117 +198,6 @@ fun PrincipalScreen(
                 onMuestraClick = { onVerMuestra(it.id) },
             )
         }
-    }
-}
-
-@Composable
-private fun BarraSuperior(
-    usuario: Usuario,
-    pendientesSincronizar: Int,
-    sincronizando: Boolean,
-    onSincronizar: () -> Unit,
-    onCerrarSesion: () -> Unit,
-) {
-    var menuAbierto by remember { mutableStateOf(false) }
-    Surface(color = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.White),
-                contentAlignment = Alignment.Center,
-            ) {
-                Image(painterResource(R.drawable.logo_musselapp), contentDescription = "Logo MusselApp", modifier = Modifier.size(32.dp))
-            }
-            Spacer(Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("MusselApp", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(
-                        " • Muestras",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
-                    )
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        Modifier
-                            .size(7.dp)
-                            .clip(CircleShape)
-                            .background(if (pendientesSincronizar == 0) Color(0xFF4ADE80) else Color(0xFFFBBF24)),
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        if (pendientesSincronizar == 0) "ONLINE / SINCRONIZADO" else "ONLINE / $pendientesSincronizar EN COLA",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f),
-                    )
-                }
-            }
-            IconButton(onClick = onSincronizar, enabled = !sincronizando) {
-                IconoGiratorio(Icons.Filled.Sync, girando = sincronizando, descripcion = "Sincronizar", tinte = MaterialTheme.colorScheme.onPrimary)
-            }
-            Box {
-                IconButton(onClick = { menuAbierto = true }) {
-                    Avatar(nombre = usuario.nombre, tamano = 36, claro = true)
-                }
-                DropdownMenu(expanded = menuAbierto, onDismissRequest = { menuAbierto = false }) {
-                    DropdownMenuItem(
-                        text = { Text("Cerrar sesión") },
-                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null) },
-                        onClick = {
-                            menuAbierto = false
-                            onCerrarSesion()
-                        },
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun IconoGiratorio(icono: ImageVector, girando: Boolean, descripcion: String?, tinte: Color) {
-    val giro = rememberInfiniteTransition(label = "giro")
-    val angulo by giro.animateFloat(
-        initialValue = 0f,
-        targetValue = -360f,
-        animationSpec = infiniteRepeatable(tween(900, easing = LinearEasing), RepeatMode.Restart),
-        label = "angulo",
-    )
-    Icon(
-        icono,
-        contentDescription = descripcion,
-        tint = tinte,
-        modifier = Modifier.graphicsLayer { rotationZ = if (girando) angulo else 0f },
-    )
-}
-
-/** Avatar con las iniciales del usuario (la app no guarda fotos de personas). */
-@Composable
-private fun Avatar(nombre: String, tamano: Int, claro: Boolean) {
-    val iniciales = nombre.split(" ").filter { it.isNotBlank() }.take(2).joinToString("") { it.first().uppercase() }
-    Box(
-        modifier = Modifier
-            .size(tamano.dp)
-            .clip(CircleShape)
-            .background(if (claro) Color.White else MaterialTheme.colorScheme.secondary),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            iniciales,
-            color = if (claro) MaterialTheme.colorScheme.primary else Color.White,
-            fontWeight = FontWeight.Bold,
-            fontSize = (tamano * 0.38f).sp,
-        )
     }
 }
 
@@ -790,27 +633,6 @@ private fun FilaMuestra(muestra: Muestra, onClick: () -> Unit) {
                 )
             }
         }
-    }
-}
-
-@Composable
-fun ChipEstado(estado: EstadoMuestra) {
-    val (fondo, texto, icono) = when (estado) {
-        EstadoMuestra.VALIDADO -> Triple(EstadoValidadoFondo, EstadoValidadoTexto, Icons.Filled.CheckCircle)
-        EstadoMuestra.OBSERVADO -> Triple(EstadoObservadoFondo, EstadoObservadoTexto, Icons.Filled.Warning)
-        EstadoMuestra.CORREGIDO -> Triple(EstadoCorregidoFondo, EstadoCorregidoTexto, Icons.Filled.EditNote)
-        EstadoMuestra.PENDIENTE -> Triple(EstadoPendienteFondo, EstadoPendienteTexto, Icons.Filled.Schedule)
-    }
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(50))
-            .background(fondo)
-            .padding(horizontal = 8.dp, vertical = 3.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(icono, contentDescription = null, tint = texto, modifier = Modifier.size(12.dp))
-        Spacer(Modifier.width(4.dp))
-        Text(estado.etiqueta.uppercase(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = texto)
     }
 }
 
