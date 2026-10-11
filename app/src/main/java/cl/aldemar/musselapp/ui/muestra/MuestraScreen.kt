@@ -67,23 +67,6 @@ data class ParametrosMuestra(
     val profundidadM: Int,
 )
 
-private enum class Estrato(val rango: String, val nombre: String, val profundidadM: Int) {
-    SUPERFICIE("0-2m", "Superficie", 1),
-    MEDIA("2-4m", "Media", 3),
-    FONDO("4-6m", "Fondo", 5),
-}
-
-// TODO: mover trenes y líneas al repositorio cuando existan datos reales
-private val Trenes = listOf(
-    "Tren 01 - Longline Sur",
-    "Tren 02 - Longline Centro",
-    "Tren 03 - Longline Este",
-    "Tren 04 - Longline Norte",
-)
-private val Lineas = (1..12).toList()
-
-private fun etiquetaLinea(linea: Int) = "Línea %02d (Cuerda colectora 6m)".format(linea)
-
 @Composable
 fun MuestraScreen(
     centroInicial: CentroCultivo? = null,
@@ -91,7 +74,7 @@ fun MuestraScreen(
     onContinuar: (ParametrosMuestra) -> Unit = {}
 ) {
     var centro by remember { mutableStateOf(centroInicial) }
-    var tren by remember { mutableStateOf<String?>(null) }
+    var tren by remember { mutableStateOf<Pair<String, String>?>(null) }
     var linea by remember { mutableStateOf<Int?>(null) }
     var estrato by remember { mutableStateOf<Estrato?>(null) }
 
@@ -131,10 +114,10 @@ fun MuestraScreen(
                 )
                 Selector(
                     etiqueta = "Tren de Cultivo (Longline)",
-                    valor = trenElegido,
+                    valor = trenElegido?.second,
                     vacio = "Selecciona un tren",
                     icono = Icons.Filled.DirectionsBoat,
-                    opciones = Trenes,
+                    opciones = Trenes.map { it.second },
                     onElegir = { i -> tren = Trenes[i] }
                 )
                 Selector(
@@ -193,7 +176,7 @@ fun MuestraScreen(
                         onContinuar(
                             ParametrosMuestra(
                                 centroId = centroElegido.id,
-                                tren = trenElegido,
+                                tren = trenElegido.first,
                                 linea = lineaElegida,
                                 profundidadM = estratoElegido.profundidadM
                             )
@@ -319,110 +302,6 @@ private fun TituloTarjeta(texto: String, icono: ImageVector) {
             color = Navy,
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-// Lista desplegable: muestra el valor elegido y abre un menú con las opciones
-@Composable
-private fun Selector(
-    etiqueta: String,
-    valor: String?,
-    vacio: String,
-    icono: ImageVector?,
-    opciones: List<String>,
-    onElegir: (Int) -> Unit
-) {
-    var abierto by remember { mutableStateOf(false) }
-
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(
-            text = etiqueta,
-            color = Slate,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold
-        )
-        Box {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 56.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Fondo)
-                    .border(1.5.dp, GrisNav.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                    .clickable { abierto = true }
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (icono != null) {
-                    Icon(imageVector = icono, contentDescription = null, tint = Slate)
-                    Spacer(modifier = Modifier.width(12.dp))
-                }
-                Text(
-                    text = valor ?: vacio,
-                    color = if (valor != null) Color.Black else GrisNav,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.weight(1f)
-                )
-                Icon(
-                    imageVector = Icons.Filled.ArrowDropDown,
-                    contentDescription = "Abrir lista",
-                    tint = Slate
-                )
-            }
-            DropdownMenu(
-                expanded = abierto,
-                onDismissRequest = { abierto = false }
-            ) {
-                opciones.forEachIndexed { i, opcion ->
-                    DropdownMenuItem(
-                        text = { Text(opcion) },
-                        onClick = {
-                            onElegir(i)
-                            abierto = false
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun OpcionEstrato(
-    estrato: Estrato,
-    seleccionado: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = modifier
-            .heightIn(min = 56.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(if (seleccionado) Navy else Color.White)
-            .border(
-                width = 1.5.dp,
-                color = if (seleccionado) Navy else GrisNav.copy(alpha = 0.4f),
-                shape = RoundedCornerShape(8.dp)
-            )
-            .clickable(onClick = onClick)
-            .padding(vertical = 10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = estrato.rango,
-            color = if (seleccionado) Color.White else Color.Black,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            text = estrato.nombre,
-            color = if (seleccionado) GrisTexto else GrisNav,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center
         )
     }
 }

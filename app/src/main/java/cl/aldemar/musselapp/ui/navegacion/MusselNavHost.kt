@@ -20,7 +20,9 @@ import androidx.navigation.navArgument
 import cl.aldemar.musselapp.ui.historial.HistorialRoute
 import cl.aldemar.musselapp.ui.login.LoginRoute
 import cl.aldemar.musselapp.ui.login.LoginViewModel
+import cl.aldemar.musselapp.ui.muestra.BorradorMuestraViewModel
 import cl.aldemar.musselapp.ui.muestra.MuestraScreen
+import cl.aldemar.musselapp.ui.muestra.VistaPreviaScreen
 import cl.aldemar.musselapp.ui.principal.Destino
 import cl.aldemar.musselapp.ui.principal.PrincipalRoute
 import cl.aldemar.musselapp.ui.screens.CaptureScreen
@@ -35,9 +37,11 @@ import cl.aldemar.musselapp.ui.screens.CaptureScreen
 fun MusselNavHost(
     navController: NavHostController = rememberNavController(),
     loginViewModel: LoginViewModel = viewModel(),
+    borradorViewModel: BorradorMuestraViewModel = viewModel(),
 ) {
     val loginState by loginViewModel.uiState.collectAsStateWithLifecycle()
     val usuario = loginState.usuario
+    val borrador by borradorViewModel.borrador.collectAsStateWithLifecycle()
 
     // La sesión decide entre Login y el resto de la app
     LaunchedEffect(usuario != null) {
@@ -103,25 +107,33 @@ fun MusselNavHost(
             MuestraScreen(
                 centroInicial = loginState.centro,
                 onVolver = ::volver,
-                // TODO: guardar los parámetros para armar la Muestra al confirmar
-                onContinuar = { _ -> navController.navigate(Rutas.CAPTURA) },
+                onContinuar = { parametros ->
+                    borradorViewModel.guardarParametros(parametros)
+                    navController.navigate(Rutas.CAPTURA)
+                },
             )
         }
 
         composable(Rutas.CAPTURA) {
             CaptureScreen(
-                // TODO: pasar la ruta de la foto a Vista previa
-                onFotoLista = { _ -> navController.navigate(Rutas.VISTA_PREVIA) }
+                onFotoLista = { ruta ->
+                    borradorViewModel.guardarFoto(ruta)
+                    navController.navigate(Rutas.VISTA_PREVIA)
+                }
             )
         }
 
         composable(Rutas.VISTA_PREVIA) {
-            PantallaEnConstruccion(
-                titulo = "Vista previa",
-                objetivo = "Revisar la fotografía y los datos del formulario antes de confirmar el muestreo.",
-                responsable = "Jesús Cárdenas",
+            VistaPreviaScreen(
+                borrador = borrador,
                 onVolver = ::volver,
-                accion = AccionProvisoria("Confirmar y volver al inicio") {
+                onRepetirFoto = ::volver,
+                onFotoCambiada = borradorViewModel::actualizarFoto,
+                onParametrosCambiados = borradorViewModel::actualizarParametros,
+                onObservacionCambiada = borradorViewModel::actualizarObservacion,
+                onConfirmar = {
+                    // TODO: guardar la muestra en el repositorio (pendiente de acordar con el equipo)
+                    borradorViewModel.limpiar()
                     navController.popBackStack(Rutas.PRINCIPAL, inclusive = false)
                 },
             )
