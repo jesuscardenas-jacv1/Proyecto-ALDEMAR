@@ -20,8 +20,10 @@ import androidx.navigation.navArgument
 import cl.aldemar.musselapp.ui.historial.HistorialRoute
 import cl.aldemar.musselapp.ui.login.LoginRoute
 import cl.aldemar.musselapp.ui.login.LoginViewModel
+import cl.aldemar.musselapp.ui.muestra.MuestraScreen
 import cl.aldemar.musselapp.ui.principal.Destino
 import cl.aldemar.musselapp.ui.principal.PrincipalRoute
+import cl.aldemar.musselapp.ui.screens.CaptureScreen
 
 /**
  * Grafo de navegación de la app.
@@ -98,22 +100,18 @@ fun MusselNavHost(
 
         // ── Registro de muestra (Jesús Cárdenas) ──────────────────────────
         composable(Rutas.MUESTRA) {
-            PantallaEnConstruccion(
-                titulo = "Nueva Muestra",
-                objetivo = "Formulario para iniciar un muestreo: centro, tren, línea, fecha, hora y tramo.",
-                responsable = "Jesús Cárdenas",
+            MuestraScreen(
+                centroInicial = loginState.centro,
                 onVolver = ::volver,
-                accion = AccionProvisoria("Continuar a Captura") { navController.navigate(Rutas.CAPTURA) },
+                // TODO: guardar los parámetros para armar la Muestra al confirmar
+                onContinuar = { _ -> navController.navigate(Rutas.CAPTURA) },
             )
         }
 
         composable(Rutas.CAPTURA) {
-            PantallaEnConstruccion(
-                titulo = "Captura",
-                objetivo = "Fotografiar la muestra o seleccionar una imagen del dispositivo.",
-                responsable = "Jesús Cárdenas",
-                onVolver = ::volver,
-                accion = AccionProvisoria("Continuar a Vista previa") { navController.navigate(Rutas.VISTA_PREVIA) },
+            CaptureScreen(
+                // TODO: pasar la ruta de la foto a Vista previa
+                onFotoLista = { _ -> navController.navigate(Rutas.VISTA_PREVIA) }
             )
         }
 
