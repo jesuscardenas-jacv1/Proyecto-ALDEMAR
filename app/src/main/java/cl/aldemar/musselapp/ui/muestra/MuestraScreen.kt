@@ -1,5 +1,6 @@
 package cl.aldemar.musselapp.ui.muestra
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,20 +33,21 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.aldemar.musselapp.data.model.CentroCultivo
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
 
@@ -71,19 +73,23 @@ data class ParametrosMuestra(
 fun MuestraScreen(
     centroInicial: CentroCultivo? = null,
     onVolver: () -> Unit = {},
-    onContinuar: (ParametrosMuestra) -> Unit = {}
+    onContinuar: (ParametrosMuestra) -> Unit = {},
+    vm: MuestraViewModel = viewModel()
 ) {
-    var centro by remember { mutableStateOf(centroInicial) }
-    var tren by remember { mutableStateOf<Pair<String, String>?>(null) }
-    var linea by remember { mutableStateOf<Int?>(null) }
-    var estrato by remember { mutableStateOf<Estrato?>(null) }
+    // Observamos el estado del ViewModel
+    val state by vm.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
-    val centroElegido = centro
-    val trenElegido = tren
-    val lineaElegida = linea
-    val estratoElegido = estrato
-    val completo = centroElegido != null && trenElegido != null &&
-            lineaElegida != null && estratoElegido != null
+    // El centro de la sesión queda elegido de entrada
+    LaunchedEffect(Unit) { vm.iniciar(centroInicial) }
+
+    // Cuando el ViewModel confirma que todo es válido, se muestra el mensaje y se avanza
+    LaunchedEffect(state.parametrosValidos) {
+        val parametros = state.parametrosValidos ?: return@LaunchedEffect
+        state.mensaje?.let { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+        vm.navegacionRealizada()
+        onContinuar(parametros)
+    }
 
     Column(
         modifier = Modifier
@@ -106,27 +112,30 @@ fun MuestraScreen(
 
                 Selector(
                     etiqueta = "Centro de Cultivo",
-                    valor = centroElegido?.nombre,
+                    valor = state.centro?.nombre,
                     vacio = "Selecciona un centro",
                     icono = null,
                     opciones = CentroCultivo.disponibles.map { it.nombre },
-                    onElegir = { i -> centro = CentroCultivo.disponibles[i] }
+                    error = state.errorCentro,
+                    onElegir = { i -> vm.cambiarCentro(CentroCultivo.disponibles[i]) }
                 )
                 Selector(
                     etiqueta = "Tren de Cultivo (Longline)",
-                    valor = trenElegido?.second,
+                    valor = state.tren?.let { nombreTren(it) },
                     vacio = "Selecciona un tren",
                     icono = Icons.Filled.DirectionsBoat,
                     opciones = Trenes.map { it.second },
-                    onElegir = { i -> tren = Trenes[i] }
+                    error = state.errorTren,
+                    onElegir = { i -> vm.cambiarTren(Trenes[i].first) }
                 )
                 Selector(
                     etiqueta = "Línea de Siembra",
-                    valor = lineaElegida?.let { etiquetaLinea(it) },
+                    valor = state.linea?.let { etiquetaLinea(it) },
                     vacio = "Selecciona una línea",
                     icono = Icons.Filled.Anchor,
                     opciones = Lineas.map { etiquetaLinea(it) },
-                    onElegir = { i -> linea = Lineas[i] }
+                    error = state.errorLinea,
+                    onElegir = { i -> vm.cambiarLinea(Lineas[i]) }
                 )
             }
 
@@ -150,12 +159,13 @@ fun MuestraScreen(
                     Estrato.entries.forEach { e ->
                         OpcionEstrato(
                             estrato = e,
-                            seleccionado = estratoElegido == e,
+                            seleccionado = state.profundidadM == e.profundidadM,
                             modifier = Modifier.weight(1f),
-                            onClick = { estrato = e }
+                            onClick = { vm.cambiarEstrato(e.profundidadM) }
                         )
                     }
                 }
+                state.errorEstrato?.let { TextoError(it) }
             }
         }
 
@@ -167,23 +177,9 @@ fun MuestraScreen(
                 .navigationBarsPadding()
                 .padding(16.dp)
         ) {
-            BotonContinuar(
-                habilitado = completo,
-                onClick = {
-                    if (centroElegido != null && trenElegido != null &&
-                        lineaElegida != null && estratoElegido != null
-                    ) {
-                        onContinuar(
-                            ParametrosMuestra(
-                                centroId = centroElegido.id,
-                                tren = trenElegido.first,
-                                linea = lineaElegida,
-                                profundidadM = estratoElegido.profundidadM
-                            )
-                        )
-                    }
-                }
-            )
+            // El botón siempre se puede presionar: el ViewModel decide si hay errores
+            BotonContinuar(onClick = vm::guardar)
+            BotonLimpiar(onClick = vm::limpiar)
         }
     }
 }
@@ -307,21 +303,40 @@ private fun TituloTarjeta(texto: String, icono: ImageVector) {
 }
 
 @Composable
-private fun BotonContinuar(habilitado: Boolean, onClick: () -> Unit) {
+private fun BotonContinuar(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(if (habilitado) Navy else GrisBoton)
-            .clickable(enabled = habilitado, onClick = onClick),
+            .background(Navy)
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "Continuar a Captura",
-            color = if (habilitado) Color.White else GrisTexto,
+            color = Color.White,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun BotonLimpiar(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(44.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Limpiar formulario",
+            color = GrisNav,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold
         )
     }
 }

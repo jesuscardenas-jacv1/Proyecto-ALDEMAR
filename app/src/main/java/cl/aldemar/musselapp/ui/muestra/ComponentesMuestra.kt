@@ -41,6 +41,7 @@ private val Slate = Color(0xFF334155)
 private val Fondo = Color(0xFFF1F5F9)
 private val GrisTexto = Color(0xFF94A3B8)
 private val GrisNav = Color(0xFF64748B)
+internal val RojoError = Color(0xFFBA1A1A)
 
 internal enum class Estrato(val rango: String, val nombre: String, val profundidadM: Int) {
     SUPERFICIE("0-2m", "Superficie", 1),
@@ -77,6 +78,7 @@ internal fun Selector(
     vacio: String,
     icono: ImageVector?,
     opciones: List<String>,
+    error: String? = null, // si no es null, el campo se marca en rojo (como isError)
     onElegir: (Int) -> Unit
 ) {
     var abierto by remember { mutableStateOf(false) }
@@ -95,7 +97,11 @@ internal fun Selector(
                     .heightIn(min = 56.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(Fondo)
-                    .border(1.5.dp, GrisNav.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                    .border(
+                        1.5.dp,
+                        if (error != null) RojoError else GrisNav.copy(alpha = 0.4f),
+                        RoundedCornerShape(8.dp)
+                    )
                     .clickable { abierto = true }
                     .padding(horizontal = 14.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -132,7 +138,22 @@ internal fun Selector(
                 }
             }
         }
+        // Mensaje bajo el campo (como supportingText)
+        if (error != null) {
+            TextoError(error)
+        }
     }
+}
+
+/** Texto rojo que explica qué corregir en un campo. */
+@Composable
+internal fun TextoError(texto: String) {
+    Text(
+        text = texto,
+        color = RojoError,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.SemiBold
+    )
 }
 
 @Composable
