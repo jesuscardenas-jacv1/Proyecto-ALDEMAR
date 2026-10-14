@@ -1,0 +1,371 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'surface-container-lowest': '#ffffff', 'outline': '#76777d', 'surface-bright': '#f6fafe', 'primary-container': '#131b2e', 'error': '#ba1a1a', 'on-secondary-fixed-variant': '#3a485c', 'on-primary-fixed-variant': '#3f465c', 'on-background': '#171c1f', 'on-tertiary-container': '#497cff', 'secondary': '#515f74', 'on-primary-container': '#7c839b', 'surface-container-low': '#f0f4f8', 'primary': '#000000', 'tertiary': '#000000', 'on-secondary-container': '#57657b', 'tertiary-container': '#00174b', 'on-error': '#ffffff', 'inverse-primary': '#bec6e0', 'secondary-fixed-dim': '#b9c7e0', 'on-tertiary-fixed': '#00174b', 'inverse-surface': '#2c3134', 'on-tertiary-fixed-variant': '#003ea8', 'primary-fixed': '#dae2fd', 'surface-container-highest': '#dfe3e7', 'background': '#f6fafe', 'surface-container': '#eaeef2', 'primary-fixed-dim': '#bec6e0', 'surface': '#f6fafe', 'on-primary-fixed': '#131b2e', 'on-surface': '#171c1f', 'on-error-container': '#93000a', 'outline-variant': '#c6c6cd', 'on-primary': '#ffffff', 'tertiary-fixed': '#dbe1ff', 'surface-dim': '#d6dade', 'error-container': '#ffdad6', 'surface-container-high': '#e4e9ed', 'on-secondary-fixed': '#0d1c2f', 'secondary-container': '#d5e3fd', 'inverse-on-surface': '#edf1f5', 'surface-variant': '#dfe3e7', 'on-tertiary': '#ffffff', 'on-surface-variant': '#45464d', 'secondary-fixed': '#d5e3fd', 'surface-tint': '#565e74', 'tertiary-fixed-dim': '#b4c5ff', 'on-secondary': '#ffffff' }, borderRadius: { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, spacing: { 'space-xs': '0.25rem', 'gutter': '1rem', 'space-xl': '2rem', 'margin': '1rem', 'space-lg': '1.5rem', 'gutter-desktop': '2rem', 'gutter-tablet': '1.5rem', 'margin-desktop': '2.5rem', 'space-sm': '0.5rem', 'space-md': '1rem', 'margin-tablet': '1.5rem' }, fontFamily: { 'body-sm': ['Inter'], 'title-sm': ['Inter'], 'headline-lg': ['Inter'], 'display-lg': ['Inter'], 'title-md': ['Inter'], 'body-lg': ['Inter'], 'headline-lg-mobile': ['Inter'], 'display-md': ['Inter'], 'label-md': ['Inter'], 'headline-sm': ['Inter'], 'label-lg': ['Inter'], 'headline-md': ['Inter'], 'body-md': ['Inter'], 'title-lg': ['Inter'], 'label-sm': ['Inter'] }, fontSize: { 'body-sm': ['12px', { lineHeight: '16px', fontWeight: '500' }], 'title-sm': ['14px', { lineHeight: '20px', fontWeight: '600' }], 'headline-lg': ['32px', { lineHeight: '40px', fontWeight: '600' }], 'display-lg': ['44px', { lineHeight: '52px', letterSpacing: '-0.02em', fontWeight: '700' }], 'title-md': ['16px', { lineHeight: '22px', fontWeight: '600' }], 'body-lg': ['16px', { lineHeight: '24px', fontWeight: '400' }], 'headline-lg-mobile': ['26px', { lineHeight: '32px', fontWeight: '700' }], 'display-md': ['36px', { lineHeight: '44px', letterSpacing: '-0.01em', fontWeight: '700' }], 'label-md': ['12px', { lineHeight: '16px', letterSpacing: '0.02em', fontWeight: '600' }], 'headline-sm': ['20px', { lineHeight: '28px', fontWeight: '600' }], 'label-lg': ['14px', { lineHeight: '20px', letterSpacing: '0.01em', fontWeight: '600' }], 'headline-md': ['24px', { lineHeight: '32px', fontWeight: '600' }], 'body-md': ['14px', { lineHeight: '20px', fontWeight: '500' }], 'title-lg': ['18px', { lineHeight: '24px', fontWeight: '600' }], 'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.03em', fontWeight: '700' }] } } } };</script><style>@layer base { html, body { width: 100vw; margin: 0; padding: 0; min-height: 100%; } body { overscroll-behavior: none; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style></head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col antialiased selection:bg-secondary-container"><header class="fixed top-0 inset-x-0 z-50 bg-primary-container shadow-[0_1px_8px_rgba(0,0,0,0.12)] pt-safe"><div class="h-16 px-gutter flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><img alt="MusselApp Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1XK7OT0QaCcGtpvAMCnqJ9YKeN0uXijgLZWZK7oDAuNABbBQlCmdc__uO49kAaydwvqA66MNX1PjUe4kaeXJ_dE_QXbNCI73wJU7tsImkmHSfJRloYglKvU9e17UxE1Zi5wE7vGi0FWV8tKulflF5TEDeW8P1u3LrQgjNebw3FoaFNPf6qBUquSR4omzIcYW6AWlbC8oLtfDAIbgrsf-j6arlVA_Rgsgk9XoJjWEHWa1JSc5KXaUNWucJQ"><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="text-on-primary font-title-md text-title-md truncate tracking-tight">MusselApp</span><span class="text-on-primary-container font-title-sm text-title-sm opacity-60">•</span><span class="text-on-primary-container font-title-sm text-title-sm truncate">Historial</span></div><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span><span class="text-on-primary-container font-label-sm text-label-sm tracking-normal truncate uppercase">Online / Sincronizado en terreno</span></div></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button aria-label="Notificaciones" class="w-12 h-12 flex items-center justify-center rounded-full text-on-primary hover:bg-primary/20 active:scale-95 transition-transform"><span class="material-symbols-outlined text-[24px]">sync</span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-on-primary-container/30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz0xSDwwxTjbOslefI4h5O0CpTyFtziyQeojJTo9ixMq0ITfaBKPQKwSBXGLEuUH6DdFznJbbH0XJGoPDBb80jIm_iMTFwfXKYpDyY7cD8gbBEa_iKSSR7P5RMDZZxB38U98Sp9gOoT1B_5MrhMgIq08-FCcfUEkuafwaLrtmSFp7pfqRIuKgEccpZNOMfrDJMhXxkEKgSnCOSjdNb9iOXotPIKtLZvzlg3gKRkqzm0q9iPImDVEhcBw"></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-28 bg-surface"><div class="flex flex-col w-full">
+<!-- Interactive Field Status Banner / Quick Metrics -->
+<div class="px-gutter pt-space-md pb-space-sm">
+<div class="bg-surface-container-high rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-md text-label-md text-secondary uppercase tracking-wider">Centro Chiloé Norte • Módulo A</span>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary bg-surface-container-lowest px-2 py-0.5 rounded-full shadow-xs">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+          48 Registros
+        </span>
+</div>
+<div class="flex items-baseline justify-between">
+<p class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Historial de Muestras</p>
+<span class="font-body-sm text-body-sm text-secondary">Actualizado 10:50</span>
+</div>
+</div>
+</div>
+<!-- Search Bar (Material 3 Field-Ready SearchBar) -->
+<div class="px-gutter py-space-xs">
+<div class="relative flex items-center w-full bg-surface-container-lowest rounded-xl shadow-sm h-14 transition-all focus-within:shadow-md">
+<span class="material-symbols-outlined text-secondary pl-4 pr-2 text-[24px] select-none">search</span>
+<input class="w-full bg-transparent font-body-lg text-body-lg text-on-surface placeholder:text-outline focus:outline-none pr-3" id="sampleSearchInput" placeholder="Buscar por línea, tren o fecha..." type="text">
+<button aria-label="Limpiar búsqueda" class="hidden pr-3 text-secondary hover:text-on-surface p-2" id="clearSearchBtn" onclick="const inp = document.getElementById('sampleSearchInput'); inp.value=''; this.classList.add('hidden'); filterSamples();">
+<span class="material-symbols-outlined text-[20px]">cancel</span>
+</button>
+<div class="h-6 w-px bg-surface-container-highest my-auto"></div>
+<button aria-label="Escanear Código RFID / QR" class="px-3 text-secondary hover:text-on-surface h-full flex items-center justify-center active:scale-95">
+<span class="material-symbols-outlined text-[24px]">qr_code_scanner</span>
+</button>
+</div>
+</div>
+<!-- Date Range Quick Selector -->
+<div class="px-gutter py-space-xs flex items-center justify-between gap-space-sm">
+<button class="flex items-center gap-2 bg-surface-container-low active:bg-surface-container-highest px-3 py-2 rounded-lg text-on-surface transition-colors shadow-xs">
+<span class="material-symbols-outlined text-[20px] text-secondary">calendar_today</span>
+<span class="font-label-lg text-label-lg text-on-surface">Hoy: 14 Octubre 2024</span>
+<span class="material-symbols-outlined text-[18px] text-secondary">expand_more</span>
+</button>
+<button aria-label="Ordenar listado" class="flex items-center gap-1.5 bg-surface-container-low active:bg-surface-container-highest px-3 py-2 rounded-lg text-secondary transition-colors">
+<span class="material-symbols-outlined text-[20px]">sort</span>
+<span class="font-label-md text-label-md">Recientes</span>
+</button>
+</div>
+<!-- Horizontal Scrollable Filter Chips -->
+<div class="py-space-xs overflow-x-auto no-scrollbar">
+<div class="flex items-center gap-2 px-gutter min-w-max" id="chipContainer">
+<!-- Todos -->
+<button class="filter-chip active flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg shadow-xs active:scale-95 transition-all" data-filter="all" onclick="setActiveFilter('all', this)">
+<span class="">Todos</span>
+<span class="bg-surface-container-highest/25 text-on-primary rounded-full px-1.5 py-0.2 font-label-sm text-label-sm">48</span>
+</button>
+<!-- Validados -->
+<button class="filter-chip flex items-center gap-2 h-9 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-lg text-label-lg shadow-xs active:scale-95 transition-all" data-filter="validado" onclick="setActiveFilter('validado', this)">
+<span class="w-2.5 h-2.5 rounded-full bg-[#16A34A]"></span>
+<span class="">Validados</span>
+<span class="text-secondary font-label-sm text-label-sm">(34)</span>
+</button>
+<!-- Pendientes -->
+<button class="filter-chip flex items-center gap-2 h-9 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-lg text-label-lg shadow-xs active:scale-95 transition-all" data-filter="pendiente" onclick="setActiveFilter('pendiente', this)">
+<span class="w-2.5 h-2.5 rounded-full bg-[#D97706]"></span>
+<span class="">Pendientes</span>
+<span class="text-secondary font-label-sm text-label-sm">(10)</span>
+</button>
+<!-- Observados -->
+<button class="filter-chip flex items-center gap-2 h-9 px-3.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-lg text-label-lg shadow-xs active:scale-95 transition-all" data-filter="observado" onclick="setActiveFilter('observado', this)">
+<span class="w-2.5 h-2.5 rounded-full bg-[#DC2626]"></span>
+<span class="">Observados</span>
+<span class="text-secondary font-label-sm text-label-sm">(4)</span>
+</button>
+</div>
+</div>
+<!-- Summary Micro-Sparkline Strip -->
+<div class="px-gutter pb-space-xs"><div class="flex items-center gap-2 bg-secondary-container/60 px-3 py-2 rounded-lg text-on-secondary-container border border-secondary-container shadow-xs"><span class="material-symbols-outlined text-[18px] text-primary shrink-0">touch_app</span><p class="font-label-md text-label-md text-on-secondary-container leading-tight">Toca cualquier muestra del listado para abrir su Detalle Completo y Trazabilidad</p></div></div><div class="px-gutter pt-space-xs pb-space-sm">
+<div class="flex items-center justify-between px-space-md py-2 bg-surface-container-low rounded-lg text-secondary">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">water_drop</span>
+<span class="font-label-sm text-label-sm">Promedio Talla Diaria: <strong class="text-on-surface font-title-sm">63.8 mm</strong></span>
+</div>
+<div class="flex items-center gap-1 text-[#16A34A]">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span class="font-label-sm text-label-sm font-bold">+2.4%</span>
+</div>
+</div>
+</div>
+<!-- Sample Cards List -->
+<div class="px-gutter flex flex-col gap-space-md pb-6" id="samplesList">
+<!-- Card 1: MST-089 (PENDIENTE) -->
+<article class="sample-card group bg-surface-container-lowest rounded-xl p-space-md shadow-sm active:shadow-md transition-all relative overflow-hidden" data-status="pendiente" data-title="Muestra #MST-089 Línea 12 Tren 04">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#D97706]"></div>
+<div class="flex items-start justify-between gap-space-xs mb-space-xs pl-1">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">#MST-089</span>
+<span class="font-body-sm text-body-sm text-secondary">• Hoy 10:45 AM</span>
+</div>
+<p class="font-title-sm text-title-sm text-secondary truncate">Línea 12 — Tren 04</p>
+</div>
+<!-- Amber Badge -->
+<span class="inline-flex items-center gap-1 bg-[#FEF3C7] text-[#78350F] px-2.5 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-wider shrink-0 shadow-xs">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+          Pendiente
+        </span>
+</div>
+<!-- Biometric metrics grid -->
+<div class="grid grid-cols-3 gap-2 bg-surface-container-low rounded-lg p-2.5 my-space-xs pl-3">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Densidad</span>
+<span class="font-title-sm text-title-sm text-on-surface font-bold">438 ind/m</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Talla Media</span>
+<span class="font-title-sm text-title-sm text-on-surface font-bold">65 mm</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Profundidad</span>
+<span class="font-title-sm text-title-sm text-on-surface font-bold">2 - 4 m</span>
+</div>
+</div>
+<!-- Footer CTA with high touch clearance -->
+<div class="flex items-center justify-between pt-1 pl-1">
+<span class="font-body-sm text-body-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">person</span>
+          Op. G. Cárdenas
+        </span>
+<div class="flex items-center text-primary font-label-lg text-label-lg group-active:translate-x-1 transition-transform">
+<span class="">Detalles</span>
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+</div>
+</article>
+<!-- Card 2: MST-088 (VALIDADO) -->
+<article class="sample-card group bg-surface-container-lowest rounded-xl p-space-md shadow-sm active:shadow-md transition-all relative overflow-hidden" data-status="validado" data-title="Muestra #MST-088 Línea 04 Tren 02">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#16A34A]"></div>
+<div class="flex items-start justify-between gap-space-xs mb-space-xs pl-1">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">#MST-088</span>
+<span class="font-body-sm text-body-sm text-secondary">• Hoy 09:15 AM</span>
+</div>
+<p class="font-title-sm text-title-sm text-secondary truncate">Línea 04 — Tren 02</p>
+</div>
+<!-- Emerald Badge -->
+<span class="inline-flex items-center gap-1 bg-[#DCFCE7] text-[#14532D] px-2.5 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-wider shrink-0 shadow-xs">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+          Validado
+        </span>
+</div>
+<!-- Biometric metrics grid -->
+<div class="grid grid-cols-3 gap-2 bg-surface-container-low rounded-lg p-2.5 my-space-xs pl-3">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Densidad</span>
+<span class="font-title-sm text-title-sm text-on-surface font-bold">410 ind/m</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Talla Media</span>
+<span class="font-title-sm text-title-sm text-on-surface font-bold">72 mm</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Profundidad</span>
+<span class="font-title-sm text-title-sm text-on-surface font-bold">4 - 6 m</span>
+</div>
+</div>
+<!-- Supervisor Note Callout -->
+<div class="flex items-center gap-2 bg-surface-container-low/70 px-3 py-1.5 rounded-md my-1 text-[#14532D]">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span class="font-label-sm text-label-sm font-semibold">Aprobado por Sup. M. Soto</span>
+</div>
+<!-- Footer CTA -->
+<div class="flex items-center justify-between pt-1 pl-1">
+<span class="font-body-sm text-body-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">sync_saved_locally</span>
+          Sincronizado
+        </span>
+<div class="flex items-center text-primary font-label-lg text-label-lg group-active:translate-x-1 transition-transform">
+<span class="">Detalles</span>
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+</div>
+</article>
+<!-- Card 3: MST-087 (OBSERVADO) -->
+<article class="sample-card group bg-surface-container-lowest rounded-xl p-space-md shadow-sm active:shadow-md transition-all relative overflow-hidden ring-2 ring-primary-container" data-status="observado" data-title="Muestra #MST-087 Línea 08 Tren 01">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#DC2626]"></div>
+<div class="flex items-start justify-between gap-space-xs mb-space-xs pl-1">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">#MST-087</span>
+<span class="font-body-sm text-body-sm text-secondary">• Hoy 08:30 AM</span>
+</div>
+<p class="font-title-sm text-title-sm text-secondary truncate">Línea 08 — Tren 01</p>
+</div>
+<!-- Red Alert Badge -->
+<span class="inline-flex items-center gap-1 bg-[#FEE2E2] text-[#7F1D1D] px-2.5 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-wider shrink-0 shadow-xs">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+          Observado
+        </span>
+</div>
+<!-- Biometric metrics grid -->
+<div class="grid grid-cols-3 gap-2 bg-surface-container-low rounded-lg p-2.5 my-space-xs pl-3">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-[#7F1D1D] font-medium">Densidad</span>
+<span class="font-title-sm text-title-sm text-[#DC2626] font-bold">290 ind/m</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Talla Media</span>
+<span class="font-title-sm text-title-sm text-on-surface font-bold">52 mm</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Profundidad</span>
+<span class="font-title-sm text-title-sm text-on-surface font-bold">0 - 2 m</span>
+</div>
+</div>
+<!-- Industrial Warning Box -->
+<div class="flex items-start gap-2 bg-[#FEE2E2]/80 px-3 py-2 rounded-lg my-1 text-[#7F1D1D]">
+<span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">error_outline</span>
+<span class="font-body-sm text-body-sm font-semibold leading-tight">
+          Requiere reconteo: densidad bajo rango mínimo estándar (&lt; 350 ind/m).
+        </span>
+</div>
+<!-- Action Footer -->
+<div class="flex items-center justify-between pt-1 pl-1"><button class="bg-primary-container text-on-primary px-3 py-1 rounded-md font-label-sm text-label-sm flex items-center gap-1 active:scale-95"><span class="material-symbols-outlined text-[16px]">replay</span> Recontar Muestra</button><a data-path="detalle-muestra" href="#" class="inline-flex items-center gap-1 bg-primary text-on-primary px-3 py-1 rounded-lg font-label-md text-label-md active:scale-95 shadow-xs transition-all group-active:translate-x-1"><span class="">Ver Detalle #MST-087</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span></a></div>
+</article>
+<!-- Card 4: MST-086 (VALIDADO - AYER) -->
+<article class="sample-card group bg-surface-container-lowest rounded-xl p-space-md shadow-sm active:shadow-md transition-all relative overflow-hidden" data-status="validado" data-title="Muestra #MST-086 Línea 03 Tren 01">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#16A34A]"></div>
+<div class="flex items-start justify-between gap-space-xs mb-space-xs pl-1">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">#MST-086</span>
+<span class="font-body-sm text-body-sm text-secondary">• Ayer 16:20 PM</span>
+</div>
+<p class="font-title-sm text-title-sm text-secondary truncate">Línea 03 — Tren 01</p>
+</div>
+<!-- Emerald Badge -->
+<span class="inline-flex items-center gap-1 bg-[#DCFCE7] text-[#14532D] px-2.5 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-wider shrink-0 shadow-xs">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+          Validado
+        </span>
+</div>
+<!-- Biometric metrics grid -->
+<div class="grid grid-cols-3 gap-2 bg-surface-container-low rounded-lg p-2.5 my-space-xs pl-3">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Densidad</span>
+<span class="font-title-sm text-title-sm text-on-surface font-bold">465 ind/m</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Talla Media</span>
+<span class="font-title-sm text-title-sm text-on-surface font-bold">70 mm</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Profundidad</span>
+<span class="font-title-sm text-title-sm text-on-surface font-bold">2 - 4 m</span>
+</div>
+</div>
+<!-- Footer CTA -->
+<div class="flex items-center justify-between pt-1 pl-1">
+<span class="font-body-sm text-body-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">history_edu</span>
+          Archivo Lote #L24-88
+        </span>
+<div class="flex items-center text-primary font-label-lg text-label-lg group-active:translate-x-1 transition-transform">
+<span class="">Detalles</span>
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+</div>
+</article>
+<!-- Empty Filter Fallback State (Hidden by default) -->
+<div class="hidden flex-col items-center justify-center py-12 px-space-md text-center bg-surface-container-lowest rounded-xl shadow-xs my-2" id="noResultsState">
+<div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center text-secondary mb-3">
+<span class="material-symbols-outlined text-[36px]">filter_alt_off</span>
+</div>
+<p class="font-title-md text-title-md text-on-surface mb-1">Sin muestras coincidentes</p>
+<p class="font-body-md text-body-md text-secondary max-w-xs mb-4">
+        No se encontraron registros que coincidan con los criterios de búsqueda o filtro seleccionados.
+      </p>
+<button class="bg-primary-container text-on-primary font-label-lg text-label-lg px-4 py-2 rounded-lg active:scale-95 transition-transform" onclick="resetFilters()">
+        Restablecer Filtros
+      </button>
+</div>
+</div>
+<!-- Environmental Traceability Context Card -->
+<div class="px-gutter pb-4">
+<div class="bg-surface-container-low rounded-xl p-space-md flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[22px]">cloud</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-secondary uppercase font-bold">Condiciones de Cultivo en Seno</span>
+<span class="font-body-sm text-body-sm text-on-surface">Salinidad: 31.8 PSU • Temp Agua: 11.4°C • Marea: Bajamar</span>
+</div>
+</div>
+</div>
+</div>
+<script>
+  let currentFilter = 'all';
+
+  function setActiveFilter(filterType, buttonEl) {
+    currentFilter = filterType;
+    const buttons = document.querySelectorAll('.filter-chip');
+    buttons.forEach(btn => {
+      btn.classList.remove('bg-primary-container', 'text-on-primary');
+      btn.classList.add('bg-surface-container-lowest', 'text-on-surface');
+      const badge = btn.querySelector('.font-label-sm');
+      if (badge && btn.dataset.filter === 'all') {
+        badge.classList.remove('bg-surface-container-highest/25', 'text-on-primary');
+        badge.classList.add('text-secondary');
+      }
+    });
+
+    buttonEl.classList.remove('bg-surface-container-lowest', 'text-on-surface');
+    buttonEl.classList.add('bg-primary-container', 'text-on-primary');
+    
+    const activeBadge = buttonEl.querySelector('.font-label-sm');
+    if (activeBadge && filterType === 'all') {
+      activeBadge.classList.add('bg-surface-container-highest/25', 'text-on-primary');
+      activeBadge.classList.remove('text-secondary');
+    }
+
+    filterSamples();
+  }
+
+  function filterSamples() {
+    const searchInput = document.getElementById('sampleSearchInput');
+    const query = (searchInput.value || '').trim().toLowerCase();
+    const clearBtn = document.getElementById('clearSearchBtn');
+    
+    if (query.length > 0) {
+      clearBtn.classList.remove('hidden');
+    } else {
+      clearBtn.classList.add('hidden');
+    }
+
+    const cards = document.querySelectorAll('.sample-card');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const status = card.getAttribute('data-status');
+      const title = card.getAttribute('data-title').toLowerCase();
+      
+      const matchesFilter = (currentFilter === 'all' || status === currentFilter);
+      const matchesQuery = query === '' || title.includes(query);
+
+      if (matchesFilter && matchesQuery) {
+        card.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+
+    const noResults = document.getElementById('noResultsState');
+    if (visibleCount === 0) {
+      noResults.classList.remove('hidden');
+      noResults.classList.add('flex');
+    } else {
+      noResults.classList.add('hidden');
+      noResults.classList.remove('flex');
+    }
+  }
+
+  function resetFilters() {
+    const searchInput = document.getElementById('sampleSearchInput');
+    if (searchInput) searchInput.value = '';
+    const allBtn = document.querySelector('[data-filter="all"]');
+    if (allBtn) setActiveFilter('all', allBtn);
+  }
+
+  document.getElementById('sampleSearchInput').addEventListener('input', filterSamples);
+</script></main><div class="fixed bottom-24 right-gutter z-50"><a aria-label="Registrar Muestra Rápida" class="w-14 h-14 rounded-xl bg-primary-container text-on-primary flex items-center justify-center shadow-[0_6px_12px_rgba(15,23,42,0.28)] active:scale-95 active:shadow-[0_2px_4px_rgba(15,23,42,0.2)] transition-all" data-path="nueva-muestra" href="#"><span class="material-symbols-outlined text-[28px]">add</span></a></div><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_-2px_10px_rgba(0,0,0,0.06)]" data-active-classes="text-on-surface [&amp;&gt;div]:bg-secondary-container [&amp;&gt;div&gt;span]:text-on-secondary-fixed"><div class="flex items-center justify-around h-20 px-space-xs"><a class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-14 text-secondary hover:text-on-surface transition-colors" data-path="muestras" href="#"><div class="flex items-center justify-center w-14 h-8 rounded-full transition-colors"><span class="material-symbols-outlined text-[24px]">dataset</span></div><span class="font-label-md text-label-md tracking-tight text-center">Muestras</span></a><a class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-14 text-secondary hover:text-on-surface transition-colors" data-path="nueva-muestra" href="#"><div class="flex items-center justify-center w-14 h-8 rounded-full transition-colors"><span class="material-symbols-outlined text-[24px]">add_circle</span></div><span class="font-label-md text-label-md tracking-tight text-center">Nueva Muestra</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-14 transition-colors text-on-surface [&amp;&gt;div]:bg-secondary-container [&amp;&gt;div&gt;span]:text-on-secondary-fixed" data-path="historial" href="#"><div class="flex items-center justify-center w-14 h-8 rounded-full transition-colors"><span class="material-symbols-outlined text-[24px]">history</span></div><span class="font-label-md text-label-md tracking-tight text-center">Historial</span></a><a class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-14 text-secondary hover:text-on-surface transition-colors" data-path="supervision" href="#"><div class="flex items-center justify-center w-14 h-8 rounded-full transition-colors"><span class="material-symbols-outlined text-[24px]">manage_accounts</span></div><span class="font-label-md text-label-md tracking-tight text-center">Supervisión</span></a></div></nav>
+
+</body></html>

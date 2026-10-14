@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'surface-container-lowest': '#ffffff', 'outline': '#76777d', 'surface-bright': '#f6fafe', 'primary-container': '#131b2e', 'error': '#ba1a1a', 'on-secondary-fixed-variant': '#3a485c', 'on-primary-fixed-variant': '#3f465c', 'on-background': '#171c1f', 'on-tertiary-container': '#497cff', 'secondary': '#515f74', 'on-primary-container': '#7c839b', 'surface-container-low': '#f0f4f8', 'primary': '#000000', 'tertiary': '#000000', 'on-secondary-container': '#57657b', 'tertiary-container': '#00174b', 'on-error': '#ffffff', 'inverse-primary': '#bec6e0', 'secondary-fixed-dim': '#b9c7e0', 'on-tertiary-fixed': '#00174b', 'inverse-surface': '#2c3134', 'on-tertiary-fixed-variant': '#003ea8', 'primary-fixed': '#dae2fd', 'surface-container-highest': '#dfe3e7', 'background': '#f6fafe', 'surface-container': '#eaeef2', 'primary-fixed-dim': '#bec6e0', 'surface': '#f6fafe', 'on-primary-fixed': '#131b2e', 'on-surface': '#171c1f', 'on-error-container': '#93000a', 'outline-variant': '#c6c6cd', 'on-primary': '#ffffff', 'tertiary-fixed': '#dbe1ff', 'surface-dim': '#d6dade', 'error-container': '#ffdad6', 'surface-container-high': '#e4e9ed', 'on-secondary-fixed': '#0d1c2f', 'secondary-container': '#d5e3fd', 'inverse-on-surface': '#edf1f5', 'surface-variant': '#dfe3e7', 'on-tertiary': '#ffffff', 'on-surface-variant': '#45464d', 'secondary-fixed': '#d5e3fd', 'surface-tint': '#565e74', 'tertiary-fixed-dim': '#b4c5ff', 'on-secondary': '#ffffff' }, borderRadius: { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, spacing: { 'space-xs': '0.25rem', 'gutter': '1rem', 'space-xl': '2rem', 'margin': '1rem', 'space-lg': '1.5rem', 'gutter-desktop': '2rem', 'gutter-tablet': '1.5rem', 'margin-desktop': '2.5rem', 'space-sm': '0.5rem', 'space-md': '1rem', 'margin-tablet': '1.5rem' }, fontFamily: { 'body-sm': ['Inter'], 'title-sm': ['Inter'], 'headline-lg': ['Inter'], 'display-lg': ['Inter'], 'title-md': ['Inter'], 'body-lg': ['Inter'], 'headline-lg-mobile': ['Inter'], 'display-md': ['Inter'], 'label-md': ['Inter'], 'headline-sm': ['Inter'], 'label-lg': ['Inter'], 'headline-md': ['Inter'], 'body-md': ['Inter'], 'title-lg': ['Inter'], 'label-sm': ['Inter'] }, fontSize: { 'body-sm': ['12px', { lineHeight: '16px', fontWeight: '500' }], 'title-sm': ['14px', { lineHeight: '20px', fontWeight: '600' }], 'headline-lg': ['32px', { lineHeight: '40px', fontWeight: '600' }], 'display-lg': ['44px', { lineHeight: '52px', letterSpacing: '-0.02em', fontWeight: '700' }], 'title-md': ['16px', { lineHeight: '22px', fontWeight: '600' }], 'body-lg': ['16px', { lineHeight: '24px', fontWeight: '400' }], 'headline-lg-mobile': ['26px', { lineHeight: '32px', fontWeight: '700' }], 'display-md': ['36px', { lineHeight: '44px', letterSpacing: '-0.01em', fontWeight: '700' }], 'label-md': ['12px', { lineHeight: '16px', letterSpacing: '0.02em', fontWeight: '600' }], 'headline-sm': ['20px', { lineHeight: '28px', fontWeight: '600' }], 'label-lg': ['14px', { lineHeight: '20px', letterSpacing: '0.01em', fontWeight: '600' }], 'headline-md': ['24px', { lineHeight: '32px', fontWeight: '600' }], 'body-md': ['14px', { lineHeight: '20px', fontWeight: '500' }], 'title-lg': ['18px', { lineHeight: '24px', fontWeight: '600' }], 'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.03em', fontWeight: '700' }] } } } };</script><style>@layer base { html, body { width: 100vw; margin: 0; padding: 0; min-height: 100%; } body { overscroll-behavior: none; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col antialiased selection:bg-secondary-container"><header class="fixed top-0 inset-x-0 z-50 bg-primary-container shadow-[0_1px_8px_rgba(0,0,0,0.12)] pt-safe"><div class="h-16 px-gutter flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><img alt="MusselApp Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1XK7OT0QaCcGtpvAMCnqJ9YKeN0uXijgLZWZK7oDAuNABbBQlCmdc__uO49kAaydwvqA66MNX1PjUe4kaeXJ_dE_QXbNCI73wJU7tsImkmHSfJRloYglKvU9e17UxE1Zi5wE7vGi0FWV8tKulflF5TEDeW8P1u3LrQgjNebw3FoaFNPf6qBUquSR4omzIcYW6AWlbC8oLtfDAIbgrsf-j6arlVA_Rgsgk9XoJjWEHWa1JSc5KXaUNWucJQ"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="text-on-primary font-title-md text-title-md truncate tracking-tight">MusselApp</span><span class="text-on-primary-container font-title-sm text-title-sm opacity-60">•</span><span class="text-on-primary-container font-title-sm text-title-sm truncate">Nueva Muestra</span></div><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span><span class="text-on-primary-container font-label-sm text-label-sm tracking-normal truncate uppercase">Online / Sincronizado en terreno</span></div></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button aria-label="Notificaciones" class="w-12 h-12 flex items-center justify-center rounded-full text-on-primary hover:bg-primary/20 active:scale-95 transition-transform"><span class="material-symbols-outlined text-[24px]">sync</span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-on-primary-container/30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz0xSDwwxTjbOslefI4h5O0CpTyFtziyQeojJTo9ixMq0ITfaBKPQKwSBXGLEuUH6DdFznJbbH0XJGoPDBb80jIm_iMTFwfXKYpDyY7cD8gbBEa_iKSSR7P5RMDZZxB38U98Sp9gOoT1B_5MrhMgIq08-FCcfUEkuafwaLrtmSFp7pfqRIuKgEccpZNOMfrDJMhXxkEKgSnCOSjdNb9iOXotPIKtLZvzlg3gKRkqzm0q9iPImDVEhcBw"/></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-28 bg-surface"><div class="flex flex-col w-full">
+<!-- Progress Header & Context Banner -->
+<div class="bg-surface-container-low px-gutter py-space-sm shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]">water</span>
+<span class="font-label-lg text-label-lg text-on-surface">Nueva Muestra de Choritos</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider px-space-xs py-0.5 rounded bg-secondary-container text-on-secondary-fixed">Paso 1 de 3</span>
+</div>
+<!-- Tactile Step Gauge -->
+<div class="flex items-center gap-1.5 w-full pt-1">
+<div class="h-2 rounded-full flex-1 bg-primary-container"></div>
+<div class="h-2 rounded-full flex-1 bg-surface-container-highest"></div>
+<div class="h-2 rounded-full flex-1 bg-surface-container-highest"></div>
+</div>
+<div class="flex justify-between items-center text-secondary font-label-sm text-label-sm">
+<span class="text-primary font-semibold">1. Parámetros de Cultivo</span>
+<span>2. Biometría &amp; Fotos</span>
+<span>3. Validación</span>
+</div>
+</div>
+<div class="px-gutter py-space-md flex flex-col gap-space-md">
+<!-- Location Exposed Dropdowns Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px]">pin_drop</span>
+<h2 class="font-title-md text-title-md text-on-surface">Ubicación de Muestreo</h2>
+</div>
+<!-- Exposed Dropdown 1: Centro -->
+<div class="relative flex flex-col">
+<label class="font-label-sm text-label-sm text-secondary mb-1">Centro de Cultivo</label>
+<button class="w-full min-h-[56px] px-space-md rounded-lg bg-surface-container-low flex items-center justify-between text-left active:bg-surface-container-high transition-colors" type="button">
+<div class="flex flex-col truncate pr-2">
+<span class="font-title-sm text-title-sm text-on-surface truncate">Centro Dalcahue</span>
+<span class="font-body-sm text-body-sm text-secondary truncate">Sector Estero - Región de Los Lagos</span>
+</div>
+<span class="material-symbols-outlined text-secondary text-[24px]">arrow_drop_down</span>
+</button>
+</div>
+<!-- Grid for Tren & Linea -->
+<div class="grid grid-cols-1 gap-space-sm">
+<!-- Exposed Dropdown 2: Tren -->
+<div class="relative flex flex-col">
+<label class="font-label-sm text-label-sm text-secondary mb-1">Tren de Cultivo (Longline)</label>
+<button class="w-full min-h-[56px] px-space-md rounded-lg bg-surface-container-low flex items-center justify-between text-left active:bg-surface-container-high transition-colors" type="button">
+<div class="flex items-center gap-space-xs truncate">
+<span class="material-symbols-outlined text-secondary text-[20px]">directions_boat</span>
+<span class="font-title-sm text-title-sm text-on-surface truncate">Tren 04 - Longline Norte</span>
+</div>
+<span class="material-symbols-outlined text-secondary text-[24px]">arrow_drop_down</span>
+</button>
+</div>
+<!-- Exposed Dropdown 3: Linea -->
+<div class="relative flex flex-col">
+<label class="font-label-sm text-label-sm text-secondary mb-1">Línea de Siembra</label>
+<button class="w-full min-h-[56px] px-space-md rounded-lg bg-surface-container-low flex items-center justify-between text-left active:bg-surface-container-high transition-colors" type="button">
+<div class="flex items-center gap-space-xs truncate">
+<span class="material-symbols-outlined text-secondary text-[20px]">anchor</span>
+<span class="font-title-sm text-title-sm text-on-surface truncate">Línea 12 (Cuerda colectora 6m)</span>
+</div>
+<span class="material-symbols-outlined text-secondary text-[24px]">arrow_drop_down</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Segmented Picker: Depth/Profundidad -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px]">straighten</span>
+<span class="font-title-md text-title-md text-on-surface">Estrato de Profundidad</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-semibold">Cuerda 6m</span>
+</div>
+<div class="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-surface-container">
+<!-- Superficie -->
+<button class="depth-btn min-h-[52px] py-2 px-1 rounded-lg flex flex-col items-center justify-center transition-all bg-surface-container-lowest shadow-sm text-on-surface" data-depth="superficie" type="button">
+<span class="font-label-lg text-label-lg font-bold leading-tight">0-2m</span>
+<span class="font-label-sm text-label-sm text-secondary truncate">Superficie</span>
+</button>
+<!-- Media (Selected) -->
+<button class="depth-btn min-h-[52px] py-2 px-1 rounded-lg flex flex-col items-center justify-center transition-all bg-primary-container text-on-primary shadow-md scale-[1.02]" data-depth="media" type="button">
+<span class="font-label-lg text-label-lg font-bold leading-tight">2-4m</span>
+<span class="font-label-sm text-label-sm text-on-primary-container truncate">Media</span>
+</button>
+<!-- Fondo -->
+<button class="depth-btn min-h-[52px] py-2 px-1 rounded-lg flex flex-col items-center justify-center transition-all bg-surface-container-lowest shadow-sm text-on-surface" data-depth="fondo" type="button">
+<span class="font-label-lg text-label-lg font-bold leading-tight">4-6m</span>
+<span class="font-label-sm text-label-sm text-secondary truncate">Fondo</span>
+</button>
+</div>
+</div>
+<!-- Industrial Marine Glove Counter / Jetpack Compose Stepper -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px]">drag_indicator</span>
+<span class="font-title-md text-title-md text-on-surface">Conteo Manual de Choritos</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">touch_app</span> Táctil guante
+        </span>
+</div>
+<!-- Big Numeric Readout -->
+<div class="bg-surface-container-low rounded-xl py-space-md px-space-lg flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-display-lg text-display-lg text-primary tracking-tight transition-transform duration-100" id="musselCounter">438</span>
+<span class="font-title-sm text-title-sm text-secondary">unid.</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest mt-0.5">Muestra representativa (1 metro lineal)</span>
+<!-- Live biometric density estimation tag -->
+<div class="mt-2 flex items-center gap-1 text-on-secondary-container bg-secondary-container px-2.5 py-0.5 rounded-full font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">insights</span>
+<span>Densidad estimada: ~73 indiv./dm</span>
+</div>
+</div>
+<!-- Giant Glove-Optimized Buttons (-10, -1, +1, +10) -->
+<div class="grid grid-cols-4 gap-space-sm">
+<button class="h-16 rounded-xl bg-surface-container-high text-on-surface flex flex-col items-center justify-center active:bg-surface-container-highest active:scale-95 shadow-sm transition-transform" onclick="adjustCount(-10)" type="button">
+<span class="font-title-md text-title-md font-bold">-10</span>
+<span class="font-label-sm text-label-sm text-secondary">Rápido</span>
+</button>
+<button class="h-16 rounded-xl bg-surface-container-high text-on-surface flex flex-col items-center justify-center active:bg-surface-container-highest active:scale-95 shadow-sm transition-transform" onclick="adjustCount(-1)" type="button">
+<span class="font-headline-sm text-headline-sm font-bold">-1</span>
+<span class="font-label-sm text-label-sm text-secondary">Ajuste</span>
+</button>
+<button class="h-16 rounded-xl bg-surface-container-high text-on-surface flex flex-col items-center justify-center active:bg-surface-container-highest active:scale-95 shadow-sm transition-transform" onclick="adjustCount(1)" type="button">
+<span class="font-headline-sm text-headline-sm font-bold">+1</span>
+<span class="font-label-sm text-label-sm text-secondary">Ajuste</span>
+</button>
+<button class="h-16 rounded-xl bg-primary-container text-on-primary flex flex-col items-center justify-center active:scale-95 shadow-md transition-transform" onclick="adjustCount(10)" type="button">
+<span class="font-title-md text-title-md font-bold">+10</span>
+<span class="font-label-sm text-label-sm text-on-primary-container">Rápido</span>
+</button>
+</div>
+<!-- Quick Reset / Fine calibration link -->
+<div class="flex items-center justify-between pt-1">
+<button class="font-label-sm text-label-sm text-secondary hover:text-error flex items-center gap-1 active:opacity-75" onclick="resetCount()" type="button">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span> Reiniciar conteo
+        </button>
+<button class="font-label-sm text-label-sm text-secondary flex items-center gap-1 active:opacity-75" type="button">
+<span class="material-symbols-outlined text-[16px]">dialpad</span> Teclado numérico
+        </button>
+</div>
+</div>
+<!-- Biometric Quick Inputs -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px]">biotech</span>
+<h2 class="font-title-md text-title-md text-on-surface">Biometría Inicial</h2>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<!-- Talla Promedio Caliper Input -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col justify-between">
+<div class="flex items-center justify-between text-secondary">
+<span class="font-label-sm text-label-sm">Talla Promedio</span>
+<span class="material-symbols-outlined text-[16px]">architecture</span>
+</div>
+<div class="flex items-baseline gap-1 my-1">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">65</span>
+<span class="font-body-sm text-body-sm text-secondary">mm</span>
+</div>
+<div class="flex gap-1">
+<button class="flex-1 py-1 rounded bg-surface-container-highest font-label-sm text-label-sm active:scale-95 text-on-surface" type="button">-5</button>
+<button class="flex-1 py-1 rounded bg-surface-container-highest font-label-sm text-label-sm active:scale-95 text-on-surface" type="button">+5</button>
+</div>
+</div>
+<!-- Presencia Fouling Epibiontes -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col justify-between">
+<div class="flex items-center justify-between text-secondary">
+<span class="font-label-sm text-label-sm">Fouling / Epibiontes</span>
+<span class="material-symbols-outlined text-[16px]">bug_report</span>
+</div>
+<div class="my-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded font-label-sm text-label-sm font-bold uppercase bg-surface-container-highest text-on-surface">
+              Baja
+            </span>
+</div>
+<div class="flex gap-1">
+<button class="flex-1 py-1 rounded bg-primary-container text-on-primary font-label-sm text-label-sm font-semibold" type="button">Baja</button>
+<button class="flex-1 py-1 rounded bg-surface-container-highest font-label-sm text-label-sm text-on-surface" type="button">Media</button>
+<button class="flex-1 py-1 rounded bg-surface-container-highest font-label-sm text-label-sm text-on-surface" type="button">Alta</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Visual Sample Reference Media Container -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px]">photo_library</span>
+<span class="font-title-sm text-title-sm text-on-surface">Muestras de Referencia en Línea 12</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Ayer 16:40</span>
+</div>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="relative rounded-lg overflow-hidden h-24 bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Close up photograph of healthy mature Chilean blue mussels (Mytilus chilensis) clustered densely on a black marine aquaculture collector rope, wet from seawater with glistening dark blue-black shells in natural overcast fjord lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAX3TQMAh0OoOBedfhcBPO8ovdpIAaHlK0Oxca0aMgM0xNY0z7VULOUw_yhJGyZviuonq7NBs3Y-vQUOz38Mz_0Ypw2lcm1rrLMgxGba-_RilOqziTjMkhT36Jr1zqF6Iun250ozOc-lbImx6ONZ7PByrDEqPQEUqnREZWjzlvUcUwsdsT-9G8rnRCV2vh319OIvMax_PBQdxCvOR6M0y7PfKmuVVXr5GANMk6l41Oiki_f2fgYl4Mq8A"/>
+<span class="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-primary-container/80 text-on-primary font-label-sm text-label-sm">Estrato 2-4m</span>
+</div>
+<div class="relative rounded-lg overflow-hidden h-24 bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Aquaculture operator on a wooden harvesting platform in Dalcahue fjord Chiloé inspecting a wet collector rope with clean blue mussels, cold calm ocean waters in background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMnbQMyTWugTEMFhOss5NnZOMfOWc4TFoCFhyF91ywuGbg30hXM0IrJv_QIbgrFm5thcHVLXc1krT8gj_iP54kCjojKE4hzXsltplwWbTSnCfozNBgGu1xYMItxMEPPp-re2kGI_rJGh6X04rqzrn17Je9WpeyESVsfukjZUxswwTbtJH0VEgwq0Yq2JI1QdxSln_X-rTKCI4HKXnEeQkPZyfR2TqtLYZudPRYKw-1ogYmsf-nD39AvQ"/>
+<span class="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-primary-container/80 text-on-primary font-label-sm text-label-sm">Cuerda Matriz</span>
+</div>
+</div>
+</div>
+<!-- Field Observations TextField (Outlined multiline) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-title-sm text-title-sm text-on-surface flex items-center gap-space-xs" for="observationsInput">
+<span class="material-symbols-outlined text-secondary text-[20px]">edit_note</span>
+          Observaciones de Terreno
+        </label>
+<button class="text-secondary hover:text-on-surface active:scale-95 flex items-center gap-1 font-label-sm text-label-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">mic</span> Dictado por voz
+        </button>
+</div>
+<div class="relative mt-1">
+<textarea class="w-full p-space-sm bg-surface-container-low rounded-lg text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container-lowest transition-colors resize-none" id="observationsInput" placeholder="Ingrese notas sobre el estado biológico o ambiental..." rows="3">Cuerda con buena fijación, ligera presencia de macroalgas en primer metro superior.</textarea>
+</div>
+<span class="font-label-sm text-label-sm text-secondary px-1">Registrado automáticamente con coordenadas GPS y hora satelital</span>
+</div>
+<!-- Bottom Action Envelope: Primary Forward CTA -->
+<div class="pt-space-xs pb-space-sm">
+<button class="w-full min-h-[56px] rounded-xl bg-primary-container text-on-primary font-title-sm text-title-sm uppercase tracking-wide flex items-center justify-center gap-space-sm shadow-md active:scale-[0.98] transition-transform" type="button">
+<span class="material-symbols-outlined text-[24px]">photo_camera</span>
+<span>Continuar a Captura Fotográfica</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<p class="text-center font-label-sm text-label-sm text-secondary mt-2">
+        Se habilitará la cámara calibrada para medición por visión computacional
+      </p>
+</div>
+</div>
+</div>
+<script>
+  let currentCount = 438;
+  const counterEl = document.getElementById('musselCounter');
+
+  function adjustCount(delta) {
+    currentCount = Math.max(0, currentCount + delta);
+    if (counterEl) {
+      counterEl.textContent = currentCount;
+      counterEl.classList.add('scale-110');
+      setTimeout(() => counterEl.classList.remove('scale-110'), 100);
+    }
+  }
+
+  function resetCount() {
+    currentCount = 0;
+    if (counterEl) {
+      counterEl.textContent = currentCount;
+    }
+  }
+
+  // Segmented depth picker active states
+  const depthBtns = document.querySelectorAll('.depth-btn');
+  depthBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      depthBtns.forEach(b => {
+        b.className = 'depth-btn min-h-[52px] py-2 px-1 rounded-lg flex flex-col items-center justify-center transition-all bg-surface-container-lowest shadow-sm text-on-surface';
+        const subText = b.querySelector('.truncate');
+        if (subText) subText.className = 'font-label-sm text-label-sm text-secondary truncate';
+      });
+      btn.className = 'depth-btn min-h-[52px] py-2 px-1 rounded-lg flex flex-col items-center justify-center transition-all bg-primary-container text-on-primary shadow-md scale-[1.02]';
+      const activeSub = btn.querySelector('.truncate');
+      if (activeSub) activeSub.className = 'font-label-sm text-label-sm text-on-primary-container truncate';
+    });
+  });
+</script></main><div class="fixed bottom-24 right-gutter z-50"><a aria-label="Registrar Muestra Rápida" class="w-14 h-14 rounded-xl bg-primary-container text-on-primary flex items-center justify-center shadow-[0_6px_12px_rgba(15,23,42,0.28)] active:scale-95 active:shadow-[0_2px_4px_rgba(15,23,42,0.2)] transition-all" data-path="nueva-muestra" href="#"><span class="material-symbols-outlined text-[28px]">add</span></a></div><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_-2px_10px_rgba(0,0,0,0.06)]" data-active-classes="text-on-surface [&amp;&gt;div]:bg-secondary-container [&amp;&gt;div&gt;span]:text-on-secondary-fixed"><div class="flex items-center justify-around h-20 px-space-xs"><a class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-14 text-secondary hover:text-on-surface transition-colors" data-path="muestras" href="#"><div class="flex items-center justify-center w-14 h-8 rounded-full transition-colors"><span class="material-symbols-outlined text-[24px]">dataset</span></div><span class="font-label-md text-label-md tracking-tight text-center">Muestras</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-14 transition-colors text-on-surface [&amp;&gt;div]:bg-secondary-container [&amp;&gt;div&gt;span]:text-on-secondary-fixed" data-path="nueva-muestra" href="#"><div class="flex items-center justify-center w-14 h-8 rounded-full transition-colors"><span class="material-symbols-outlined text-[24px]">add_circle</span></div><span class="font-label-md text-label-md tracking-tight text-center">Nueva Muestra</span></a><a class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-14 text-secondary hover:text-on-surface transition-colors" data-path="historial" href="#"><div class="flex items-center justify-center w-14 h-8 rounded-full transition-colors"><span class="material-symbols-outlined text-[24px]">history</span></div><span class="font-label-md text-label-md tracking-tight text-center">Historial</span></a><a class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-14 text-secondary hover:text-on-surface transition-colors" data-path="supervision" href="#"><div class="flex items-center justify-center w-14 h-8 rounded-full transition-colors"><span class="material-symbols-outlined text-[24px]">manage_accounts</span></div><span class="font-label-md text-label-md tracking-tight text-center">Supervisión</span></a></div></nav></body></html>
