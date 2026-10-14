@@ -68,7 +68,8 @@ class FakeMuestraRepository(
         private const val OPERARIO = "Carla Vera"
         private const val SUPERVISOR = "Diego Muñoz"
 
-        private fun muestrasDePrueba(ahora: Long): List<Muestra> {
+        /** También se usan como datos iniciales de la base de datos Room. */
+        internal fun muestrasDePrueba(ahora: Long): List<Muestra> {
             fun muestra(
                 id: Long, linea: Int, tren: String, prof: Int, talla: Int, conteo: Int,
                 obs: String, estado: EstadoMuestra, haceMin: Long, sincronizada: Boolean = true,
