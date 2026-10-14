@@ -6,9 +6,11 @@ import cl.aldemar.musselapp.data.model.EstadoMuestra.PENDIENTE
 import cl.aldemar.musselapp.data.model.EstadoMuestra.VALIDADO
 import cl.aldemar.musselapp.data.model.Muestra
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
 /** Muestras ficticias del día en curso, mientras no exista persistencia (Room). */
@@ -19,6 +21,35 @@ class FakeMuestraRepository(
 
     private val _muestras = MutableStateFlow(muestrasDePrueba(ahora))
     override val muestras: StateFlow<List<Muestra>> = _muestras.asStateFlow()
+
+    override fun obtenerPorId(id: Long): Flow<Muestra?> {
+        return _muestras.map { lista -> lista.find { it.id == id } }
+    }
+
+    override suspend fun actualizarEstado(
+        id: Long,
+        nuevoEstado: EstadoMuestra,
+        comentario: String?,
+        revisadaPor: String,
+    ) {
+        delay(300)
+        _muestras.update { lista ->
+            lista.map { muestra ->
+                if (muestra.id == id) {
+                    muestra.copy(
+                        estado = nuevoEstado,
+                        comentarioSupervisor = comentario,
+                        revisadaPor = revisadaPor,
+                        sincronizada = false,
+                    )
+                } else muestra
+            }
+        }
+    }
+
+    override suspend fun agregarMuestra(muestra: Muestra) {
+        _muestras.update { listOf(muestra) + it }
+    }
 
     override suspend fun sincronizar(): Int {
         delay(latenciaMs) // Simula el envío por el enlace satelital
