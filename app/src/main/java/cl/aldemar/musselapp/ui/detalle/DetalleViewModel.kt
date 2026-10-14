@@ -3,7 +3,7 @@ package cl.aldemar.musselapp.ui.detalle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import cl.aldemar.musselapp.data.repository.FakeMuestraRepository
+import cl.aldemar.musselapp.MusselApplication
 import cl.aldemar.musselapp.data.repository.MuestraRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class DetalleViewModel(
     private val muestraId: Long,
-    private val repository: MuestraRepository = FakeMuestraRepository.instancia,
+    private val repository: MuestraRepository = MusselApplication.contenedor.muestraRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DetalleUiState())
@@ -50,7 +50,7 @@ class DetalleViewModel(
 
     class Factory(
         private val muestraId: Long,
-        private val repository: MuestraRepository = FakeMuestraRepository.instancia,
+        private val repository: MuestraRepository = MusselApplication.contenedor.muestraRepository,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
