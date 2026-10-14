@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -68,6 +69,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -76,8 +78,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -113,6 +118,9 @@ fun VistaPreviaScreen(
     onFotoCambiada: (String?) -> Unit = {},
     onParametrosCambiados: (ParametrosMuestra) -> Unit = {},
     onObservacionCambiada: (String) -> Unit = {},
+    onConteoCambiado: (Int?) -> Unit = {},
+    onTallaCambiada: (Int?) -> Unit = {},
+    guardando: Boolean = false,
     onConfirmar: () -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -129,11 +137,13 @@ fun VistaPreviaScreen(
     var eliminando by remember { mutableStateOf(false) }
     var verFoto by remember { mutableStateOf(false) }
     var editando by remember { mutableStateOf(false) }
-    var guardarLocal by remember { mutableStateOf(true) } // TODO: guardar en la base local (Room)
+    var guardarLocal by remember { mutableStateOf(true) } // TODO: la muestra siempre se guarda en Room; decidir si esta casilla se quita
 
     val parametros = borrador.parametros
     val rutaFoto = borrador.fotoRuta
-    val listo = parametros != null && rutaFoto != null
+    // Se puede guardar con parámetros, foto, conteo y talla válidos (reglas en validarBorrador)
+    val faltante = validarBorrador(borrador)
+    val listo = faltante == null && !guardando
 
     // Elegir otra foto desde la galería del teléfono
     val selectorGaleria = rememberLauncherForActivityResult(
@@ -201,18 +211,20 @@ fun VistaPreviaScreen(
                 onEliminar = { eliminando = true }
             )
 
-            // Métricas (se completan en el paso 2)
+            // Métricas medidas por el operario: obligatorias para guardar la muestra
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 TarjetaMetrica(
                     titulo = "CONTEO BIOMASA",
-                    valor = borrador.conteoIndM?.toString(),
+                    valor = borrador.conteoIndM,
                     unidad = "uds / m",
+                    onCambiar = onConteoCambiado,
                     modifier = Modifier.weight(1f)
                 )
                 TarjetaMetrica(
                     titulo = "TALLA MEDIA",
-                    valor = borrador.tallaMm?.toString(),
+                    valor = borrador.tallaMm,
                     unidad = "mm",
+                    onCambiar = onTallaCambiada,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -391,10 +403,22 @@ fun VistaPreviaScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "GUARDAR Y ENVIAR MUESTRA",
+                    text = if (guardando) "GUARDANDO…" else "GUARDAR Y ENVIAR MUESTRA",
                     color = if (listo) Paleta.SobrePrimario else Paleta.TextoSuave,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
+                )
+            }
+            // Explica por qué el botón está deshabilitado
+            if (faltante != null) {
+                Text(
+                    text = faltante,
+                    color = Paleta.TextoSuave,
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
                 )
             }
         }
@@ -751,11 +775,13 @@ private fun BotonVisor(
     }
 }
 
+// Tarjeta de una medición: se toca el número para escribirlo (solo dígitos)
 @Composable
 private fun TarjetaMetrica(
     titulo: String,
-    valor: String?,
+    valor: Int?,
     unidad: String,
+    onCambiar: (Int?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -768,11 +794,22 @@ private fun TarjetaMetrica(
     ) {
         Text(text = titulo, color = Paleta.TextoSuave, fontSize = 11.sp, fontWeight = FontWeight.Bold)
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(
-                text = valor ?: "—",
-                color = Paleta.Texto,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
+            BasicTextField(
+                value = valor?.toString() ?: "",
+                onValueChange = { texto -> onCambiar(texto.filter(Char::isDigit).take(4).toIntOrNull()) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                textStyle = TextStyle(color = Paleta.Texto, fontSize = 28.sp, fontWeight = FontWeight.Bold),
+                cursorBrush = SolidColor(Paleta.Acento),
+                modifier = Modifier.weight(1f, fill = false),
+                decorationBox = { campo ->
+                    Box {
+                        if (valor == null) {
+                            Text(text = "—", color = Paleta.TextoSuave, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                        }
+                        campo()
+                    }
+                }
             )
             Text(
                 text = unidad,

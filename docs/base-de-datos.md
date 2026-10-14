@@ -95,10 +95,10 @@ MusselApplication.kt      # registra el contenedor (android:name en el Manifest)
 | Fase | Qué | Responsable | Estado |
 |---|---|---|---|
 | 1 | Room, entidades, DAO, base, datos iniciales y pruebas | Ramón | ✅ esta rama |
-| 2a | `RoomMuestraRepository`: listar, obtener, agregar, sincronizar; conectar Principal e Historial | Ramón | Pendiente |
-| 2b | `actualizarEstado` con `registrarRevision`; conectar Detalle y Revisión | Lucas | Pendiente |
-| 2c | Guardar la muestra desde el ViewModel (hoy se hace en el `NavHost`) y la foto en `filesDir/fotos/` | Jesús | Pendiente |
-| 3 | `RoomAuthRepository`: login contra la tabla `usuarios` | Ramón | Pendiente |
+| 2a | `RoomMuestraRepository`: listar, obtener, agregar, sincronizar; conectar Principal e Historial | Ramón | ✅ PR #15 |
+| 2b | `actualizarEstado` con `registrarRevision`; conectar Detalle y Revisión | Lucas | ✅ PR #15 |
+| 2c | Guardar la muestra desde el ViewModel (antes se hacía en el `NavHost`), sin conteo ni talla inventados | Jesús | ✅ PR #18 (falta: foto en `filesDir/fotos/`) |
+| 3 | `RoomAuthRepository`: login contra la tabla `usuarios` | Ramón | ✅ PR #15 |
 | 4 | Prueba completa: registrar, cerrar la app, reabrir y ver la muestra; README | Todos | Pendiente |
 
 Para ver la base en Android Studio: **App Inspection → Database Inspector** con la app corriendo.
