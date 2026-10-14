@@ -13,7 +13,8 @@ import cl.aldemar.musselapp.data.repository.RoomMuestraRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -39,8 +40,10 @@ class RepositoriosRoomTest {
     }
 
     @After
-    fun cerrar() {
-        alcance.cancel()
+    fun cerrar() = runBlocking {
+        // Esperar a que termine la consulta en vivo del repositorio antes de cerrar la base;
+        // si no, una consulta en curso puede ejecutarse con la base cerrada y botar el proceso.
+        alcance.coroutineContext.job.cancelAndJoin()
         db.close()
     }
 
