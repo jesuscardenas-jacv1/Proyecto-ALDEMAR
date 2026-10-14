@@ -28,7 +28,6 @@ import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.ErrorOutline
@@ -158,10 +157,12 @@ fun HistorialScreen(
             BarraSuperiorMussel(
                 seccion = "Historial",
                 usuario = usuario,
+                centro = centro,
                 pendientesSincronizar = uiState.pendientesSincronizar,
                 sincronizando = uiState.sincronizando,
                 onSincronizar = onSincronizar,
                 onCerrarSesion = onCerrarSesion,
+                onIrAInicio = { onNavegar(Destino.MUESTRAS) },
             )
         },
         bottomBar = { NavegacionInferior(rol = usuario.rol, seleccionado = Destino.HISTORIAL, onNavegar = onNavegar) },
@@ -177,13 +178,6 @@ fun HistorialScreen(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item {
-                EncabezadoHistorial(
-                    centro = centro,
-                    registros = uiState.conteos[FiltroEstado.TODOS] ?: 0,
-                    actualizadoEn = uiState.actualizadoEn,
-                )
-            }
             item { BarraBusqueda(texto = uiState.criterios.busqueda, onTextoChange = onBusquedaChange) }
             item {
                 SelectorPeriodoYOrden(
@@ -216,57 +210,6 @@ fun HistorialScreen(
                         onRecontar = { onRecontar(muestra.id) },
                     )
                 }
-            }
-            item { TarjetaCondiciones() }
-        }
-    }
-}
-
-@Composable
-private fun EncabezadoHistorial(centro: CentroCultivo, registros: Int, actualizadoEn: Long) {
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(verticalAlignment = Alignment.Top) {
-                Text(
-                    centro.nombre.uppercase(),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.weight(1f),
-                )
-                Spacer(Modifier.width(8.dp))
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(Modifier.size(7.dp).clip(CircleShape).background(EstadoValidadoTexto))
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        "$registros ${if (registros == 1) "Registro" else "Registros"}",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    "Historial de Muestras",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier.weight(1f),
-                )
-                Text(
-                    "Actualizado ${Fechas.hora(actualizadoEn)}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                )
             }
         }
     }
@@ -697,42 +640,6 @@ private fun EstadoVacio(onRestablecer: () -> Unit) {
         )
         OutlinedButton(onClick = onRestablecer, shape = RoundedCornerShape(10.dp)) {
             Text("Restablecer filtros", fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
-/** Contexto ambiental del centro (datos ficticios del caso académico). */
-@Composable
-private fun TarjetaCondiciones() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surface),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(Icons.Filled.Cloud, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
-        }
-        Spacer(Modifier.width(12.dp))
-        Column {
-            Text(
-                "CONDICIONES DE CULTIVO EN SENO",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.secondary,
-            )
-            Text(
-                "Salinidad: 31.8 PSU • Temp. agua: 11.4 °C • Marea: Bajamar",
-                style = MaterialTheme.typography.bodySmall,
-            )
         }
     }
 }
