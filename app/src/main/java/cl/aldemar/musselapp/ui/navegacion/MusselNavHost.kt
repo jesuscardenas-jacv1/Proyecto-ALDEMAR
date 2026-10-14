@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -27,9 +26,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import cl.aldemar.musselapp.MusselApplication
-import cl.aldemar.musselapp.data.model.EstadoMuestra
-import cl.aldemar.musselapp.data.model.Muestra
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import cl.aldemar.musselapp.ui.detalle.DetalleRoute
 import cl.aldemar.musselapp.ui.historial.HistorialRoute
 import cl.aldemar.musselapp.ui.login.LoginRoute
@@ -41,7 +39,6 @@ import cl.aldemar.musselapp.ui.principal.Destino
 import cl.aldemar.musselapp.ui.principal.PrincipalRoute
 import cl.aldemar.musselapp.ui.revision.RevisionRoute
 import cl.aldemar.musselapp.ui.screens.CaptureScreen
-import kotlinx.coroutines.launch
 
 /**
  * Grafo de navegación de la app.
@@ -72,6 +69,7 @@ fun MusselNavHost(
     val loginState by loginViewModel.uiState.collectAsStateWithLifecycle()
     val usuario = loginState.usuario
     val borrador by borradorViewModel.borrador.collectAsStateWithLifecycle()
+    val guardandoMuestra by borradorViewModel.guardando.collectAsStateWithLifecycle()
 
     // La sesión decide entre Login y el resto de la app
     LaunchedEffect(usuario != null) {
@@ -172,40 +170,30 @@ fun MusselNavHost(
             popEnterTransition = entradaAtras,
             popExitTransition = salidaAtras,
         ) {
-            val scope = rememberCoroutineScope()
+            val context = LocalContext.current
             VistaPreviaScreen(
                 borrador = borrador,
+                guardando = guardandoMuestra,
                 onVolver = ::volver,
                 onRepetirFoto = ::volver,
                 onFotoCambiada = borradorViewModel::actualizarFoto,
                 onParametrosCambiados = borradorViewModel::actualizarParametros,
                 onObservacionCambiada = borradorViewModel::actualizarObservacion,
+                onConteoCambiado = borradorViewModel::actualizarConteo,
+                onTallaCambiada = borradorViewModel::actualizarTalla,
                 onConfirmar = {
-                    val parametros = borrador.parametros
-                    if (parametros != null) {
-                        val nuevaId = (System.currentTimeMillis() % 900) + 100
-                        val nuevaMuestra = Muestra(
-                            id = nuevaId,
-                            centroId = parametros.centroId,
-                            linea = parametros.linea,
-                            tren = parametros.tren,
-                            profundidadM = parametros.profundidadM,
-                            tallaMm = borrador.tallaMm ?: 65,
-                            conteoIndM = borrador.conteoIndM ?: 420,
-                            observacion = borrador.observacion.ifBlank { "Muestreo regular" },
-                            estado = EstadoMuestra.PENDIENTE,
-                            registradaEn = System.currentTimeMillis(),
-                            sincronizada = false,
-                            operador = usuario?.nombre ?: "Operario",
-                            operadorRut = usuario?.rut.orEmpty(),
-                            fotoRuta = borrador.fotoRuta,
-                        )
-                        scope.launch {
-                            MusselApplication.contenedor.muestraRepository.agregarMuestra(nuevaMuestra)
-                        }
-                    }
-                    borradorViewModel.limpiar()
-                    navController.popBackStack(Rutas.PRINCIPAL, inclusive = false)
+                    // El guardado vive en el ViewModel; aquí solo se navega con el resultado
+                    val operador = usuario ?: return@VistaPreviaScreen
+                    borradorViewModel.confirmar(
+                        operador = operador,
+                        alGuardar = {
+                            Toast.makeText(context, "Muestra guardada", Toast.LENGTH_SHORT).show()
+                            navController.popBackStack(Rutas.PRINCIPAL, inclusive = false)
+                        },
+                        alFallar = { motivo ->
+                            Toast.makeText(context, motivo, Toast.LENGTH_LONG).show()
+                        },
+                    )
                 },
             )
         }
