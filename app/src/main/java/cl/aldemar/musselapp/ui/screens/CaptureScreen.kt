@@ -2,7 +2,10 @@ package cl.aldemar.musselapp.ui.screens
 
 import android.Manifest
 import android.content.ContentValues
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -12,7 +15,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.view.OrientationEventListener
+import android.view.Surface
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,6 +28,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview as CameraPreview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -32,6 +39,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -45,6 +53,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -52,9 +61,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.ManageAccounts
@@ -64,9 +73,11 @@ import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,15 +93,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import cl.aldemar.musselapp.ui.muestra.Paleta
+import cl.aldemar.musselapp.ui.muestra.VisorFoto
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
 import java.io.File
 
@@ -139,6 +158,11 @@ fun CaptureScreen(
     val foto = fotoBitmap
     var estadoFoto by remember { mutableStateOf(EstadoFoto.SIN_FOTO) }
     var origenCamara by remember { mutableStateOf(false) }
+    var camaraAbierta by remember { mutableStateOf(false) }
+    var verFoto by remember { mutableStateOf(false) }
+    var animando by remember { mutableStateOf(false) } // el botón se va como bote hacia la Vista previa
+    var rutaSiguiente by remember { mutableStateOf<String?>(null) }
+    val progresoBote = remember { Animatable(0f) }
 
     // Foto nueva (cámara o galería): queda PENDIENTE hasta que el operario la confirme
     fun alRecibirFoto(archivo: File, desdeCamara: Boolean) {
@@ -147,6 +171,7 @@ fun CaptureScreen(
         fotoBitmap = cargarBitmap(archivo.absolutePath)
         origenCamara = desdeCamara
         capturando = false
+        camaraAbierta = false
         estadoFoto = EstadoFoto.REVISAR
     }
 
@@ -183,14 +208,22 @@ fun CaptureScreen(
             "Foto guardada solo en la app"
         }
         Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
+
+        // Con la foto confirmada, el botón se expande suavemente y pasa a la Vista previa
+        rutaSiguiente = destino.absolutePath
+        animando = true
     }
 
-    // El operario envía la foto ya confirmada a la siguiente fase
-    fun enviarFoto() {
-        val archivo = fotoArchivo ?: return
-        onFotoLista(archivo.absolutePath)
-        Toast.makeText(context, "Foto enviada", Toast.LENGTH_SHORT).show()
-        volverACamara()
+    // Navega cuando termina la animación del botón
+    LaunchedEffect(animando) {
+        if (!animando) return@LaunchedEffect
+        progresoBote.animateTo(1f, tween(durationMillis = 650, easing = FastOutSlowInEasing))
+        rutaSiguiente?.let(onFotoLista)
+    }
+
+    // Abre la cámara a pantalla completa (pide el permiso si aún no lo tiene)
+    fun abrirCamara() {
+        if (tienePermiso) camaraAbierta = true else pedirPermiso.launch(Manifest.permission.CAMERA)
     }
 
     val selectorGaleria = rememberLauncherForActivityResult(
@@ -217,10 +250,11 @@ fun CaptureScreen(
         )
     }
 
+    Box(modifier = Modifier.fillMaxSize()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Fondo)
+            .background(Paleta.Fondo)
     ) {
         BarraSuperior()
 
@@ -233,25 +267,35 @@ fun CaptureScreen(
                 .background(Color.Black)
         ) {
             when {
-                foto != null -> Image(
-                    bitmap = foto.asImageBitmap(),
-                    contentDescription = "Foto de la muestra",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit
-                )
-                !tienePermiso -> Text(
-                    text = "Se necesita permiso de cámara",
-                    color = Color.White,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-                else -> VistaPreviaCamara(
-                    imageCapture = imageCapture,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-
-            if (foto == null && tienePermiso) {
-                SuperposicionVisor()
+                foto != null -> {
+                    Image(
+                        bitmap = foto.asImageBitmap(),
+                        contentDescription = "Foto de la muestra. Toca para ampliar",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable { verFoto = true },
+                        contentScale = ContentScale.Fit
+                    )
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(10.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Navy)
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ZoomIn,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text("Toca para ampliar", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+                else -> ZonaSinFoto(tienePermiso = tienePermiso)
             }
         }
 
@@ -269,8 +313,12 @@ fun CaptureScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (estadoFoto == EstadoFoto.REVISAR) {
-                    BotonLateral(Icons.Filled.Refresh, "Repetir", false) { volverACamara() }
+                if (estadoFoto == EstadoFoto.REVISAR || animando) {
+                    BotonLateral(Icons.Filled.Refresh, "Repetir", false) {
+                        if (animando) return@BotonLateral
+                        volverACamara()
+                        abrirCamara()
+                    }
                 } else {
                     BotonLateral(Icons.Filled.PhotoLibrary, "Galería", false) {
                         selectorGaleria.launch(
@@ -279,32 +327,244 @@ fun CaptureScreen(
                     }
                 }
                 Obturador(
-                    icono = if (estadoFoto == EstadoFoto.REVISAR) Icons.Filled.Check else Icons.Filled.PhotoCamera,
+                    icono = if (estadoFoto == EstadoFoto.REVISAR || animando) Icons.Filled.Check else Icons.Filled.PhotoCamera,
                     descripcion = when (estadoFoto) {
-                        EstadoFoto.REVISAR -> "Foto buena, guardar"
+                        EstadoFoto.REVISAR -> "Foto buena, guardar y continuar"
                         EstadoFoto.SIN_FOTO -> "Tomar foto"
                         else -> "Tomar otra foto"
                     },
-                    habilitado = (tienePermiso || foto != null) && !capturando,
+                    habilitado = true,
                     respirar = estadoFoto == EstadoFoto.SIN_FOTO,
+                    navegar = progresoBote.value,
                     onClick = {
+                        if (animando) return@Obturador
                         when (estadoFoto) {
-                            EstadoFoto.SIN_FOTO -> tomarNuevaFoto()
+                            EstadoFoto.SIN_FOTO -> abrirCamara()
                             EstadoFoto.REVISAR -> confirmarFoto()
-                            else -> volverACamara()
+                            else -> {
+                                volverACamara()
+                                abrirCamara()
+                            }
                         }
                     }
                 )
-                BotonEnviar(
-                    habilitado = estadoFoto == EstadoFoto.GUARDADA || estadoFoto == EstadoFoto.SOLO_APP,
-                    onClick = { enviarFoto() }
-                )
+                // Espacio del tamaño de un botón lateral, para que el obturador quede centrado
+                Spacer(modifier = Modifier.size(56.dp))
             }
         }
 
         // TODO: esta barra es de toda la app; se moverá a la navegación
         BarraInferior()
     }
+
+    val rutaVisor = fotoArchivo?.absolutePath
+    if (verFoto && rutaVisor != null) {
+        VisorFoto(ruta = rutaVisor, onCerrar = { verFoto = false })
+    }
+
+    if (camaraAbierta) {
+        CamaraPantallaCompleta(
+            imageCapture = imageCapture,
+            capturando = capturando,
+            onTomar = { tomarNuevaFoto() },
+            onGaleria = {
+                camaraAbierta = false
+                selectorGaleria.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            },
+            onCerrar = { camaraAbierta = false }
+        )
+    }
+    }
+}
+
+// Zona que se ve antes de tomar la foto: la cámara se abre a pantalla completa con el obturador
+@Composable
+private fun ZonaSinFoto(tienePermiso: Boolean) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Navy)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Filled.PhotoCamera,
+            contentDescription = null,
+            tint = GrisTexto,
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Foto de la muestra",
+            color = Color.White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = if (tienePermiso) {
+                "Toca el botón de la cámara para abrirla a pantalla completa. Puedes tomar la foto en vertical u horizontal."
+            } else {
+                "Se necesita permiso de cámara. Toca el botón para concederlo."
+            },
+            color = GrisTexto,
+            fontSize = 13.sp,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+// Cámara a pantalla completa con los botones integrados; gira con el teléfono (vertical u horizontal)
+@Composable
+private fun CamaraPantallaCompleta(
+    imageCapture: ImageCapture,
+    capturando: Boolean,
+    onTomar: () -> Unit,
+    onGaleria: () -> Unit,
+    onCerrar: () -> Unit
+) {
+    val context = LocalContext.current
+    val view = LocalView.current
+    val horizontal = LocalConfiguration.current.orientation ==
+            android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
+    BackHandler(onBack = onCerrar)
+
+    // Mientras la cámara está abierta: permite girar la pantalla y oculta las barras del sistema
+    DisposableEffect(Unit) {
+        val actividad = context.buscarActividad()
+        val orientacionPrevia = actividad?.requestedOrientation
+        actividad?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+
+        val controlador = actividad?.let { WindowCompat.getInsetsController(it.window, view) }
+        controlador?.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        controlador?.hide(WindowInsetsCompat.Type.systemBars())
+
+        onDispose {
+            controlador?.show(WindowInsetsCompat.Type.systemBars())
+            if (actividad != null && orientacionPrevia != null) {
+                actividad.requestedOrientation = orientacionPrevia
+            }
+        }
+    }
+
+    // La foto sale con la orientación en que el operario sostiene el teléfono
+    DisposableEffect(Unit) {
+        val escucha = object : OrientationEventListener(context) {
+            override fun onOrientationChanged(grados: Int) {
+                if (grados == OrientationEventListener.ORIENTATION_UNKNOWN) return
+                imageCapture.targetRotation = when (grados) {
+                    in 45..134 -> Surface.ROTATION_270
+                    in 135..224 -> Surface.ROTATION_180
+                    in 225..314 -> Surface.ROTATION_90
+                    else -> Surface.ROTATION_0
+                }
+            }
+        }
+        escucha.enable()
+        onDispose { escucha.disable() }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+        VistaPreviaCamara(
+            imageCapture = imageCapture,
+            modifier = Modifier.fillMaxSize()
+        )
+        EsquinasVisor(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth(if (horizontal) 0.5f else 0.7f)
+                .fillMaxHeight(if (horizontal) 0.6f else 0.4f)
+        )
+
+        // Botones integrados sobre la imagen
+        if (horizontal) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeDrawingPadding()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                BotonCamara(Icons.Filled.Close, "Cerrar cámara", onCerrar)
+                Column(
+                    modifier = Modifier.fillMaxHeight(),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.size(52.dp))
+                    Obturador(
+                        icono = Icons.Filled.PhotoCamera,
+                        descripcion = "Tomar foto",
+                        habilitado = !capturando,
+                        respirar = false,
+                        onClick = onTomar
+                    )
+                    BotonCamara(Icons.Filled.PhotoLibrary, "Galería", onGaleria)
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeDrawingPadding()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    BotonCamara(Icons.Filled.Close, "Cerrar cámara", onCerrar)
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    BotonCamara(Icons.Filled.PhotoLibrary, "Galería", onGaleria)
+                    Obturador(
+                        icono = Icons.Filled.PhotoCamera,
+                        descripcion = "Tomar foto",
+                        habilitado = !capturando,
+                        respirar = false,
+                        onClick = onTomar
+                    )
+                    Spacer(modifier = Modifier.size(52.dp))
+                }
+            }
+        }
+    }
+}
+
+// Botón redondo semitransparente para usar sobre la cámara
+@Composable
+private fun BotonCamara(icono: ImageVector, descripcion: String, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(52.dp)
+            .clip(CircleShape)
+            .background(Color.Black.copy(alpha = 0.55f))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icono,
+            contentDescription = descripcion,
+            tint = Color.White
+        )
+    }
+}
+
+private tailrec fun Context.buscarActividad(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.buscarActividad()
+    else -> null
 }
 
 @Composable
@@ -353,24 +613,8 @@ private fun BarraSuperior() {
     }
 }
 
-// Marco blanco del visor.
-// TODO: chips flotantes (sector, flash, grilla, regla, PSU/TEMP, etc.) si se requieren
-@Composable
-private fun SuperposicionVisor() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(12.dp)
-    ) {
-        EsquinasVisor(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth(0.6f)
-                .fillMaxHeight(0.45f)
-        )
-    }
-}
-
+// Esquinas blancas del visor.
+// TODO: chips flotantes (flash, grilla, etc.) si se requieren
 @Composable
 private fun EsquinasVisor(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
@@ -401,7 +645,8 @@ private fun TarjetaAlineacion() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(AzulClaro)
+            .background(Paleta.Superficie)
+            .border(1.5.dp, Paleta.Borde, RoundedCornerShape(12.dp))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -410,25 +655,25 @@ private fun TarjetaAlineacion() {
             modifier = Modifier
                 .size(40.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color.White),
+                .background(Paleta.AcentoSuave),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.Straighten,
                 contentDescription = null,
-                tint = Navy
+                tint = Paleta.Acento
             )
         }
         Column {
             Text(
                 text = "Alineación de Muestra",
-                color = Navy,
+                color = Paleta.Texto,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = "Mantenga la regla calibrada paralela a la línea de choritos para cálculo automático.",
-                color = AzulOscuro,
+                color = Paleta.TextoSuave,
                 fontSize = 12.sp
             )
         }
@@ -447,19 +692,20 @@ private fun BotonLateral(
             modifier = Modifier
                 .size(56.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(if (seleccionado) Slate else GrisBoton)
+                .background(if (seleccionado) Paleta.Borde else Paleta.Campo)
+                .border(1.5.dp, Paleta.BordeCampo, RoundedCornerShape(12.dp))
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icono,
                 contentDescription = texto,
-                tint = if (seleccionado) Color.White else Slate
+                tint = if (seleccionado) Color.White else Paleta.Etiqueta
             )
         }
         Text(
             text = texto,
-            color = Slate,
+            color = Paleta.Etiqueta,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold
         )
@@ -468,41 +714,15 @@ private fun BotonLateral(
 
 private enum class EstadoFoto { SIN_FOTO, REVISAR, GUARDADA, SOLO_APP }
 
-// Botón "Enviar": pasa la foto confirmada a la siguiente fase
-@Composable
-private fun BotonEnviar(habilitado: Boolean, onClick: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier
-                .size(56.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(if (habilitado) Navy else GrisBoton)
-                .clickable(enabled = habilitado, onClick = onClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Send,
-                contentDescription = "Enviar",
-                tint = if (habilitado) Color.White else GrisTexto,
-                modifier = Modifier.size(26.dp)
-            )
-        }
-        Text(
-            text = "Enviar",
-            color = Slate,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
-}
-
-// Botón principal con animación: "respira" cuando espera la foto y se encoge al presionarlo
+// Botón principal: "respira" esperando la foto, se encoge al presionarlo y, al confirmar,
+// libera un aro suave que se expande y se disuelve (como un respiro) antes de pasar de pantalla
 @Composable
 private fun Obturador(
     icono: ImageVector,
     descripcion: String,
     habilitado: Boolean,
     respirar: Boolean,
+    navegar: Float = 0f, // 0 = quieto; hacia 1 el botón se expande y se desvanece
     onClick: () -> Unit
 ) {
     val interaccion = remember { MutableInteractionSource() }
@@ -522,37 +742,60 @@ private fun Obturador(
         ),
         label = "escala"
     )
-    val escala = escalaPresion * (if (respirar && habilitado) respiracion else 1f)
+    val escalaBase = escalaPresion * (if (respirar && habilitado && navegar == 0f) respiracion else 1f)
+    // Al confirmar: una leve contracción y luego se expande disolviéndose
+    val escala = if (navegar <= 0f) escalaBase else {
+        if (navegar < 0.25f) 1f - 0.08f * (navegar / 0.25f)
+        else 0.92f + 0.4f * ((navegar - 0.25f) / 0.75f)
+    }
+    val opacidad = if (navegar < 0.4f) 1f else (1f - (navegar - 0.4f) / 0.6f).coerceIn(0f, 1f)
+    val progresoAro = ((navegar - 0.15f) / 0.85f).coerceIn(0f, 1f)
 
-    Box(
-        modifier = Modifier
-            .graphicsLayer {
-                scaleX = escala
-                scaleY = escala
-            }
-            .size(76.dp)
-            .clip(CircleShape)
-            .background(Navy)
-            .padding(4.dp)
-            .clip(CircleShape)
-            .background(Color.White)
-            .padding(5.dp)
-            .clip(CircleShape)
-            .background(if (habilitado) Navy else GrisTexto)
-            .clickable(
-                interactionSource = interaccion,
-                indication = null,
-                enabled = habilitado,
-                onClick = onClick
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = icono,
-            contentDescription = descripcion,
-            tint = Color.White,
-            modifier = Modifier.size(28.dp)
-        )
+    Box(modifier = Modifier.size(76.dp), contentAlignment = Alignment.Center) {
+        if (navegar > 0f) {
+            Box(
+                modifier = Modifier
+                    .size(76.dp)
+                    .graphicsLayer {
+                        val e = 1f + 1.1f * progresoAro
+                        scaleX = e
+                        scaleY = e
+                        alpha = 0.45f * (1f - progresoAro)
+                    }
+                    .border(2.dp, Navy, CircleShape)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .graphicsLayer {
+                    scaleX = escala
+                    scaleY = escala
+                    alpha = opacidad
+                }
+                .size(76.dp)
+                .clip(CircleShape)
+                .background(Navy)
+                .padding(4.dp)
+                .clip(CircleShape)
+                .background(Color.White)
+                .padding(5.dp)
+                .clip(CircleShape)
+                .background(if (habilitado) Navy else Paleta.TextoSuave)
+                .clickable(
+                    interactionSource = interaccion,
+                    indication = null,
+                    enabled = habilitado,
+                    onClick = onClick
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icono,
+                contentDescription = descripcion,
+                tint = Color.White,
+                modifier = Modifier.size(28.dp)
+            )
+        }
     }
 }
 
@@ -561,7 +804,7 @@ private fun BarraInferior() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(Paleta.Pie)
             .navigationBarsPadding()
             .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
@@ -581,19 +824,19 @@ private fun ItemNavegacion(icono: ImageVector, texto: String, activo: Boolean) {
                 .width(56.dp)
                 .height(30.dp)
                 .clip(RoundedCornerShape(15.dp))
-                .background(if (activo) AzulClaro else Color.Transparent),
+                .background(if (activo) Paleta.AcentoSuave else Color.Transparent),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icono,
                 contentDescription = texto,
-                tint = if (activo) Navy else GrisNav,
+                tint = if (activo) Paleta.Acento else Paleta.TextoSuave,
                 modifier = Modifier.size(22.dp)
             )
         }
         Text(
             text = texto,
-            color = if (activo) Navy else GrisNav,
+            color = if (activo) Paleta.Acento else Paleta.TextoSuave,
             fontSize = 11.sp,
             fontWeight = FontWeight.SemiBold
         )
@@ -615,10 +858,19 @@ private fun VistaPreviaCamara(
         return
     }
 
+    val contexto = LocalContext.current
+    DisposableEffect(Unit) {
+        onDispose {
+            runCatching { ProcessCameraProvider.getInstance(contexto).get().unbindAll() }
+        }
+    }
+
     AndroidView(
         modifier = modifier,
         factory = { ctx ->
-            val previewView = PreviewView(ctx)
+            val previewView = PreviewView(ctx).apply {
+                scaleType = PreviewView.ScaleType.FIT_CENTER
+            }
             val futuro = ProcessCameraProvider.getInstance(ctx)
 
             futuro.addListener({

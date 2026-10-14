@@ -2,34 +2,28 @@ package cl.aldemar.musselapp.ui.muestra
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Anchor
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.DirectionsBoat
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Straighten
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,7 +36,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,16 +43,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.aldemar.musselapp.data.model.CentroCultivo
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
-
-// Colores del sistema de diseño (DESIGN.md)
-private val Navy = Color(0xFF0F172A)
-private val Slate = Color(0xFF334155)
-private val Fondo = Color(0xFFF1F5F9)
-private val GrisTexto = Color(0xFF94A3B8)
-private val GrisNav = Color(0xFF64748B)
-private val GrisBoton = Color(0xFFE2E8F0)
-private val AzulClaro = Color(0xFFDBEAFE)
-private val AzulOscuro = Color(0xFF1E3A8A)
 
 /** Datos del paso 1 del formulario, que se pasan a las siguientes pantallas. */
 data class ParametrosMuestra(
@@ -71,7 +54,9 @@ data class ParametrosMuestra(
 
 @Composable
 fun MuestraScreen(
-    centroInicial: CentroCultivo? = null,
+    // Ya no se preselecciona: el operario elige el centro igual que el tren y la línea.
+    // Se mantiene el parámetro para no cambiar la navegación.
+    @Suppress("UNUSED_PARAMETER") centroInicial: CentroCultivo? = null,
     onVolver: () -> Unit = {},
     onContinuar: (ParametrosMuestra) -> Unit = {},
     vm: MuestraViewModel = viewModel()
@@ -79,9 +64,6 @@ fun MuestraScreen(
     // Observamos el estado del ViewModel
     val state by vm.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-
-    // El centro de la sesión queda elegido de entrada
-    LaunchedEffect(Unit) { vm.iniciar(centroInicial) }
 
     // Cuando el ViewModel confirma que todo es válido, se muestra el mensaje y se avanza
     LaunchedEffect(state.parametrosValidos) {
@@ -94,7 +76,7 @@ fun MuestraScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Fondo)
+            .background(Paleta.Fondo)
     ) {
         BarraSuperior(onVolver)
 
@@ -114,7 +96,7 @@ fun MuestraScreen(
                     etiqueta = "Centro de Cultivo",
                     valor = state.centro?.nombre,
                     vacio = "Selecciona un centro",
-                    icono = null,
+                    icono = Icons.Filled.Business,
                     opciones = CentroCultivo.disponibles.map { it.nombre },
                     error = state.errorCentro,
                     onElegir = { i -> vm.cambiarCentro(CentroCultivo.disponibles[i]) }
@@ -146,12 +128,12 @@ fun MuestraScreen(
                     }
                     Text(
                         text = "Cuerda 6m",
-                        color = Slate,
+                        color = Paleta.Etiqueta,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(GrisBoton)
+                            .background(Paleta.Borde)
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
@@ -173,7 +155,7 @@ fun MuestraScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(Paleta.Pie)
                 .navigationBarsPadding()
                 .padding(16.dp)
         ) {
@@ -189,7 +171,7 @@ private fun BarraSuperior(onVolver: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Navy)
+            .background(Paleta.Barra)
             .statusBarsPadding()
             .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -215,7 +197,7 @@ private fun BarraSuperior(onVolver: () -> Unit) {
             )
             Text(
                 text = "ONLINE / SINCRONIZADO",
-                color = GrisTexto,
+                color = Paleta.TextoBarra,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -229,19 +211,19 @@ private fun EncabezadoPasos() {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "Nueva Muestra de Choritos",
-                color = Navy,
+                color = Paleta.Texto,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
             )
             Text(
                 text = "PASO 1 DE 3",
-                color = AzulOscuro,
+                color = Paleta.Acento,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(AzulClaro)
+                    .background(Paleta.AcentoSuave)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             )
         }
@@ -252,7 +234,7 @@ private fun EncabezadoPasos() {
                         .weight(1f)
                         .height(6.dp)
                         .clip(RoundedCornerShape(3.dp))
-                        .background(if (i == 0) Navy else GrisBoton)
+                        .background(if (i == 0) Paleta.Acento else Paleta.BordeCampo)
                 )
             }
         }
@@ -260,7 +242,7 @@ private fun EncabezadoPasos() {
             listOf("1. Parámetros", "2. Biometría y Fotos", "3. Validación").forEachIndexed { i, texto ->
                 Text(
                     text = texto,
-                    color = if (i == 0) Navy else GrisNav,
+                    color = if (i == 0) Paleta.Texto else Paleta.Etiqueta,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
@@ -272,30 +254,28 @@ private fun EncabezadoPasos() {
 }
 
 @Composable
-private fun Tarjeta(contenido: @Composable () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
-            .border(1.5.dp, GrisNav.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        contenido()
-    }
-}
-
-@Composable
 private fun TituloTarjeta(texto: String, icono: ImageVector) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Icon(imageVector = icono, contentDescription = null, tint = Slate)
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(Paleta.Primario),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icono,
+                contentDescription = null,
+                tint = Paleta.SobrePrimario,
+                modifier = Modifier.size(22.dp)
+            )
+        }
         Text(
             text = texto,
-            color = Navy,
+            color = Paleta.Texto,
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold
         )
@@ -309,13 +289,13 @@ private fun BotonContinuar(onClick: () -> Unit) {
             .fillMaxWidth()
             .height(56.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Navy)
+            .background(Paleta.Primario)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "Continuar a Captura",
-            color = Color.White,
+            color = Paleta.SobrePrimario,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
@@ -334,7 +314,7 @@ private fun BotonLimpiar(onClick: () -> Unit) {
     ) {
         Text(
             text = "Limpiar formulario",
-            color = GrisNav,
+            color = Paleta.TextoSuave,
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold
         )
