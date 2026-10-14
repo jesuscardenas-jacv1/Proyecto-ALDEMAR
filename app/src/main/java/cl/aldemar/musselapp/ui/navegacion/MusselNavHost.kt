@@ -17,6 +17,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import cl.aldemar.musselapp.data.model.EstadoMuestra
+import cl.aldemar.musselapp.data.model.Muestra
+import cl.aldemar.musselapp.data.repository.FakeMuestraRepository
+import cl.aldemar.musselapp.ui.detalle.DetalleRoute
 import cl.aldemar.musselapp.ui.historial.HistorialRoute
 import cl.aldemar.musselapp.ui.login.LoginRoute
 import cl.aldemar.musselapp.ui.login.LoginViewModel
@@ -25,7 +29,10 @@ import cl.aldemar.musselapp.ui.muestra.MuestraScreen
 import cl.aldemar.musselapp.ui.muestra.VistaPreviaScreen
 import cl.aldemar.musselapp.ui.principal.Destino
 import cl.aldemar.musselapp.ui.principal.PrincipalRoute
+import cl.aldemar.musselapp.ui.revision.RevisionRoute
 import cl.aldemar.musselapp.ui.screens.CaptureScreen
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Grafo de navegación de la app.
@@ -124,6 +131,7 @@ fun MusselNavHost(
         }
 
         composable(Rutas.VISTA_PREVIA) {
+            val scope = rememberCoroutineScope()
             VistaPreviaScreen(
                 borrador = borrador,
                 onVolver = ::volver,
@@ -132,7 +140,28 @@ fun MusselNavHost(
                 onParametrosCambiados = borradorViewModel::actualizarParametros,
                 onObservacionCambiada = borradorViewModel::actualizarObservacion,
                 onConfirmar = {
-                    // TODO: guardar la muestra en el repositorio (pendiente de acordar con el equipo)
+                    val parametros = borrador.parametros
+                    if (parametros != null) {
+                        val nuevaId = (System.currentTimeMillis() % 900) + 100
+                        val nuevaMuestra = Muestra(
+                            id = nuevaId,
+                            centroId = parametros.centroId,
+                            linea = parametros.linea,
+                            tren = parametros.tren,
+                            profundidadM = parametros.profundidadM,
+                            tallaMm = borrador.tallaMm ?: 65,
+                            conteoIndM = borrador.conteoIndM ?: 420,
+                            observacion = borrador.observacion.ifBlank { "Muestreo regular" },
+                            estado = EstadoMuestra.PENDIENTE,
+                            registradaEn = System.currentTimeMillis(),
+                            sincronizada = false,
+                            operador = usuario?.nombre ?: "Operario",
+                            fotoRuta = borrador.fotoRuta,
+                        )
+                        scope.launch {
+                            FakeMuestraRepository.instancia.agregarMuestra(nuevaMuestra)
+                        }
+                    }
                     borradorViewModel.limpiar()
                     navController.popBackStack(Rutas.PRINCIPAL, inclusive = false)
                 },
@@ -158,21 +187,23 @@ fun MusselNavHost(
             route = Rutas.DETALLE,
             arguments = listOf(navArgument(Rutas.ARG_MUESTRA_ID) { type = NavType.LongType }),
         ) { entrada ->
+            val sesion = usuario ?: return@composable
             val muestraId = entrada.arguments?.getLong(Rutas.ARG_MUESTRA_ID) ?: 0L
-            PantallaEnConstruccion(
-                titulo = "Detalle de muestra #$muestraId",
-                objetivo = "Ver en detalle los datos ingresados de la muestra seleccionada.",
-                responsable = "Lucas Saldivia",
+            DetalleRoute(
+                muestraId = muestraId,
+                usuario = sesion,
                 onVolver = ::volver,
+                onIrARevision = { navController.navigate(Rutas.REVISION) },
             )
         }
 
         composable(Rutas.REVISION) {
-            PantallaEnConstruccion(
-                titulo = "Revisión del Supervisor",
-                objetivo = "Cambiar el estado de las muestras (Pendiente, Observado, Corregido, Validado) y agregar comentarios técnicos.",
-                responsable = "Lucas Saldivia",
+            val sesion = usuario ?: return@composable
+            RevisionRoute(
+                usuario = sesion,
+                centro = loginState.centro,
                 onVolver = ::volver,
+                onNavegar = ::navegarDesdeMenu,
             )
         }
     }
