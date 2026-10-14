@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Anchor
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.CheckCircle
@@ -35,7 +34,6 @@ import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -264,19 +262,6 @@ fun NavegacionInferior(rol: Rol, seleccionado: Destino, onNavegar: (Destino) -> 
                 ),
             )
         }
-    }
-}
-
-/** Botón flotante "+" para registrar una muestra rápida (solo operario). */
-@Composable
-fun BotonNuevaMuestra(onClick: () -> Unit) {
-    FloatingActionButton(
-        onClick = onClick,
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        shape = RoundedCornerShape(16.dp),
-    ) {
-        Icon(Icons.Filled.Add, contentDescription = "Registrar muestra rápida")
     }
 }
 

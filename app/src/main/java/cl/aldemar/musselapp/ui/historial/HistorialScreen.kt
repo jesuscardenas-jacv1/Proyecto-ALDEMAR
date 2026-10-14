@@ -80,7 +80,6 @@ import cl.aldemar.musselapp.data.model.Rol
 import cl.aldemar.musselapp.data.model.Usuario
 import cl.aldemar.musselapp.data.repository.FakeMuestraRepository
 import cl.aldemar.musselapp.ui.componentes.BarraSuperiorMussel
-import cl.aldemar.musselapp.ui.componentes.BotonNuevaMuestra
 import cl.aldemar.musselapp.ui.componentes.ChipEstado
 import cl.aldemar.musselapp.ui.componentes.NavegacionInferior
 import cl.aldemar.musselapp.ui.principal.Destino
@@ -166,16 +165,13 @@ fun HistorialScreen(
             )
         },
         bottomBar = { NavegacionInferior(rol = usuario.rol, seleccionado = Destino.HISTORIAL, onNavegar = onNavegar) },
-        floatingActionButton = {
-            if (usuario.rol == Rol.OPERARIO) BotonNuevaMuestra(onClick = { onNavegar(Destino.NUEVA_MUESTRA) })
-        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 96.dp),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item { BarraBusqueda(texto = uiState.criterios.busqueda, onTextoChange = onBusquedaChange) }
