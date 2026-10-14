@@ -9,7 +9,6 @@ data class HistorialUiState(
     val conteos: Map<FiltroEstado, Int> = emptyMap(),
     val tallaPromedioMm: Double? = null,
     val pendientesSincronizar: Int = 0,
-    val actualizadoEn: Long = System.currentTimeMillis(),
     val sincronizando: Boolean = false,
     val mensaje: String? = null,
 )
