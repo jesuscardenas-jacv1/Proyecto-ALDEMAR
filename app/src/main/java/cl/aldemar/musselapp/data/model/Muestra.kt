@@ -14,6 +14,8 @@ data class Muestra(
     val registradaEn: Long,
     val sincronizada: Boolean,
     val operador: String = "",
+    /** RUT normalizado del operario que registró la muestra. */
+    val operadorRut: String = "",
     /** Supervisor que revisó la muestra (Validado / Observado). */
     val revisadaPor: String? = null,
     /** Comentario técnico del supervisor al observar o validar la muestra. */

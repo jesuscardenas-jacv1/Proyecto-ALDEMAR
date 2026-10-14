@@ -2,8 +2,8 @@ package cl.aldemar.musselapp.ui.revision
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cl.aldemar.musselapp.MusselApplication
 import cl.aldemar.musselapp.data.model.EstadoMuestra
-import cl.aldemar.musselapp.data.repository.FakeMuestraRepository
 import cl.aldemar.musselapp.data.repository.MuestraRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RevisionViewModel(
-    private val repository: MuestraRepository = FakeMuestraRepository.instancia,
+    private val repository: MuestraRepository = MusselApplication.contenedor.muestraRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RevisionUiState())

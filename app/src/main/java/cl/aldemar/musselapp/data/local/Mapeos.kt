@@ -21,6 +21,7 @@ fun MuestraCompleta.aModelo() = Muestra(
     registradaEn = muestra.registradaEn,
     sincronizada = muestra.sincronizada,
     operador = operadorNombre,
+    operadorRut = muestra.operadorRut,
     revisadaPor = supervisorNombre,
     comentarioSupervisor = comentarioSupervisor,
     fotoRuta = muestra.fotoRuta,

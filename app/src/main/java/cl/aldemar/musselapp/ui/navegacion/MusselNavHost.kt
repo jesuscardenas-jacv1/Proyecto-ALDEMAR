@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -26,9 +27,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import cl.aldemar.musselapp.MusselApplication
 import cl.aldemar.musselapp.data.model.EstadoMuestra
 import cl.aldemar.musselapp.data.model.Muestra
-import cl.aldemar.musselapp.data.repository.FakeMuestraRepository
 import cl.aldemar.musselapp.ui.detalle.DetalleRoute
 import cl.aldemar.musselapp.ui.historial.HistorialRoute
 import cl.aldemar.musselapp.ui.login.LoginRoute
@@ -40,7 +41,6 @@ import cl.aldemar.musselapp.ui.principal.Destino
 import cl.aldemar.musselapp.ui.principal.PrincipalRoute
 import cl.aldemar.musselapp.ui.revision.RevisionRoute
 import cl.aldemar.musselapp.ui.screens.CaptureScreen
-import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -197,10 +197,11 @@ fun MusselNavHost(
                             registradaEn = System.currentTimeMillis(),
                             sincronizada = false,
                             operador = usuario?.nombre ?: "Operario",
+                            operadorRut = usuario?.rut.orEmpty(),
                             fotoRuta = borrador.fotoRuta,
                         )
                         scope.launch {
-                            FakeMuestraRepository.instancia.agregarMuestra(nuevaMuestra)
+                            MusselApplication.contenedor.muestraRepository.agregarMuestra(nuevaMuestra)
                         }
                     }
                     borradorViewModel.limpiar()

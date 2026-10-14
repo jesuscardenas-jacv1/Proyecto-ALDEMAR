@@ -2,10 +2,10 @@ package cl.aldemar.musselapp.ui.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cl.aldemar.musselapp.MusselApplication
 import cl.aldemar.musselapp.data.model.CentroCultivo
 import cl.aldemar.musselapp.data.model.Rol
 import cl.aldemar.musselapp.data.repository.AuthRepository
-import cl.aldemar.musselapp.data.repository.FakeAuthRepository
 import cl.aldemar.musselapp.util.RutValidator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    private val authRepository: AuthRepository = FakeAuthRepository(),
+    private val authRepository: AuthRepository = MusselApplication.contenedor.authRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())

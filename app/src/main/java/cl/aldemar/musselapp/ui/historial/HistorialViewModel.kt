@@ -2,7 +2,7 @@ package cl.aldemar.musselapp.ui.historial
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cl.aldemar.musselapp.data.repository.FakeMuestraRepository
+import cl.aldemar.musselapp.MusselApplication
 import cl.aldemar.musselapp.data.repository.MuestraRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HistorialViewModel(
-    private val muestraRepository: MuestraRepository = FakeMuestraRepository.instancia,
+    private val muestraRepository: MuestraRepository = MusselApplication.contenedor.muestraRepository,
 ) : ViewModel() {
 
     private data class EstadoLocal(

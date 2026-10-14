@@ -2,7 +2,7 @@ package cl.aldemar.musselapp.ui.principal
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cl.aldemar.musselapp.data.repository.FakeMuestraRepository
+import cl.aldemar.musselapp.MusselApplication
 import cl.aldemar.musselapp.data.repository.MuestraRepository
 import cl.aldemar.musselapp.util.Fechas
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PrincipalViewModel(
-    private val muestraRepository: MuestraRepository = FakeMuestraRepository.instancia,
+    private val muestraRepository: MuestraRepository = MusselApplication.contenedor.muestraRepository,
 ) : ViewModel() {
 
     private data class EstadoLocal(val sincronizando: Boolean = false, val mensaje: String? = null)
