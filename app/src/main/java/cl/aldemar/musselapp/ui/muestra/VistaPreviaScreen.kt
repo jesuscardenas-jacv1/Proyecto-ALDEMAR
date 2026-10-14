@@ -38,6 +38,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Anchor
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -46,6 +47,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.RotateLeft
+import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -88,14 +91,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// Colores del sistema de diseño (DESIGN.md)
+// Navy del diseño (DESIGN.md): barras y botones sobre la foto
 private val Navy = Color(0xFF0F172A)
-private val Slate = Color(0xFF334155)
-private val Fondo = Color(0xFFF1F5F9)
-private val GrisTexto = Color(0xFF94A3B8)
-private val GrisNav = Color(0xFF64748B)
-private val GrisBoton = Color(0xFFE2E8F0)
-private val Rojo = Color(0xFFDC2626)
 
 // Estado "Pendiente" (DESIGN.md)
 private val PendienteFondo = Color(0xFFFEF3C7)
@@ -156,7 +153,7 @@ fun VistaPreviaScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Fondo)
+            .background(Paleta.Fondo)
             .imePadding()
             .pointerInput(Unit) { detectTapGestures(onTap = { cerrarTeclado() }) }
     ) {
@@ -173,7 +170,7 @@ fun VistaPreviaScreen(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "NUEVA MUESTRA",
-                    color = Slate,
+                    color = Paleta.Etiqueta,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
@@ -221,17 +218,17 @@ fun VistaPreviaScreen(
             }
 
             // Ubicación: lectura o edición en la misma pantalla
-            Tarjeta {
+            Tarjeta(espacio = 12.dp) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Row(
                         modifier = Modifier.weight(1f),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Filled.Anchor, contentDescription = null, tint = Slate)
+                        Icon(Icons.Filled.Anchor, contentDescription = null, tint = Paleta.Acento)
                         Text(
                             text = "UBICACIÓN Y MUESTREO",
-                            color = Navy,
+                            color = Paleta.Texto,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -242,13 +239,13 @@ fun VistaPreviaScreen(
                 }
 
                 if (parametros == null) {
-                    Text("Completa el formulario de Nueva Muestra.", color = GrisNav, fontSize = 13.sp)
+                    Text("Completa el formulario de Nueva Muestra.", color = Paleta.TextoSuave, fontSize = 13.sp)
                 } else if (editando) {
                     Selector(
                         etiqueta = "Centro de Cultivo",
                         valor = CentroCultivo.disponibles.firstOrNull { it.id == parametros.centroId }?.nombre,
                         vacio = "Selecciona un centro",
-                        icono = null,
+                        icono = Icons.Filled.Business,
                         opciones = CentroCultivo.disponibles.map { it.nombre },
                         onElegir = { i ->
                             onParametrosCambiados(parametros.copy(centroId = CentroCultivo.disponibles[i].id))
@@ -272,9 +269,9 @@ fun VistaPreviaScreen(
                     )
                     Text(
                         text = "Estrato de profundidad",
-                        color = Slate,
+                        color = Paleta.Etiqueta,
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Estrato.entries.forEach { e ->
@@ -298,10 +295,10 @@ fun VistaPreviaScreen(
             }
 
             // Notas del operador (editables)
-            Tarjeta {
+            Tarjeta(espacio = 12.dp) {
                 Text(
                     text = "NOTAS DEL OPERADOR EN TERRENO",
-                    color = GrisNav,
+                    color = Paleta.Etiqueta,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -311,24 +308,24 @@ fun VistaPreviaScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 96.dp),
-                    placeholder = { Text("Escribe una observación de la muestra…", color = GrisNav) },
+                    placeholder = { Text("Escribe una observación de la muestra…", color = Paleta.TextoSuave) },
                     minLines = 3,
                     maxLines = 6,
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
-                        focusedBorderColor = Navy,
-                        unfocusedBorderColor = GrisNav,
-                        cursorColor = Navy,
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Fondo,
+                        focusedTextColor = Paleta.Texto,
+                        unfocusedTextColor = Paleta.Texto,
+                        focusedBorderColor = Paleta.Acento,
+                        unfocusedBorderColor = Paleta.BordeFuerte,
+                        cursorColor = Paleta.Acento,
+                        focusedContainerColor = Paleta.Campo,
+                        unfocusedContainerColor = Paleta.Campo,
                     ),
                     supportingText = {
                         Text(
                             text = "${borrador.observacion.length}/$MAX_OBSERVACION",
-                            color = GrisNav,
+                            color = Paleta.TextoSuave,
                             fontSize = 11.sp,
                             textAlign = TextAlign.End,
                             modifier = Modifier.fillMaxWidth()
@@ -342,7 +339,8 @@ fun VistaPreviaScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(GrisBoton)
+                    .background(Paleta.Superficie)
+                    .border(1.5.dp, Paleta.Borde, RoundedCornerShape(12.dp))
                     .clickable { guardarLocal = !guardarLocal }
                     .padding(horizontal = 16.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -350,20 +348,24 @@ fun VistaPreviaScreen(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Guardar localmente en el dispositivo",
-                        color = Navy,
+                        color = Paleta.Texto,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "Almacenamiento seguro sin conexión",
-                        color = GrisNav,
+                        color = Paleta.TextoSuave,
                         fontSize = 12.sp
                     )
                 }
                 Checkbox(
                     checked = guardarLocal,
                     onCheckedChange = { guardarLocal = it },
-                    colors = CheckboxDefaults.colors(checkedColor = Navy)
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Paleta.Primario,
+                        checkmarkColor = Paleta.SobrePrimario,
+                        uncheckedColor = Paleta.BordeCampo
+                    )
                 )
             }
         }
@@ -372,7 +374,7 @@ fun VistaPreviaScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(Paleta.Pie)
                 .navigationBarsPadding()
                 .padding(16.dp)
         ) {
@@ -381,7 +383,7 @@ fun VistaPreviaScreen(
                     .fillMaxWidth()
                     .height(56.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(if (listo) Navy else GrisBoton)
+                    .background(if (listo) Paleta.Primario else Paleta.Campo)
                     .clickable(enabled = listo) {
                         cerrarTeclado()
                         confirmando = true
@@ -390,7 +392,7 @@ fun VistaPreviaScreen(
             ) {
                 Text(
                     text = "GUARDAR Y ENVIAR MUESTRA",
-                    color = if (listo) Color.White else GrisTexto,
+                    color = if (listo) Paleta.SobrePrimario else Paleta.TextoSuave,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -405,6 +407,9 @@ fun VistaPreviaScreen(
     if (eliminando) {
         AlertDialog(
             onDismissRequest = { eliminando = false },
+            containerColor = Paleta.Superficie,
+            titleContentColor = Paleta.Texto,
+            textContentColor = Paleta.Etiqueta,
             title = { Text("¿Eliminar la foto?", fontWeight = FontWeight.Bold) },
             text = { Text("Se quitará la foto de esta muestra. Podrás tomar otra o elegir una de la galería.") },
             confirmButton = {
@@ -412,11 +417,11 @@ fun VistaPreviaScreen(
                     eliminando = false
                     borrarArchivo(rutaFoto)
                     onFotoCambiada(null)
-                }) { Text("ELIMINAR", color = Rojo, fontWeight = FontWeight.Bold) }
+                }) { Text("ELIMINAR", color = Paleta.Error, fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
                 TextButton(onClick = { eliminando = false }) {
-                    Text("CANCELAR", color = GrisNav, fontWeight = FontWeight.Bold)
+                    Text("CANCELAR", color = Paleta.TextoSuave, fontWeight = FontWeight.Bold)
                 }
             }
         )
@@ -425,17 +430,20 @@ fun VistaPreviaScreen(
     if (confirmando) {
         AlertDialog(
             onDismissRequest = { confirmando = false },
+            containerColor = Paleta.Superficie,
+            titleContentColor = Paleta.Texto,
+            textContentColor = Paleta.Etiqueta,
             title = { Text("¿Confirmar muestreo?", fontWeight = FontWeight.Bold) },
             text = { Text("Revisaste la fotografía y los datos. Se registrará la muestra y quedará lista para enviarse.") },
             confirmButton = {
                 TextButton(onClick = {
                     confirmando = false
                     onConfirmar()
-                }) { Text("CONFIRMAR", color = Navy, fontWeight = FontWeight.Bold) }
+                }) { Text("CONFIRMAR", color = Paleta.Acento, fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
                 TextButton(onClick = { confirmando = false }) {
-                    Text("CANCELAR", color = GrisNav, fontWeight = FontWeight.Bold)
+                    Text("CANCELAR", color = Paleta.TextoSuave, fontWeight = FontWeight.Bold)
                 }
             }
         )
@@ -473,7 +481,7 @@ private fun BarraSuperior(onVolver: () -> Unit) {
             )
             Text(
                 text = "MUSSELAPP • OPERARIO",
-                color = GrisTexto,
+                color = Paleta.TextoBarra,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -590,15 +598,15 @@ private fun BotonAccion(
     onClick: () -> Unit
 ) {
     val color = when {
-        !habilitado -> GrisTexto
-        peligro -> Rojo
-        else -> Slate
+        !habilitado -> Paleta.BordeCampo
+        peligro -> Paleta.Error
+        else -> Paleta.Etiqueta
     }
     Column(
         modifier = modifier
             .heightIn(min = 56.dp)
             .clip(RoundedCornerShape(10.dp))
-            .border(1.5.dp, if (habilitado) color else GrisBoton, RoundedCornerShape(10.dp))
+            .border(1.5.dp, if (habilitado) color.copy(alpha = 0.7f) else Paleta.Borde, RoundedCornerShape(10.dp))
             .clickable(enabled = habilitado, onClick = onClick)
             .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -615,8 +623,8 @@ private fun BotonEditar(editando: Boolean, onClick: () -> Unit) {
         modifier = Modifier
             .heightIn(min = 40.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(if (editando) Navy else Color.White)
-            .border(1.5.dp, if (editando) Navy else GrisNav, RoundedCornerShape(8.dp))
+            .background(if (editando) Paleta.Primario else Paleta.AcentoSuave)
+            .border(1.5.dp, if (editando) Paleta.Primario else Paleta.Acento, RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -625,24 +633,41 @@ private fun BotonEditar(editando: Boolean, onClick: () -> Unit) {
         Icon(
             imageVector = if (editando) Icons.Filled.Check else Icons.Filled.Edit,
             contentDescription = null,
-            tint = if (editando) Color.White else Slate,
+            tint = if (editando) Paleta.SobrePrimario else Paleta.Acento,
             modifier = Modifier.size(18.dp)
         )
         Text(
             text = if (editando) "LISTO" else "EDITAR",
-            color = if (editando) Color.White else Slate,
+            color = if (editando) Paleta.SobrePrimario else Paleta.Acento,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold
         )
     }
 }
 
-// Foto a pantalla completa: se puede acercar con dos dedos
+// Foto a pantalla completa: se acerca con dos dedos y se puede girar a vertical u horizontal
 @Composable
-private fun VisorFoto(ruta: String, onCerrar: () -> Unit) {
-    val bitmap = remember(ruta) { cargarBitmap(ruta, 2) }
+internal fun VisorFoto(ruta: String, onCerrar: () -> Unit) {
+    val original = remember(ruta) { cargarBitmap(ruta, 2) }
+    var grados by remember { mutableStateOf(0) }
     var escala by remember { mutableStateOf(1f) }
     var desplazamiento by remember { mutableStateOf(Offset.Zero) }
+
+    // La foto se gira de verdad (no solo se estira), para que siempre se vea completa
+    val bitmap = remember(original, grados) {
+        if (original == null || grados == 0) {
+            original
+        } else {
+            val matriz = Matrix().apply { postRotate(grados.toFloat()) }
+            Bitmap.createBitmap(original, 0, 0, original.width, original.height, matriz, true)
+        }
+    }
+
+    fun girar(delta: Int) {
+        grados = (grados + delta + 360) % 360
+        escala = 1f
+        desplazamiento = Offset.Zero
+    }
 
     Dialog(
         onDismissRequest = onCerrar,
@@ -681,24 +706,48 @@ private fun VisorFoto(ruta: String, onCerrar: () -> Unit) {
                 )
             }
 
-            Box(
+            BotonVisor(
+                icono = Icons.Filled.Close,
+                descripcion = "Cerrar",
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .statusBarsPadding()
-                    .padding(12.dp)
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(Navy)
-                    .clickable(onClick = onCerrar),
-                contentAlignment = Alignment.Center
+                    .padding(12.dp),
+                onClick = onCerrar
+            )
+
+            // Girar a la izquierda / derecha
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .statusBarsPadding()
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = "Cerrar",
-                    tint = Color.White
-                )
+                BotonVisor(Icons.Filled.RotateLeft, "Girar a la izquierda") { girar(-90) }
+                BotonVisor(Icons.Filled.RotateRight, "Girar a la derecha") { girar(90) }
             }
         }
+    }
+}
+
+// Botón redondo para usar sobre la foto ampliada
+@Composable
+private fun BotonVisor(
+    icono: ImageVector,
+    descripcion: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .size(48.dp)
+            .clip(CircleShape)
+            .background(Navy.copy(alpha = 0.85f))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(imageVector = icono, contentDescription = descripcion, tint = Color.White)
     }
 }
 
@@ -712,22 +761,22 @@ private fun TarjetaMetrica(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
-            .border(1.5.dp, GrisNav.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+            .background(Paleta.Superficie)
+            .border(1.5.dp, Paleta.Borde, RoundedCornerShape(12.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Text(text = titulo, color = GrisNav, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        Text(text = titulo, color = Paleta.TextoSuave, fontSize = 11.sp, fontWeight = FontWeight.Bold)
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 text = valor ?: "—",
-                color = Color.Black,
+                color = Paleta.Texto,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = unidad,
-                color = GrisNav,
+                color = Paleta.TextoSuave,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 4.dp)
@@ -737,40 +786,26 @@ private fun TarjetaMetrica(
 }
 
 @Composable
-private fun Tarjeta(sinPadding: Boolean = false, contenido: @Composable () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
-            .border(1.5.dp, GrisNav.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
-            .padding(if (sinPadding) 0.dp else 16.dp),
-        verticalArrangement = Arrangement.spacedBy(if (sinPadding) 0.dp else 12.dp)
-    ) {
-        contenido()
-    }
-}
-
-@Composable
 private fun Fila(etiqueta: String, valor: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(Fondo)
+            .background(Paleta.Campo)
+            .border(1.5.dp, Paleta.BordeFuerte, RoundedCornerShape(8.dp))
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = etiqueta,
-            color = GrisNav,
+            color = Paleta.Etiqueta,
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.weight(0.4f)
         )
         Text(
             text = valor,
-            color = Color.Black,
+            color = Paleta.Texto,
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.End,

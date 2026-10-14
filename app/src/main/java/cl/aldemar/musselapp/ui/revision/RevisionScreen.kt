@@ -49,6 +49,10 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.graphics.ImageBitmap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -716,12 +720,26 @@ private fun MotivoChip(texto: String, onClick: () -> Unit) {
     }
 }
 
+// Decodifica la foto reducida (la original de la cámara pesa varios MB) y fuera del hilo principal
+private fun decodificarFotoReducida(ruta: String, ladoMaxPx: Int = 1280): ImageBitmap? {
+    val limites = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeFile(ruta, limites)
+    if (limites.outWidth <= 0 || limites.outHeight <= 0) return null
+    var muestreo = 1
+    while (maxOf(limites.outWidth, limites.outHeight) / (muestreo * 2) >= ladoMaxPx) muestreo *= 2
+    val opciones = BitmapFactory.Options().apply { inSampleSize = muestreo }
+    return BitmapFactory.decodeFile(ruta, opciones)?.asImageBitmap()
+}
+
 @Composable
 private fun RenderImagenRevision(fotoRuta: String?, modifier: Modifier = Modifier) {
-    if (fotoRuta != null && File(fotoRuta).exists()) {
-        val bitmap = remember(fotoRuta) { BitmapFactory.decodeFile(fotoRuta)?.asImageBitmap() }
-        if (bitmap != null) {
-            Image(bitmap = bitmap, contentDescription = "Fotografía de muestra", modifier = modifier, contentScale = ContentScale.Crop)
+    if (fotoRuta != null) {
+        val bitmap by produceState<ImageBitmap?>(initialValue = null, fotoRuta) {
+            value = withContext(Dispatchers.IO) { decodificarFotoReducida(fotoRuta) }
+        }
+        val foto = bitmap
+        if (foto != null) {
+            Image(bitmap = foto, contentDescription = "Fotografía de muestra", modifier = modifier, contentScale = ContentScale.Crop)
             return
         }
     }

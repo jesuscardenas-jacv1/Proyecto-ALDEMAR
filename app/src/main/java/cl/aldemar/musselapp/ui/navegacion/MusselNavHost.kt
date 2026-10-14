@@ -1,6 +1,15 @@
 package cl.aldemar.musselapp.ui.navegacion
 
 import android.app.Activity
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.navigation.NavBackStackEntry
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -40,6 +49,20 @@ import kotlinx.coroutines.launch
  * Para integrar una pantalla nueva, reemplazar la PantallaEnConstruccion de su ruta
  * por la pantalla real, sin cambiar el nombre de la ruta.
  */
+// Transiciones suaves del flujo Muestra → Captura → Vista previa
+private val entradaFlujo: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+    slideInHorizontally(tween(380)) { it / 4 } + fadeIn(tween(380))
+}
+private val salidaFlujo: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+    fadeOut(tween(220))
+}
+private val entradaAtras: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+    fadeIn(tween(300))
+}
+private val salidaAtras: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+    slideOutHorizontally(tween(320)) { it / 4 } + fadeOut(tween(300))
+}
+
 @Composable
 fun MusselNavHost(
     navController: NavHostController = rememberNavController(),
@@ -110,7 +133,13 @@ fun MusselNavHost(
         }
 
         // ── Registro de muestra (Jesús Cárdenas) ──────────────────────────
-        composable(Rutas.MUESTRA) {
+        composable(
+            Rutas.MUESTRA,
+            enterTransition = entradaFlujo,
+            exitTransition = salidaFlujo,
+            popEnterTransition = entradaAtras,
+            popExitTransition = salidaAtras,
+        ) {
             MuestraScreen(
                 centroInicial = loginState.centro,
                 onVolver = ::volver,
@@ -121,7 +150,13 @@ fun MusselNavHost(
             )
         }
 
-        composable(Rutas.CAPTURA) {
+        composable(
+            Rutas.CAPTURA,
+            enterTransition = entradaFlujo,
+            exitTransition = salidaFlujo,
+            popEnterTransition = entradaAtras,
+            popExitTransition = salidaAtras,
+        ) {
             CaptureScreen(
                 onFotoLista = { ruta ->
                     borradorViewModel.guardarFoto(ruta)
@@ -130,7 +165,13 @@ fun MusselNavHost(
             )
         }
 
-        composable(Rutas.VISTA_PREVIA) {
+        composable(
+            Rutas.VISTA_PREVIA,
+            enterTransition = entradaFlujo,
+            exitTransition = salidaFlujo,
+            popEnterTransition = entradaAtras,
+            popExitTransition = salidaAtras,
+        ) {
             val scope = rememberCoroutineScope()
             VistaPreviaScreen(
                 borrador = borrador,
