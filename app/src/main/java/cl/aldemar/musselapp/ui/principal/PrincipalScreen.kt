@@ -450,7 +450,13 @@ private fun FilaMuestra(muestra: Muestra, onClick: () -> Unit) {
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    "Prof. ${muestra.profundidadM} m • ${muestra.tallaMm} mm • ${muestra.conteoIndM} ind/m • ${muestra.observacion}",
+                    // La observación es opcional: si viene vacía no se agrega el último separador
+                    listOfNotNull(
+                        "Prof. ${muestra.profundidadM} m",
+                        "${muestra.tallaMm} mm",
+                        "${muestra.conteoIndM} ind/m",
+                        muestra.observacion.takeIf { it.isNotBlank() },
+                    ).joinToString(" • "),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.secondary,
                     maxLines = 1,
