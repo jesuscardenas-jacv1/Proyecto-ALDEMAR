@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cl.aldemar.musselapp.MusselApplication
 import cl.aldemar.musselapp.data.repository.MuestraRepository
+import cl.aldemar.musselapp.util.Textos
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -57,7 +58,7 @@ class HistorialViewModel(
             local.update {
                 it.copy(
                     sincronizando = false,
-                    mensaje = if (enviadas == 0) "Todo estaba sincronizado" else "$enviadas muestras sincronizadas",
+                    mensaje = Textos.resultadoSincronizacion(enviadas),
                 )
             }
         }
