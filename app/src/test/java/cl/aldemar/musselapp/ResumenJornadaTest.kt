@@ -39,4 +39,19 @@ class ResumenJornadaTest {
         assertEquals("Sin datos", resumen.calibre)
         assertEquals(0f, resumen.avanceLineas)
     }
+
+    @Test
+    fun colasDeRevisionYSincronizacion_incluyenDiasAnteriores() {
+        val hoy = listOf(muestra(1, 70, 400, EstadoMuestra.VALIDADO))
+        val anteriores = listOf(
+            muestra(2, 66, 430, EstadoMuestra.PENDIENTE, sincronizada = false),
+            muestra(3, 68, 410, EstadoMuestra.CORREGIDO),
+            muestra(4, 60, 300, EstadoMuestra.OBSERVADO),
+        )
+        val resumen = ResumenJornada.desde(hoy, todas = hoy + anteriores)
+        assertEquals(1, resumen.totalMuestras)
+        assertEquals(0, resumen.pendientes)
+        assertEquals(2, resumen.pendientesRevision)
+        assertEquals(1, resumen.pendientesSincronizar)
+    }
 }

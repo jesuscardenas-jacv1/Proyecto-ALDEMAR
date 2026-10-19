@@ -70,9 +70,7 @@ import cl.aldemar.musselapp.ui.theme.EstadoObservadoTexto
 import cl.aldemar.musselapp.ui.theme.EstadoPendienteFondo
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import cl.aldemar.musselapp.util.Fechas
 
 /** Secciones de la app accesibles desde la Pantalla Principal. */
 enum class Destino(val etiqueta: String, val icono: ImageVector) {
@@ -164,7 +162,7 @@ fun PrincipalScreen(
         ) {
             AccionPrincipal(
                 rol = usuario.rol,
-                pendientesRevision = uiState.resumen.pendientes,
+                pendientesRevision = uiState.resumen.pendientesRevision,
                 onClick = {
                     onNavegar(if (usuario.rol == Rol.OPERARIO) Destino.NUEVA_MUESTRA else Destino.SUPERVISION)
                 },
@@ -229,7 +227,7 @@ private fun AccionPrincipal(rol: Rol, pendientesRevision: Int, onClick: () -> Un
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    if (operario) "Registro de muestra en cuerda y tren activo" else "Validar u observar las muestras del día",
+                    if (operario) "Registro de muestra en cuerda y tren activo" else "Validar u observar las muestras en cola",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
                 )
@@ -276,7 +274,7 @@ private fun MetricasJornada(resumen: ResumenJornada) {
             TarjetaMetrica("Talla Med.", Icons.Filled.Straighten, "${resumen.tallaPromedioMm}", "mm", Modifier.weight(1f)) {
                 TextoMetrica(resumen.calibre)
             }
-            TarjetaMetrica("Conteo Prom.", Icons.Filled.GridView, "${resumen.conteoPromedioIndM}", "ind/m", Modifier.weight(1f)) {
+            TarjetaMetrica("Conteo", Icons.Filled.GridView, "${resumen.conteoPromedioIndM}", "ind/m", Modifier.weight(1f)) {
                 TextoMetrica(resumen.densidad)
             }
             TarjetaMetrica("Líneas", Icons.Filled.ChecklistRtl, "${resumen.lineasMuestreadas}", "/${resumen.lineasTotales}", Modifier.weight(1f)) {
@@ -404,7 +402,7 @@ private fun MuestrasRecientes(muestras: List<Muestra>, ultimaRegistradaEn: Long?
         EncabezadoSeccion("Muestras Recientes", ultimaRegistradaEn?.let { "Última ${haceCuanto(it)}" })
         if (muestras.isEmpty()) {
             Text(
-                "Aún no hay muestras registradas hoy",
+                "Aún no hay muestras registradas",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.padding(horizontal = 4.dp),
@@ -467,7 +465,7 @@ private fun FilaMuestra(muestra: Muestra, onClick: () -> Unit) {
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 ChipEstado(muestra.estado)
                 Text(
-                    FORMATO_HORA.format(Date(muestra.registradaEn)),
+                    Fechas.relativa(muestra.registradaEn),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary,
@@ -477,14 +475,14 @@ private fun FilaMuestra(muestra: Muestra, onClick: () -> Unit) {
     }
 }
 
-private val FORMATO_HORA = SimpleDateFormat("HH:mm", Locale("es", "CL"))
-
 private fun haceCuanto(instante: Long, ahora: Long = System.currentTimeMillis()): String {
     val minutos = ((ahora - instante) / 60_000).coerceAtLeast(0)
     return when {
         minutos < 1 -> "hace instantes"
         minutos < 60 -> "hace $minutos min"
-        else -> "hace ${minutos / 60} h"
+        minutos < 24 * 60 -> "hace ${minutos / 60} h"
+        minutos < 2 * 24 * 60 -> "hace 1 día"
+        else -> "hace ${minutos / (24 * 60)} días"
     }
 }
 

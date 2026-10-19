@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import cl.aldemar.musselapp.MusselApplication
 import cl.aldemar.musselapp.data.repository.MuestraRepository
 import cl.aldemar.musselapp.util.Fechas
+import cl.aldemar.musselapp.util.Textos
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,11 +24,12 @@ class PrincipalViewModel(
 
     val uiState: StateFlow<PrincipalUiState> =
         combine(muestraRepository.muestras, local) { todas, estado ->
-            // La Principal resume solo la jornada de hoy; el Historial muestra todo
-            val muestras = todas.filter { it.registradaEn >= Fechas.inicioDelDia() }
+            // Las métricas resumen solo la jornada de hoy; las recientes y las colas
+            // de revisión y sincronización incluyen días anteriores
+            val deHoy = todas.filter { it.registradaEn >= Fechas.inicioDelDia() }
             PrincipalUiState(
-                resumen = ResumenJornada.desde(muestras),
-                recientes = muestras.sortedByDescending { it.registradaEn }.take(CANTIDAD_RECIENTES),
+                resumen = ResumenJornada.desde(deHoy, todas),
+                recientes = todas.sortedByDescending { it.registradaEn }.take(CANTIDAD_RECIENTES),
                 sincronizando = estado.sincronizando,
                 mensaje = estado.mensaje,
             )
@@ -41,7 +43,7 @@ class PrincipalViewModel(
             local.update {
                 it.copy(
                     sincronizando = false,
-                    mensaje = if (enviadas == 0) "Todo estaba sincronizado" else "$enviadas muestras sincronizadas",
+                    mensaje = Textos.resultadoSincronizacion(enviadas),
                 )
             }
         }

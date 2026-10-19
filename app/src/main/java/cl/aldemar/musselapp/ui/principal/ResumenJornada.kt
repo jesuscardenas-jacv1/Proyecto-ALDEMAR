@@ -14,6 +14,9 @@ data class ResumenJornada(
     val validadas: Int,
     val pendientes: Int,
     val observadas: Int,
+    /** Muestras de cualquier día que esperan revisión del supervisor. */
+    val pendientesRevision: Int,
+    /** Muestras de cualquier día que aún no se envían: la cola no se reinicia cada día. */
     val pendientesSincronizar: Int,
     val ultimaRegistradaEn: Long?,
 ) {
@@ -42,17 +45,29 @@ data class ResumenJornada(
     companion object {
         const val LINEAS_POR_CENTRO = 12
 
-        fun desde(muestras: List<Muestra>, lineasTotales: Int = LINEAS_POR_CENTRO) = ResumenJornada(
+        /**
+         * [muestras] son las de la jornada (métricas y contadores); [todas] sirven para
+         * la cola de revisión y de sincronización, que arrastran muestras de días anteriores.
+         */
+        fun desde(
+            muestras: List<Muestra>,
+            todas: List<Muestra> = muestras,
+            lineasTotales: Int = LINEAS_POR_CENTRO,
+        ) = ResumenJornada(
             totalMuestras = muestras.size,
             tallaPromedioMm = muestras.map { it.tallaMm }.average().takeUnless { it.isNaN() }?.roundToInt() ?: 0,
             conteoPromedioIndM = muestras.map { it.conteoIndM }.average().takeUnless { it.isNaN() }?.roundToInt() ?: 0,
             lineasMuestreadas = muestras.map { it.linea }.distinct().size,
             lineasTotales = lineasTotales,
             validadas = muestras.count { it.estado == EstadoMuestra.VALIDADO },
-            pendientes = muestras.count { it.estado == EstadoMuestra.PENDIENTE || it.estado == EstadoMuestra.CORREGIDO },
+            pendientes = muestras.count { it.esperaRevision },
             observadas = muestras.count { it.estado == EstadoMuestra.OBSERVADO },
-            pendientesSincronizar = muestras.count { !it.sincronizada },
-            ultimaRegistradaEn = muestras.maxOfOrNull { it.registradaEn },
+            pendientesRevision = todas.count { it.esperaRevision },
+            pendientesSincronizar = todas.count { !it.sincronizada },
+            ultimaRegistradaEn = todas.maxOfOrNull { it.registradaEn },
         )
     }
 }
+
+private val Muestra.esperaRevision: Boolean
+    get() = estado == EstadoMuestra.PENDIENTE || estado == EstadoMuestra.CORREGIDO
