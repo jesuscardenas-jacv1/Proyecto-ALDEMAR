@@ -76,7 +76,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
@@ -112,7 +111,6 @@ fun LoginRoute(viewModel: LoginViewModel = viewModel()) {
         onRolChange = viewModel::onRolChange,
         onCambiarPerfil = viewModel::onCambiarPerfil,
         onRutChange = viewModel::onRutChange,
-        onRutFocusLost = viewModel::onRutFocusLost,
         onPasswordChange = viewModel::onPasswordChange,
         onTogglePasswordVisible = viewModel::onTogglePasswordVisible,
         onCentroChange = viewModel::onCentroChange,
@@ -132,7 +130,6 @@ fun LoginScreen(
     onRolChange: (Rol) -> Unit,
     onCambiarPerfil: () -> Unit,
     onRutChange: (String) -> Unit,
-    onRutFocusLost: () -> Unit,
     onPasswordChange: (String) -> Unit,
     onTogglePasswordVisible: () -> Unit,
     onCentroChange: (CentroCultivo) -> Unit,
@@ -199,7 +196,6 @@ fun LoginScreen(
                                     uiState = uiState,
                                     onCambiarPerfil = onCambiarPerfil,
                                     onRutChange = onRutChange,
-                                    onRutFocusLost = onRutFocusLost,
                                     onPasswordChange = onPasswordChange,
                                     onTogglePasswordVisible = onTogglePasswordVisible,
                                     onCentroChange = onCentroChange,
@@ -295,7 +291,6 @@ private fun PasoCredenciales(
     uiState: LoginUiState,
     onCambiarPerfil: () -> Unit,
     onRutChange: (String) -> Unit,
-    onRutFocusLost: () -> Unit,
     onPasswordChange: (String) -> Unit,
     onTogglePasswordVisible: () -> Unit,
     onCentroChange: (CentroCultivo) -> Unit,
@@ -330,7 +325,7 @@ private fun PasoCredenciales(
                 ),
                 // "Siguiente" va directo al PIN, sin pasar por "¿Olvidó PIN?"
                 keyboardActions = KeyboardActions(onNext = { pinFocus.requestFocus() }),
-                modifier = Modifier.onFocusChanged { if (!it.isFocused) onRutFocusLost() },
+                visualTransformation = RutVisualTransformation,
             )
 
             CampoFormulario(
@@ -622,7 +617,7 @@ private fun PasoPerfilPreview() {
     MusselAppTheme {
         LoginScreen(
             uiState = LoginUiState(),
-            onRolChange = {}, onCambiarPerfil = {}, onRutChange = {}, onRutFocusLost = {},
+            onRolChange = {}, onCambiarPerfil = {}, onRutChange = {},
             onPasswordChange = {}, onTogglePasswordVisible = {}, onCentroChange = {},
             onModoOfflineChange = {}, onIngresar = {}, onMensajeMostrado = {},
         )
@@ -635,7 +630,7 @@ private fun PasoCredencialesPreview() {
     MusselAppTheme {
         LoginScreen(
             uiState = LoginUiState(rol = Rol.OPERARIO, rut = "11.111.111-1", password = "1234"),
-            onRolChange = {}, onCambiarPerfil = {}, onRutChange = {}, onRutFocusLost = {},
+            onRolChange = {}, onCambiarPerfil = {}, onRutChange = {},
             onPasswordChange = {}, onTogglePasswordVisible = {}, onCentroChange = {},
             onModoOfflineChange = {}, onIngresar = {}, onMensajeMostrado = {},
         )
