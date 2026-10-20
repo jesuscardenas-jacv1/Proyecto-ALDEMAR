@@ -2,6 +2,10 @@ package cl.aldemar.musselapp.ui.historial
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +31,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.ErrorOutline
@@ -143,6 +146,7 @@ fun HistorialScreen(
     onCerrarSesion: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    var expandidaId by rememberSaveable { mutableStateOf<Long?>(null) }
     LaunchedEffect(uiState.mensaje) {
         uiState.mensaje?.let {
             snackbarHostState.showSnackbar(it)
@@ -201,7 +205,10 @@ fun HistorialScreen(
                 items(uiState.muestras, key = { it.id }) { muestra ->
                     TarjetaMuestra(
                         muestra = muestra,
+                        expandida = muestra.id == expandidaId,
                         puedeRecontar = usuario.rol == Rol.OPERARIO,
+                        // Solo una abierta a la vez; tocar la abierta la cierra
+                        onAlternar = { expandidaId = if (expandidaId == muestra.id) null else muestra.id },
                         onVerDetalle = { onVerMuestra(muestra.id) },
                         onRecontar = { onRecontar(muestra.id) },
                     )
@@ -387,7 +394,7 @@ private fun AvisoToque() {
         Icon(Icons.Filled.TouchApp, contentDescription = null, tint = EstadoValidadoTexto, modifier = Modifier.size(20.dp))
         Spacer(Modifier.width(10.dp))
         Text(
-            "Toca cualquier muestra del listado para abrir su detalle completo y trazabilidad",
+            "Toca una muestra para ver sus datos; desde ahí puedes abrir el detalle completo",
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.SemiBold,
             color = EstadoValidadoTexto,
@@ -422,79 +429,90 @@ private fun ResumenTalla(promedioMm: Double, cantidad: Int) {
     }
 }
 
+/**
+ * Tarjeta de dos líneas (código, ubicación y estado; talla, densidad y fecha).
+ * Al tocarla se expande con las métricas, el dictamen y las acciones.
+ */
 @Composable
 private fun TarjetaMuestra(
     muestra: Muestra,
+    expandida: Boolean,
     puedeRecontar: Boolean,
+    onAlternar: () -> Unit,
     onVerDetalle: () -> Unit,
     onRecontar: () -> Unit,
 ) {
     val observada = muestra.estado == EstadoMuestra.OBSERVADO
+    val giroFlecha by animateFloatAsState(if (expandida) 180f else 0f, label = "flecha")
     Surface(
-        onClick = onVerDetalle,
-        shape = RoundedCornerShape(14.dp),
+        onClick = onAlternar,
+        shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 1.dp,
-        border = if (observada) BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary) else null,
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(modifier = Modifier.height(IntrinsicSize.Min)) {
             // Franja lateral con el color del estado
             Box(
                 Modifier
-                    .width(6.dp)
+                    .width(5.dp)
                     .fillMaxHeight()
                     .background(acentoDe(muestra.estado)),
             )
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(14.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                    .animateContentSize()
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
             ) {
-                Row(verticalAlignment = Alignment.Top) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.Bottom) {
-                            Text("#${muestra.codigo}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                "• ${Fechas.relativa(muestra.registradaEn)}",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.secondary,
-                                modifier = Modifier.padding(bottom = 3.dp),
-                                maxLines = 1,
-                            )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "#${muestra.codigo} · L%02d Tren %s".format(muestra.linea, muestra.tren),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    ChipEstado(muestra.estado)
+                    Icon(
+                        Icons.Filled.ExpandMore,
+                        contentDescription = if (expandida) "Contraer" else "Expandir",
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.rotate(giroFlecha),
+                    )
+                }
+                Text(
+                    "${muestra.tallaMm} mm · ${muestra.conteoIndM} ind/m · ${Fechas.relativa(muestra.registradaEn)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                if (expandida) {
+                    Column(
+                        modifier = Modifier.padding(top = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        MetricasMuestra(muestra)
+                        when {
+                            muestra.estado == EstadoMuestra.VALIDADO && muestra.revisadaPor != null ->
+                                Aviso(Icons.Filled.Verified, "Aprobado por Sup. ${muestra.revisadaPor}", EstadoValidadoFondo, EstadoValidadoTexto)
+                            observada && muestra.comentarioSupervisor != null ->
+                                Aviso(Icons.Filled.ErrorOutline, muestra.comentarioSupervisor, EstadoObservadoFondo, EstadoObservadoTexto)
+                            muestra.estado == EstadoMuestra.CORREGIDO ->
+                                Aviso(Icons.Filled.Replay, "Corregida: a la espera de una nueva revisión", EstadoValidadoFondo, EstadoValidadoTexto)
                         }
-                        Text(
-                            "Línea %02d — Tren %s".format(muestra.linea, muestra.tren),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.secondary,
+                        EstadoEnvio(muestra)
+                        AccionesTarjeta(
+                            codigo = muestra.codigo,
+                            puedeRecontar = observada && puedeRecontar,
+                            onRecontar = onRecontar,
+                            onVerDetalle = onVerDetalle,
                         )
                     }
-                    Spacer(Modifier.width(8.dp))
-                    ChipEstado(muestra.estado)
-                }
-
-                MetricasMuestra(muestra)
-
-                when {
-                    muestra.estado == EstadoMuestra.VALIDADO && muestra.revisadaPor != null ->
-                        Aviso(Icons.Filled.Verified, "Aprobado por Sup. ${muestra.revisadaPor}", EstadoValidadoFondo, EstadoValidadoTexto)
-                    observada && muestra.comentarioSupervisor != null ->
-                        Aviso(Icons.Filled.ErrorOutline, muestra.comentarioSupervisor, EstadoObservadoFondo, EstadoObservadoTexto)
-                    muestra.estado == EstadoMuestra.CORREGIDO ->
-                        Aviso(Icons.Filled.Replay, "Corregida: a la espera de una nueva revisión", EstadoValidadoFondo, EstadoValidadoTexto)
-                }
-
-                if (observada) {
-                    AccionesObservada(
-                        codigo = muestra.codigo,
-                        puedeRecontar = puedeRecontar,
-                        onRecontar = onRecontar,
-                        onVerDetalle = onVerDetalle,
-                    )
-                } else {
-                    PieTarjeta(muestra)
                 }
             }
         }
@@ -557,7 +575,7 @@ private fun Aviso(icono: ImageVector, texto: String, fondo: Color, colorTexto: C
 }
 
 @Composable
-private fun AccionesObservada(codigo: String, puedeRecontar: Boolean, onRecontar: () -> Unit, onVerDetalle: () -> Unit) {
+private fun AccionesTarjeta(codigo: String, puedeRecontar: Boolean, onRecontar: () -> Unit, onVerDetalle: () -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         if (puedeRecontar) {
             OutlinedButton(
@@ -586,8 +604,9 @@ private fun AccionesObservada(codigo: String, puedeRecontar: Boolean, onRecontar
     }
 }
 
+/** Quién registró la muestra o si ya se envió. */
 @Composable
-private fun PieTarjeta(muestra: Muestra) {
+private fun EstadoEnvio(muestra: Muestra) {
     val (icono, texto) = when {
         muestra.estado == EstadoMuestra.PENDIENTE && muestra.operador.isNotBlank() -> Icons.Filled.Person to "Op. ${muestra.operador}"
         muestra.sincronizada -> Icons.Filled.CloudDone to "Sincronizado"
@@ -600,12 +619,9 @@ private fun PieTarjeta(muestra: Muestra) {
             texto,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.weight(1f),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Text("Detalles", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-        Icon(Icons.Filled.ChevronRight, contentDescription = null)
     }
 }
 
