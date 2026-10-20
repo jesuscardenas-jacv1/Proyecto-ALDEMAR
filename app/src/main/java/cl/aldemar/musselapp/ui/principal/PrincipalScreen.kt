@@ -379,7 +379,8 @@ private fun ContadorEstado(cantidad: Int, etiqueta: String, fondo: Color, texto:
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text("$cantidad", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, color = texto)
-        Text(etiqueta, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = texto.copy(alpha = 0.8f))
+        // Color completo: al 80 % el rojo de "OBSERVADAS" no llega al contraste mínimo (4,5:1)
+        Text(etiqueta, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = texto)
     }
 }
 
