@@ -243,7 +243,7 @@ private fun EncabezadoPasos() {
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf("1. Parámetros", "2. Biometría y Fotos", "3. Validación").forEachIndexed { i, texto ->
+            listOf("1. Parámetros", "2. Foto", "3. Validación").forEachIndexed { i, texto ->
                 Text(
                     text = texto,
                     color = if (i == 0) Paleta.Texto else Paleta.Etiqueta,
