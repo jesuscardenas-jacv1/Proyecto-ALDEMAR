@@ -352,9 +352,6 @@ fun CaptureScreen(
                 Spacer(modifier = Modifier.size(56.dp))
             }
         }
-
-        // TODO: esta barra es de toda la app; se moverá a la navegación
-        BarraInferior()
     }
 
     val rutaVisor = fotoArchivo?.absolutePath
@@ -585,29 +582,10 @@ private fun BarraSuperior() {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "ONLINE / SINCRONIZADO",
+                text = "Paso 2 · Fotografía de la muestra",
                 color = GrisTexto,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold
-            )
-        }
-        Icon(
-            imageVector = Icons.Filled.Sync,
-            contentDescription = "Sincronizar",
-            tint = Color.White
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(Slate),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Person,
-                contentDescription = "Perfil",
-                tint = Color.White
             )
         }
     }
@@ -672,7 +650,7 @@ private fun TarjetaAlineacion() {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Mantenga la regla calibrada paralela a la línea de choritos para cálculo automático.",
+                text = "Mantenga la regla calibrada paralela a la línea de choritos para una foto clara.",
                 color = Paleta.TextoSuave,
                 fontSize = 12.sp
             )
@@ -796,50 +774,6 @@ private fun Obturador(
                 modifier = Modifier.size(28.dp)
             )
         }
-    }
-}
-
-@Composable
-private fun BarraInferior() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Paleta.Pie)
-            .navigationBarsPadding()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        ItemNavegacion(Icons.Filled.GridView, "Muestras", false)
-        ItemNavegacion(Icons.Filled.AddCircleOutline, "Nueva Muestra", true)
-        ItemNavegacion(Icons.Filled.History, "Historial", false)
-        ItemNavegacion(Icons.Filled.ManageAccounts, "Supervisión", false)
-    }
-}
-
-@Composable
-private fun ItemNavegacion(icono: ImageVector, texto: String, activo: Boolean) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier
-                .width(56.dp)
-                .height(30.dp)
-                .clip(RoundedCornerShape(15.dp))
-                .background(if (activo) Paleta.AcentoSuave else Color.Transparent),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icono,
-                contentDescription = texto,
-                tint = if (activo) Paleta.Acento else Paleta.TextoSuave,
-                modifier = Modifier.size(22.dp)
-            )
-        }
-        Text(
-            text = texto,
-            color = if (activo) Paleta.Acento else Paleta.TextoSuave,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold
-        )
     }
 }
 
