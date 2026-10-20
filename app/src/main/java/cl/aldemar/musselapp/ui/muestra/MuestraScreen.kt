@@ -54,9 +54,8 @@ data class ParametrosMuestra(
 
 @Composable
 fun MuestraScreen(
-    // Ya no se preselecciona: el operario elige el centro igual que el tren y la línea.
-    // Se mantiene el parámetro para no cambiar la navegación.
-    @Suppress("UNUSED_PARAMETER") centroInicial: CentroCultivo? = null,
+    // Centro con el que el operario inició sesión: queda elegido de forma automática
+    centroInicial: CentroCultivo? = null,
     onVolver: () -> Unit = {},
     onContinuar: (ParametrosMuestra) -> Unit = {},
     vm: MuestraViewModel = viewModel()
@@ -64,6 +63,11 @@ fun MuestraScreen(
     // Observamos el estado del ViewModel
     val state by vm.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    // Deja elegido el centro del login (no pisa un centro que el operario ya cambió)
+    LaunchedEffect(centroInicial) {
+        vm.iniciar(centroInicial)
+    }
 
     // Cuando el ViewModel confirma que todo es válido, se muestra el mensaje y se avanza
     LaunchedEffect(state.parametrosValidos) {
