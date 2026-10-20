@@ -430,7 +430,7 @@ private fun ResumenTalla(promedioMm: Double, cantidad: Int) {
 }
 
 /**
- * Tarjeta de dos líneas (código, ubicación y estado; talla, densidad y fecha).
+ * Tarjeta de dos líneas (muestra, ubicación y estado; fecha de registro).
  * Al tocarla se expande con las métricas, el dictamen y las acciones.
  */
 @Composable
@@ -467,7 +467,7 @@ private fun TarjetaMuestra(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        "#${muestra.codigo} · L%02d Tren %s".format(muestra.linea, muestra.tren),
+                        "Muestra %03d · L%02d Tren %s".format(muestra.id, muestra.linea, muestra.tren),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
@@ -484,7 +484,8 @@ private fun TarjetaMuestra(
                     )
                 }
                 Text(
-                    "${muestra.tallaMm} mm · ${muestra.conteoIndM} ind/m · ${Fechas.relativa(muestra.registradaEn)}",
+                    // Las métricas se ven al expandir la tarjeta
+                    Fechas.relativa(muestra.registradaEn),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.secondary,
                     maxLines = 1,
