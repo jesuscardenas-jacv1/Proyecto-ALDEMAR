@@ -52,8 +52,6 @@ import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -137,7 +135,6 @@ fun VistaPreviaScreen(
     var eliminando by remember { mutableStateOf(false) }
     var verFoto by remember { mutableStateOf(false) }
     var editando by remember { mutableStateOf(false) }
-    var guardarLocal by remember { mutableStateOf(true) } // TODO: la muestra siempre se guarda en Room; decidir si esta casilla se quita
 
     val parametros = borrador.parametros
     val rutaFoto = borrador.fotoRuta
@@ -217,6 +214,7 @@ fun VistaPreviaScreen(
                     titulo = "CONTEO BIOMASA",
                     valor = borrador.conteoIndM,
                     unidad = "uds / m",
+                    error = errorMedicion(borrador.conteoIndM, CONTEO_MAXIMO_IND_M),
                     onCambiar = onConteoCambiado,
                     modifier = Modifier.weight(1f)
                 )
@@ -224,6 +222,7 @@ fun VistaPreviaScreen(
                     titulo = "TALLA MEDIA",
                     valor = borrador.tallaMm,
                     unidad = "mm",
+                    error = errorMedicion(borrador.tallaMm, TALLA_MAXIMA_MM),
                     onCambiar = onTallaCambiada,
                     modifier = Modifier.weight(1f)
                 )
@@ -303,7 +302,6 @@ fun VistaPreviaScreen(
                     Fila("Línea", "Línea %02d".format(parametros.linea))
                     Fila("Profundidad", "Estrato ${estrato.rango} (${estrato.nombre})")
                 }
-                Fila("Nivel fouling", borrador.fouling ?: "—")
             }
 
             // Notas del operador (editables)
@@ -345,41 +343,6 @@ fun VistaPreviaScreen(
                     }
                 )
             }
-
-            // Guardado local
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Paleta.Superficie)
-                    .border(1.5.dp, Paleta.Borde, RoundedCornerShape(12.dp))
-                    .clickable { guardarLocal = !guardarLocal }
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Guardar localmente en el dispositivo",
-                        color = Paleta.Texto,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "Almacenamiento seguro sin conexión",
-                        color = Paleta.TextoSuave,
-                        fontSize = 12.sp
-                    )
-                }
-                Checkbox(
-                    checked = guardarLocal,
-                    onCheckedChange = { guardarLocal = it },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = Paleta.Primario,
-                        checkmarkColor = Paleta.SobrePrimario,
-                        uncheckedColor = Paleta.BordeCampo
-                    )
-                )
-            }
         }
 
         // Acción principal, siempre visible abajo
@@ -403,7 +366,7 @@ fun VistaPreviaScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = if (guardando) "GUARDANDO…" else "GUARDAR Y ENVIAR MUESTRA",
+                    text = if (guardando) "GUARDANDO…" else "GUARDAR MUESTRA",
                     color = if (listo) Paleta.SobrePrimario else Paleta.TextoSuave,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
@@ -458,7 +421,7 @@ fun VistaPreviaScreen(
             titleContentColor = Paleta.Texto,
             textContentColor = Paleta.Etiqueta,
             title = { Text("¿Confirmar muestreo?", fontWeight = FontWeight.Bold) },
-            text = { Text("Revisaste la fotografía y los datos. Se registrará la muestra y quedará lista para enviarse.") },
+            text = { Text("Revisaste la fotografía y los datos. Se guardará la muestra en este dispositivo.") },
             confirmButton = {
                 TextButton(onClick = {
                     confirmando = false
@@ -781,6 +744,7 @@ private fun TarjetaMetrica(
     titulo: String,
     valor: Int?,
     unidad: String,
+    error: String? = null,
     onCambiar: (Int?) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -788,7 +752,7 @@ private fun TarjetaMetrica(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .background(Paleta.Superficie)
-            .border(1.5.dp, Paleta.Borde, RoundedCornerShape(12.dp))
+            .border(1.5.dp, if (error != null) Paleta.Error else Paleta.Borde, RoundedCornerShape(12.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -819,8 +783,15 @@ private fun TarjetaMetrica(
                 modifier = Modifier.padding(bottom = 4.dp)
             )
         }
+        if (error != null) {
+            Text(text = error, color = Paleta.Error, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+        }
     }
 }
+
+/** Mensaje de error de una medición ya escrita (null si está vacía o dentro del rango). */
+private fun errorMedicion(valor: Int?, maximo: Int): String? =
+    if (valor != null && valor !in 1..maximo) "Debe estar entre 1 y $maximo" else null
 
 @Composable
 private fun Fila(etiqueta: String, valor: String) {
