@@ -15,6 +15,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -376,8 +379,9 @@ fun VistaPreviaScreen(
             if (faltante != null) {
                 Text(
                     text = faltante,
-                    color = Paleta.TextoSuave,
+                    color = Paleta.Acento,
                     fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -748,11 +752,18 @@ private fun TarjetaMetrica(
     onCambiar: (Int?) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val foco = remember { FocusRequester() }
+    val teclado = LocalSoftwareKeyboardController.current
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .background(Paleta.Superficie)
             .border(1.5.dp, if (error != null) Paleta.Error else Paleta.Borde, RoundedCornerShape(12.dp))
+            // Tocar cualquier parte de la tarjeta enfoca el campo y abre el teclado numérico
+            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                foco.requestFocus()
+                teclado?.show()
+            }
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -765,7 +776,7 @@ private fun TarjetaMetrica(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                 textStyle = TextStyle(color = Paleta.Texto, fontSize = 28.sp, fontWeight = FontWeight.Bold),
                 cursorBrush = SolidColor(Paleta.Acento),
-                modifier = Modifier.weight(1f, fill = false),
+                modifier = Modifier.weight(1f, fill = false).focusRequester(foco),
                 decorationBox = { campo ->
                     Box {
                         if (valor == null) {
@@ -785,6 +796,9 @@ private fun TarjetaMetrica(
         }
         if (error != null) {
             Text(text = error, color = Paleta.Error, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+        } else if (valor == null) {
+            // Obligatorio para guardar: se avisa que hay que tocar y escribir
+            Text(text = "Toca para ingresar", color = Paleta.Acento, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }
