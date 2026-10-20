@@ -28,15 +28,14 @@ class LoginViewModel(
         it.copy(rol = null, password = "", passwordVisible = false, rutError = null, passwordError = null, mensajeError = null)
     }
 
-    /** Solo acepta los caracteres de un RUT (dígitos, K, puntos y guion). */
+    /**
+     * Guarda solo dígitos y K (la pantalla agrega puntos y guion al mostrarlo).
+     * La K solo puede ir al final, como dígito verificador.
+     */
     fun onRutChange(rut: String) {
-        val limpio = rut.filter { it.isDigit() || it in "kK.-" }.take(LARGO_MAXIMO_RUT)
+        val limpio = RutValidator.normalizar(rut).take(LARGO_MAXIMO_RUT)
+        if ('K' in limpio.dropLast(1)) return
         _uiState.update { it.copy(rut = limpio, rutError = null, mensajeError = null) }
-    }
-
-    /** Al salir del campo, deja el RUT con puntos y guion. */
-    fun onRutFocusLost() = _uiState.update {
-        if (RutValidator.esValido(it.rut)) it.copy(rut = RutValidator.formatear(it.rut)) else it
     }
 
     fun onPasswordChange(password: String) =
@@ -83,7 +82,7 @@ class LoginViewModel(
     }
 
     private companion object {
-        /** "11.111.111-1": 8 dígitos, verificador, 2 puntos y guion. */
-        const val LARGO_MAXIMO_RUT = 12
+        /** 8 dígitos más el verificador: "111111111". */
+        const val LARGO_MAXIMO_RUT = 9
     }
 }
