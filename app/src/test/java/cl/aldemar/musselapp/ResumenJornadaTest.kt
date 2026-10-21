@@ -16,7 +16,7 @@ class ResumenJornadaTest {
         val resumen = ResumenJornada.desde(
             listOf(
                 muestra(1, 70, 400, EstadoMuestra.VALIDADO),
-                muestra(1, 74, 460, EstadoMuestra.OBSERVADO, sincronizada = false),
+                muestra(1, 74, 460, EstadoMuestra.CORREGIDO, sincronizada = false),
                 muestra(2, 66, 430, EstadoMuestra.PENDIENTE),
             ),
         )
@@ -26,7 +26,7 @@ class ResumenJornadaTest {
         assertEquals(2, resumen.lineasMuestreadas)
         assertEquals(1, resumen.validadas)
         assertEquals(1, resumen.pendientes)
-        assertEquals(1, resumen.observadas)
+        assertEquals(1, resumen.corregidas)
         assertEquals(1, resumen.pendientesSincronizar)
         assertEquals("Calibre 70-80", resumen.calibre)
         assertEquals("Densidad óptima", resumen.densidad)
@@ -61,12 +61,13 @@ class ResumenJornadaTest {
         val anteriores = listOf(
             muestra(2, 66, 430, EstadoMuestra.PENDIENTE, sincronizada = false),
             muestra(3, 68, 410, EstadoMuestra.CORREGIDO),
-            muestra(4, 60, 300, EstadoMuestra.OBSERVADO),
+            muestra(4, 60, 300, EstadoMuestra.VALIDADO),
         )
         val resumen = ResumenJornada.desde(hoy, todas = hoy + anteriores)
         assertEquals(1, resumen.totalMuestras)
         assertEquals(0, resumen.pendientes)
-        assertEquals(2, resumen.pendientesRevision)
+        // Corregido es un dictamen final: solo la pendiente espera revisión
+        assertEquals(1, resumen.pendientesRevision)
         assertEquals(1, resumen.pendientesSincronizar)
     }
 }
