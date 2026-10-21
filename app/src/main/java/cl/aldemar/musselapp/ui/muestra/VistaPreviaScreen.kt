@@ -88,7 +88,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import cl.aldemar.musselapp.data.model.CentroCultivo
+import cl.aldemar.musselapp.data.model.EstadoMuestra
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
+import cl.aldemar.musselapp.ui.theme.colores
 import cl.aldemar.musselapp.util.AlmacenFotos
 import java.io.File
 import java.text.SimpleDateFormat
@@ -98,10 +100,10 @@ import java.util.Locale
 // Navy del diseño (DESIGN.md): barras y botones sobre la foto
 private val Navy = Color(0xFF0F172A)
 
-// Estado "Pendiente" (DESIGN.md)
-private val PendienteFondo = Color(0xFFFEF3C7)
-private val PendienteBorde = Color(0xFFD97706)
-private val PendienteTexto = Color(0xFF78350F)
+// Estado "Pendiente": mismos colores que su chip en el resto de la app (ColoresEstado)
+private val PendienteFondo = EstadoMuestra.PENDIENTE.colores.fondo
+private val PendienteBorde = EstadoMuestra.PENDIENTE.colores.acento
+private val PendienteTexto = EstadoMuestra.PENDIENTE.colores.texto
 
 private const val MAX_OBSERVACION = 300
 
