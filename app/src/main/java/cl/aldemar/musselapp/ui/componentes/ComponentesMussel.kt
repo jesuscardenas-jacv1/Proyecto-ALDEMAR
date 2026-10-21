@@ -198,7 +198,7 @@ private fun PerfilUsuario(usuario: Usuario, centro: CentroCultivo) {
             Icons.Filled.VerifiedUser,
             "Acceso autorizado",
             if (operario) "Captura fotográfica, conteo y registro de muestras"
-            else "Revisión, observación y validación de muestras",
+            else "Revisión, corrección y validación de muestras",
         )
     }
 }
