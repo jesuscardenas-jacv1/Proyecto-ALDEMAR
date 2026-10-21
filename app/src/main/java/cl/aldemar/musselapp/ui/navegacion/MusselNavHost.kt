@@ -138,6 +138,12 @@ fun MusselNavHost(
             popEnterTransition = entradaAtras,
             popExitTransition = salidaAtras,
         ) {
+            // Cada muestra nueva parte de cero: si se abandonó un registro a medias, no quedan
+            // conteo, talla, notas ni foto del intento anterior
+            LaunchedEffect(Unit) {
+                borradorViewModel.actualizarFoto(null) // borra la foto del intento abandonado
+                borradorViewModel.limpiar()
+            }
             MuestraScreen(
                 centroInicial = loginState.centro,
                 onVolver = ::volver,
