@@ -5,12 +5,12 @@ import cl.aldemar.musselapp.data.model.Muestra
 import cl.aldemar.musselapp.util.Fechas
 import java.text.Normalizer
 
-/** Chips de estado del Historial. "Pendientes" incluye las muestras corregidas a la espera de revisión. */
+/** Chips de estado del Historial: uno por estado (Validado y Corregido son dictámenes finales). */
 enum class FiltroEstado(val etiqueta: String, val estados: Set<EstadoMuestra>) {
     TODOS("Todos", EstadoMuestra.entries.toSet()),
     VALIDADOS("Validados", setOf(EstadoMuestra.VALIDADO)),
-    PENDIENTES("Pendientes", setOf(EstadoMuestra.PENDIENTE, EstadoMuestra.CORREGIDO)),
-    OBSERVADOS("Observados", setOf(EstadoMuestra.OBSERVADO)),
+    PENDIENTES("Pendientes", setOf(EstadoMuestra.PENDIENTE)),
+    CORREGIDOS("Corregidos", setOf(EstadoMuestra.CORREGIDO)),
 }
 
 enum class Periodo(val etiqueta: String, val dias: Int?) {
