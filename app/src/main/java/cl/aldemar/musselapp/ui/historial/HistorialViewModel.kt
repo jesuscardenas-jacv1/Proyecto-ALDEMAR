@@ -48,7 +48,11 @@ class HistorialViewModel(
     fun onAlternarOrden() = criterios {
         it.copy(orden = if (it.orden == Orden.RECIENTES) Orden.ANTIGUAS else Orden.RECIENTES)
     }
-    fun onRestablecerFiltros() = criterios { CriteriosHistorial() }
+    // Restablecer no quita el centro: es el de la sesión, no un filtro que eligió el usuario
+    fun onRestablecerFiltros() = criterios { CriteriosHistorial(centroId = it.centroId) }
+
+    /** Muestra solo las muestras del centro con el que se inició sesión. */
+    fun mostrarCentro(centroId: String) = criterios { it.copy(centroId = centroId) }
 
     fun sincronizar() {
         if (local.value.sincronizando) return

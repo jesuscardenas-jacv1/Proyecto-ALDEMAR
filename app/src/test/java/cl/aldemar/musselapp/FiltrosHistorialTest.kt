@@ -60,6 +60,21 @@ class FiltrosHistorialTest {
     }
 
     @Test
+    fun centro_soloMuestraLasDelCentroDeLaSesion() {
+        val otroCentro = muestra(6, 3, "A", EstadoMuestra.PENDIENTE, 30_000).copy(centroId = "calbuco")
+        val conOtro = muestras + otroCentro
+        val enDalcahue = FiltrosHistorial.aplicar(conOtro, CriteriosHistorial(centroId = "dalcahue"), ahora)
+        assertEquals(listOf(1L, 2L, 3L), enDalcahue.muestras.map { it.id })
+        assertEquals(3, enDalcahue.conteos[FiltroEstado.TODOS])
+
+        val enCalbuco = FiltrosHistorial.aplicar(conOtro, CriteriosHistorial(centroId = "calbuco"), ahora)
+        assertEquals(listOf(6L), enCalbuco.muestras.map { it.id })
+
+        // Sin centro se ven todas, como antes
+        assertEquals(4, FiltrosHistorial.aplicar(conOtro, CriteriosHistorial(), ahora).muestras.size)
+    }
+
+    @Test
     fun orden_antiguasPrimero() {
         assertEquals(listOf(5L, 4L, 3L, 2L, 1L), ids(CriteriosHistorial(periodo = Periodo.TODO, orden = Orden.ANTIGUAS)))
     }

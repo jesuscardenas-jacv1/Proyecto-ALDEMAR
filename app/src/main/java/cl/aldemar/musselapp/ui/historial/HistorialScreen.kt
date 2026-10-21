@@ -109,6 +109,8 @@ fun HistorialRoute(
     viewModel: HistorialViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    // El Historial muestra el centro con el que se inició sesión
+    LaunchedEffect(centro.id) { viewModel.mostrarCentro(centro.id) }
     HistorialScreen(
         usuario = usuario,
         centro = centro,
