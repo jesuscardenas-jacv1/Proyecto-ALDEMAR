@@ -1,7 +1,7 @@
 package cl.aldemar.musselapp.data.repository
 
 import cl.aldemar.musselapp.data.model.EstadoMuestra
-import cl.aldemar.musselapp.data.model.EstadoMuestra.OBSERVADO
+import cl.aldemar.musselapp.data.model.EstadoMuestra.CORREGIDO
 import cl.aldemar.musselapp.data.model.EstadoMuestra.PENDIENTE
 import cl.aldemar.musselapp.data.model.EstadoMuestra.VALIDADO
 import cl.aldemar.musselapp.data.model.Muestra
@@ -79,14 +79,14 @@ class FakeMuestraRepository(
                 tallaMm = talla, conteoIndM = conteo, observacion = obs, estado = estado,
                 registradaEn = ahora - haceMin * MINUTO, sincronizada = sincronizada,
                 operador = OPERARIO,
-                revisadaPor = if (estado == VALIDADO || estado == OBSERVADO) SUPERVISOR else null,
+                revisadaPor = if (estado == VALIDADO || estado == CORREGIDO) SUPERVISOR else null,
                 comentarioSupervisor = comentario,
             )
 
             val hoy = listOf(
                 muestra(14, 4, "B", 6, 72, 450, "Mytilus chilensis", VALIDADO, 12, sincronizada = false),
-                muestra(13, 2, "A", 9, 52, 280, "Epifauna detectada", OBSERVADO, 102, sincronizada = false,
-                    comentario = "Requiere reconteo: densidad bajo el rango mínimo estándar (< 350 ind/m)."),
+                muestra(13, 2, "A", 9, 52, 280, "Epifauna detectada", CORREGIDO, 102, sincronizada = false,
+                    comentario = "Densidad bajo el rango mínimo estándar (< 350 ind/m): se registra como corregida."),
                 muestra(12, 7, "C", 4, 65, 410, "Muestreo preliminar", PENDIENTE, 147, sincronizada = false),
                 muestra(11, 1, "A", 5, 70, 430, "Mytilus chilensis", VALIDADO, 175, sincronizada = false),
                 muestra(10, 3, "B", 7, 74, 465, "Mytilus chilensis", VALIDADO, 210),
@@ -99,8 +99,8 @@ class FakeMuestraRepository(
             // Días anteriores: solo aparecen en el Historial (la Principal muestra la jornada)
             val anteriores = listOf(
                 muestra(4, 3, "A", 4, 70, 465, "Mytilus chilensis", VALIDADO, DIA / MINUTO + 90),
-                muestra(3, 9, "B", 6, 58, 330, "Densidad baja", OBSERVADO, DIA / MINUTO + 200,
-                    comentario = "Repetir conteo en el tramo superior de la cuerda."),
+                muestra(3, 9, "B", 6, 58, 330, "Densidad baja", CORREGIDO, DIA / MINUTO + 200,
+                    comentario = "Conteo ajustado: se excluyó el tramo superior de la cuerda."),
                 muestra(2, 11, "C", 5, 67, 425, "Mytilus chilensis", VALIDADO, 3 * DIA / MINUTO + 60),
                 muestra(1, 12, "A", 3, 63, 405, "Muestreo de control", VALIDADO, 6 * DIA / MINUTO + 30),
             )
