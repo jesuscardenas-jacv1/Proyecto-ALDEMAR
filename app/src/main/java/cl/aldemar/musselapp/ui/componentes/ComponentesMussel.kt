@@ -31,7 +31,6 @@ import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.VerifiedUser
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -265,7 +264,6 @@ fun ChipEstado(estado: EstadoMuestra) {
     val (fondo, texto) = estado.colores
     val icono = when (estado) {
         EstadoMuestra.VALIDADO -> Icons.Filled.CheckCircle
-        EstadoMuestra.OBSERVADO -> Icons.Filled.Warning
         EstadoMuestra.CORREGIDO -> Icons.Filled.EditNote
         EstadoMuestra.PENDIENTE -> Icons.Filled.Schedule
     }

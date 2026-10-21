@@ -43,7 +43,7 @@ erDiagram
         INTEGER talla_mm
         INTEGER conteo_ind_m
         TEXT observacion
-        TEXT estado "PENDIENTE / OBSERVADO / CORREGIDO / VALIDADO"
+        TEXT estado "PENDIENTE / CORREGIDO / VALIDADO"
         INTEGER registrada_en "epoch ms"
         INTEGER sincronizada "0 / 1"
         TEXT foto_ruta "ruta del archivo, no la imagen"
@@ -78,7 +78,7 @@ erDiagram
 - **Integridad:** claves foráneas entre todas las tablas. No se puede registrar una muestra en una línea o con un operario que no existe.
 - **Datos iniciales:** al crear la base por primera vez se cargan centros, trenes A–C, líneas 1–12, los 2 usuarios de prueba y 14 muestras ficticias (`DatosIniciales.kt`).
 - **PIN en texto plano:** aceptable solo porque es un MVP académico con usuarios ficticios.
-- **Migraciones:** durante el desarrollo se usa `fallbackToDestructiveMigration` (si cambia el esquema, la base se recrea).
+- **Migraciones:** `data/local/Migraciones.kt`. La v2 convierte el estado Observado (eliminado) en Corregido sin perder muestras (`MigracionesTest`). Si faltara una migración, `fallbackToDestructiveMigration` recrea la base.
 - **Un solo dispositivo:** Room es local; operario y supervisor deben usar el mismo teléfono en la demo. La columna `sincronizada` y la interfaz `MuestraRepository` dejan listo el camino para sincronizar con un servidor en una etapa futura.
 
 ## Estructura del código

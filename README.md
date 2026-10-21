@@ -21,7 +21,7 @@ En el muestreo de líneas de cultivo de choritos, el operador extrae un tramo re
 - **Evidencia fotográfica** asociada a cada muestra (cámara o galería, imágenes de prueba sin personas).
 - **Validación** de campos obligatorios antes de guardar.
 - **Historial** consultable con filtros por centro, línea, fecha, operador o estado.
-- **Flujo de revisión** del supervisor con estados *Pendiente → Observado → Corregido → Validado*.
+- **Flujo de revisión** del supervisor: la muestra parte *Pendiente* y el supervisor la deja *Validada* o *Corregida* (con comentario obligatorio).
 - Persistencia local pensada para **conectividad limitada** en terreno.
 
 > Proyecto académico con datos ficticios. No reemplaza el criterio técnico de ALDEMAR ni realiza conteo automático.
@@ -71,11 +71,10 @@ flowchart TD
     D1 -- Historial --> Historial[Historial de muestras<br/>filtrar por centro, línea, fecha o estado]
     Historial --> Detalle[Detalle de la muestra]
     Detalle --> D2{¿Rol supervisor?}
-    D2 -- Sí --> Revision[Revisión: cambiar estado<br/>y agregar comentario técnico]
-    Revision --> D3{Estado asignado}
-    D3 -- Observado --> Corregir[Operador corrige la muestra]
-    Corregir --> Preview
-    D3 -- Corregido / Validado --> Fin([Fin])
+    D2 -- Sí --> Revision[Revisión: validar o corregir<br/>con comentario técnico]
+    Revision --> D3{Dictamen}
+    D3 -- Validado --> Fin([Fin])
+    D3 -- Corregido<br/>comentario obligatorio --> Fin
     D2 -- No --> Fin
 ```
 

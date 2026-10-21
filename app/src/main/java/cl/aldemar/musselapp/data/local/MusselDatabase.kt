@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
         MuestraEntity::class,
         RevisionEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 abstract class MusselDatabase : RoomDatabase() {
@@ -51,7 +51,9 @@ abstract class MusselDatabase : RoomDatabase() {
                         alcance.launch { DatosIniciales.poblar(instancia) }
                     }
                 })
-                // En desarrollo: si cambia el esquema se recrea la base (se pierden los datos de prueba)
+                // Migraciones conocidas: conservan las muestras guardadas
+                .addMigrations(*Migraciones.TODAS)
+                // Si falta una migración se recrea la base (se pierden los datos de prueba)
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
             return instancia

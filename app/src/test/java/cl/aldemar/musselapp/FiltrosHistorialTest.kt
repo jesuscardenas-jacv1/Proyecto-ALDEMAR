@@ -20,7 +20,7 @@ class FiltrosHistorialTest {
 
     private val muestras = listOf(
         muestra(1, 4, "B", EstadoMuestra.VALIDADO, 60_000),
-        muestra(2, 2, "A", EstadoMuestra.OBSERVADO, 120_000, obs = "Epifauna detectada"),
+        muestra(2, 2, "A", EstadoMuestra.CORREGIDO, 120_000, obs = "Epifauna detectada"),
         muestra(3, 7, "C", EstadoMuestra.PENDIENTE, 180_000),
         muestra(4, 9, "B", EstadoMuestra.CORREGIDO, 3 * dia),
         muestra(5, 12, "A", EstadoMuestra.VALIDADO, 20 * dia),
@@ -37,8 +37,10 @@ class FiltrosHistorialTest {
     }
 
     @Test
-    fun pendientes_incluyeCorregidas() {
-        assertEquals(listOf(3L, 4L), ids(CriteriosHistorial(periodo = Periodo.TODO, filtro = FiltroEstado.PENDIENTES)))
+    fun pendientesYCorregidas_vanEnChipsSeparados() {
+        // Corregido es un dictamen final: ya no cuenta como pendiente
+        assertEquals(listOf(3L), ids(CriteriosHistorial(periodo = Periodo.TODO, filtro = FiltroEstado.PENDIENTES)))
+        assertEquals(listOf(2L, 4L), ids(CriteriosHistorial(periodo = Periodo.TODO, filtro = FiltroEstado.CORREGIDOS)))
     }
 
     @Test
@@ -56,7 +58,7 @@ class FiltrosHistorialTest {
         assertEquals(3, resultado.conteos[FiltroEstado.TODOS])
         assertEquals(1, resultado.conteos[FiltroEstado.VALIDADOS])
         assertEquals(1, resultado.conteos[FiltroEstado.PENDIENTES])
-        assertEquals(1, resultado.conteos[FiltroEstado.OBSERVADOS])
+        assertEquals(1, resultado.conteos[FiltroEstado.CORREGIDOS])
     }
 
     @Test

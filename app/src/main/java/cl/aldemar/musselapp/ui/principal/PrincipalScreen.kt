@@ -65,8 +65,6 @@ import cl.aldemar.musselapp.data.repository.FakeMuestraRepository
 import cl.aldemar.musselapp.ui.componentes.BarraSuperiorMussel
 import cl.aldemar.musselapp.ui.componentes.ChipEstado
 import cl.aldemar.musselapp.ui.componentes.NavegacionInferior
-import cl.aldemar.musselapp.ui.theme.EstadoObservadoFondo
-import cl.aldemar.musselapp.ui.theme.EstadoObservadoTexto
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
 import cl.aldemar.musselapp.ui.theme.SuperficieCampo
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
@@ -229,7 +227,7 @@ private fun AccionPrincipal(rol: Rol, pendientesRevision: Int, onClick: () -> Un
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    if (operario) "Registro de muestra en cuerda y tren activo" else "Validar u observar las muestras en cola",
+                    if (operario) "Registro de muestra en cuerda y tren activo" else "Validar o corregir las muestras en cola",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
                 )
@@ -362,11 +360,11 @@ private fun TarjetaHistorial(resumen: ResumenJornada, onVerTodo: () -> Unit) {
                     Text("Ver todo", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
             }
-            // Contadores en gris neutro para no saturar el resumen; solo Observadas se destaca en rojo
+            // Contadores en gris neutro para no saturar el resumen
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ContadorEstado(resumen.validadas, "VALIDADAS", SuperficieCampo, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
                 ContadorEstado(resumen.pendientes, "PENDIENTES", SuperficieCampo, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
-                ContadorEstado(resumen.observadas, "OBSERVADAS", EstadoObservadoFondo, EstadoObservadoTexto, Modifier.weight(1f))
+                ContadorEstado(resumen.corregidas, "CORREGIDAS", SuperficieCampo, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
             }
         }
     }
@@ -382,7 +380,7 @@ private fun ContadorEstado(cantidad: Int, etiqueta: String, fondo: Color, texto:
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text("$cantidad", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, color = texto)
-        // Color completo: al 80 % el rojo de "OBSERVADAS" no llega al contraste mínimo (4,5:1)
+        // Color completo para mantener el contraste mínimo (4,5:1)
         Text(etiqueta, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = texto)
     }
 }

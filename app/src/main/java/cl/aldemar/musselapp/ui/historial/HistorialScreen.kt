@@ -33,7 +33,7 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudUpload
-import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FilterAltOff
 import androidx.compose.material.icons.filled.Person
@@ -86,11 +86,9 @@ import cl.aldemar.musselapp.ui.componentes.BarraSuperiorMussel
 import cl.aldemar.musselapp.ui.componentes.ChipEstado
 import cl.aldemar.musselapp.ui.componentes.NavegacionInferior
 import cl.aldemar.musselapp.ui.principal.Destino
-import cl.aldemar.musselapp.ui.theme.AcentoObservado
-import cl.aldemar.musselapp.ui.theme.AcentoPendiente
 import cl.aldemar.musselapp.ui.theme.AcentoValidado
-import cl.aldemar.musselapp.ui.theme.EstadoObservadoFondo
-import cl.aldemar.musselapp.ui.theme.EstadoObservadoTexto
+import cl.aldemar.musselapp.ui.theme.AlertaFondo
+import cl.aldemar.musselapp.ui.theme.AlertaTexto
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoTexto
 import cl.aldemar.musselapp.ui.theme.colores
@@ -373,9 +371,9 @@ private fun ChipsEstado(
 
 private fun acentoDe(filtro: FiltroEstado): Color? = when (filtro) {
     FiltroEstado.TODOS -> null
-    FiltroEstado.VALIDADOS -> AcentoValidado
-    FiltroEstado.PENDIENTES -> AcentoPendiente
-    FiltroEstado.OBSERVADOS -> AcentoObservado
+    FiltroEstado.VALIDADOS -> EstadoMuestra.VALIDADO.colores.acento
+    FiltroEstado.PENDIENTES -> EstadoMuestra.PENDIENTE.colores.acento
+    FiltroEstado.CORREGIDOS -> EstadoMuestra.CORREGIDO.colores.acento
 }
 
 private fun acentoDe(estado: EstadoMuestra): Color = estado.colores.acento
@@ -441,7 +439,7 @@ private fun TarjetaMuestra(
     onVerDetalle: () -> Unit,
     onRecontar: () -> Unit,
 ) {
-    val observada = muestra.estado == EstadoMuestra.OBSERVADO
+    val corregida = muestra.estado == EstadoMuestra.CORREGIDO
     val giroFlecha by animateFloatAsState(if (expandida) 180f else 0f, label = "flecha")
     Surface(
         onClick = onAlternar,
@@ -500,16 +498,19 @@ private fun TarjetaMuestra(
                         when {
                             muestra.estado == EstadoMuestra.VALIDADO && muestra.revisadaPor != null ->
                                 Aviso(Icons.Filled.Verified, "Aprobado por Sup. ${muestra.revisadaPor}", EstadoValidadoFondo, EstadoValidadoTexto)
-                            observada && muestra.comentarioSupervisor != null ->
-                                Aviso(Icons.Filled.ErrorOutline, muestra.comentarioSupervisor, EstadoObservadoFondo, EstadoObservadoTexto)
-                            muestra.estado == EstadoMuestra.CORREGIDO ->
-                                // Mismo ámbar que su chip y su franja (antes era azul, el color de Validado)
-                                Aviso(Icons.Filled.Replay, "Corregida: a la espera de una nueva revisión", muestra.estado.colores.fondo, muestra.estado.colores.texto)
+                            // Mismo ámbar que su chip y su franja; muestra qué corrigió el supervisor
+                            corregida ->
+                                Aviso(
+                                    Icons.Filled.EditNote,
+                                    muestra.comentarioSupervisor ?: "Corregida por Sup. ${muestra.revisadaPor ?: "—"}",
+                                    muestra.estado.colores.fondo,
+                                    muestra.estado.colores.texto,
+                                )
                         }
                         EstadoEnvio(muestra)
                         AccionesTarjeta(
                             codigo = muestra.codigo,
-                            puedeRecontar = observada && puedeRecontar,
+                            puedeRecontar = corregida && puedeRecontar,
                             onRecontar = onRecontar,
                             onVerDetalle = onVerDetalle,
                         )
@@ -527,12 +528,12 @@ private fun MetricasMuestra(muestra: Muestra) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(if (densidadBaja) EstadoObservadoFondo.copy(alpha = 0.5f) else MaterialTheme.colorScheme.background)
+            .background(if (densidadBaja) AlertaFondo.copy(alpha = 0.5f) else MaterialTheme.colorScheme.background)
             .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
         Metrica(
             "Densidad", "${muestra.conteoIndM} ind/m", Modifier.weight(1.1f),
-            color = if (densidadBaja) EstadoObservadoTexto else null,
+            color = if (densidadBaja) AlertaTexto else null,
         )
         Metrica("Talla Media", "${muestra.tallaMm} mm", Modifier.weight(1f))
         Metrica("Profundidad", "${muestra.profundidadM} m", Modifier.weight(1f))
