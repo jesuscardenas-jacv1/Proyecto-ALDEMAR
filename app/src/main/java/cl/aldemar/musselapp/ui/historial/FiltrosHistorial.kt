@@ -30,6 +30,8 @@ data class CriteriosHistorial(
     val filtro: FiltroEstado = FiltroEstado.TODOS,
     val periodo: Periodo = Periodo.HOY,
     val orden: Orden = Orden.RECIENTES,
+    /** Centro con el que se inició sesión; null muestra todos los centros. */
+    val centroId: String? = null,
 )
 
 /** Resultado de aplicar los criterios: la lista visible y los conteos de cada chip. */
@@ -46,9 +48,10 @@ object FiltrosHistorial {
         // Se busca la frase completa: "línea 4" no debe coincidir con "MST-004"
         val frase = normalizar(criterios.busqueda).trim().replace(Regex("\\s+"), " ")
 
-        // Periodo y búsqueda definen el universo; los chips muestran cuántas hay de cada estado en él
+        // Centro, periodo y búsqueda definen el universo; los chips muestran cuántas hay de cada estado en él
         val universo = todas.filter { m ->
-            (desde == null || m.registradaEn >= desde) &&
+            (criterios.centroId == null || m.centroId == criterios.centroId) &&
+                (desde == null || m.registradaEn >= desde) &&
                 (frase.isEmpty() || frase in textoBuscable(m))
         }
         val conteos = FiltroEstado.entries.associateWith { f -> universo.count { it.estado in f.estados } }
