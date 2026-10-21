@@ -242,6 +242,7 @@ fun MusselNavHost(
                 centro = loginState.centro,
                 onVolver = ::volver,
                 onNavegar = ::navegarDesdeMenu,
+                onCerrarSesion = loginViewModel::onCerrarSesion,
             )
         }
     }
