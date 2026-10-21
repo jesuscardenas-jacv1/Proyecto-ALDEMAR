@@ -23,8 +23,6 @@ data class BorradorMuestra(
     // Conteo y talla los ingresa el operario en Vista previa
     val conteoIndM: Int? = null,
     val tallaMm: Int? = null,
-    // TODO: se completa cuando exista el paso 2 (Biometría y Fotos); hoy no se guarda en la base
-    val fouling: String? = null,
     val observacion: String = "",
 )
 

@@ -116,13 +116,8 @@ import java.io.File
 
 // Colores del sistema de diseño (DESIGN.md)
 private val Navy = Color(0xFF0F172A)
-private val Slate = Color(0xFF334155)
 private val Fondo = Color(0xFFF1F5F9)
 private val GrisTexto = Color(0xFF94A3B8)
-private val GrisNav = Color(0xFF64748B)
-private val GrisBoton = Color(0xFFE2E8F0)
-private val AzulClaro = Color(0xFFDBEAFE)
-private val AzulOscuro = Color(0xFF1E3A8A)
 
 @Composable
 fun CaptureScreen(
