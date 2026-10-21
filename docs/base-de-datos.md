@@ -70,6 +70,9 @@ erDiagram
 ## Decisiones de diseño
 
 - **Fotos:** la imagen **no** se guarda en la base (una foto pesa varios MB y SQLite lee las filas en bloques de ~2 MB). Se guarda como archivo privado de la app y la tabla solo guarda `foto_ruta`.
+  - Carpeta: `filesDir/fotos/` (privada: otras apps no la ven). Las fotos aún sin confirmar quedan en `cacheDir/pendientes/`.
+  - Todo el manejo de archivos está en `util/AlmacenFotos.kt`; `AlmacenFotos.borrar()` solo borra archivos de la app, nunca la copia de la galería.
+  - Las fotos de la cámara además se copian a la galería del teléfono (`Pictures/MusselApp`), como antes.
 - **Historial de revisiones:** cada dictamen es una fila nueva en `revisiones`, para mantener la trazabilidad. El estado vigente queda también en `muestras.estado`, y ambos se actualizan en una sola transacción (`MuestraDao.registrarRevision`).
 - **Integridad:** claves foráneas entre todas las tablas. No se puede registrar una muestra en una línea o con un operario que no existe.
 - **Datos iniciales:** al crear la base por primera vez se cargan centros, trenes A–C, líneas 1–12, los 2 usuarios de prueba y 14 muestras ficticias (`DatosIniciales.kt`).
@@ -97,7 +100,7 @@ MusselApplication.kt      # registra el contenedor (android:name en el Manifest)
 | 1 | Room, entidades, DAO, base, datos iniciales y pruebas | Ramón | ✅ esta rama |
 | 2a | `RoomMuestraRepository`: listar, obtener, agregar, sincronizar; conectar Principal e Historial | Ramón | ✅ PR #15 |
 | 2b | `actualizarEstado` con `registrarRevision`; conectar Detalle y Revisión | Lucas | ✅ PR #15 |
-| 2c | Guardar la muestra desde el ViewModel (antes se hacía en el `NavHost`), sin conteo ni talla inventados | Jesús | ✅ PR #18 (falta: foto en `filesDir/fotos/`) |
+| 2c | Guardar la muestra desde el ViewModel (antes se hacía en el `NavHost`), sin conteo ni talla inventados, y la foto en `filesDir/fotos/` | Jesús | ✅ PR #18 + `feature/fotos-carpeta-privada` |
 | 3 | `RoomAuthRepository`: login contra la tabla `usuarios` | Ramón | ✅ PR #15 |
 | 4 | Prueba completa: registrar, cerrar la app, reabrir y ver la muestra; README | Todos | Pendiente |
 
