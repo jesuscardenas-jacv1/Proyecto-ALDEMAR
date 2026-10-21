@@ -6,6 +6,7 @@ import cl.aldemar.musselapp.data.repository.AuthRepository
 import cl.aldemar.musselapp.data.repository.MuestraRepository
 import cl.aldemar.musselapp.data.repository.RoomAuthRepository
 import cl.aldemar.musselapp.data.repository.RoomMuestraRepository
+import cl.aldemar.musselapp.util.AlmacenFotos
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,6 +17,8 @@ import kotlinx.coroutines.SupervisorJob
  */
 class AppContainer(context: Context) {
 
+    private val appContext = context.applicationContext
+
     /** Alcance de la app para trabajos que deben sobrevivir a las pantallas (ej. datos iniciales). */
     private val alcanceApp = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -24,4 +27,7 @@ class AppContainer(context: Context) {
     val muestraRepository: MuestraRepository by lazy { RoomMuestraRepository(database, alcanceApp) }
 
     val authRepository: AuthRepository by lazy { RoomAuthRepository(database.usuarioDao()) }
+
+    /** Borra una foto de la app (los ViewModels no tienen Context). */
+    fun borrarFoto(ruta: String?) = AlmacenFotos.borrar(appContext, ruta)
 }

@@ -48,6 +48,8 @@ fun validarBorrador(borrador: BorradorMuestra): String? = when {
 
 class BorradorMuestraViewModel(
     private val repository: MuestraRepository = MusselApplication.contenedor.muestraRepository,
+    /** Borra el archivo de una foto que ya no se usa (inyectable para las pruebas). */
+    private val borrarFoto: (String) -> Unit = { MusselApplication.contenedor.borrarFoto(it) },
 ) : ViewModel() {
 
     private val _borrador = MutableStateFlow(BorradorMuestra())
@@ -60,13 +62,16 @@ class BorradorMuestraViewModel(
         _borrador.update { it.copy(parametros = parametros) }
     }
 
-    fun guardarFoto(ruta: String) {
-        _borrador.update { it.copy(fotoRuta = ruta) }
-    }
+    fun guardarFoto(ruta: String) = cambiarFoto(ruta)
 
     /** Cambia la foto desde Vista previa; null significa que se eliminó. */
-    fun actualizarFoto(ruta: String?) {
+    fun actualizarFoto(ruta: String?) = cambiarFoto(ruta)
+
+    // Al repetir o eliminar la foto, la anterior se borra para que no quede un archivo sin muestra
+    private fun cambiarFoto(ruta: String?) {
+        val anterior = _borrador.value.fotoRuta
         _borrador.update { it.copy(fotoRuta = ruta) }
+        if (anterior != null && anterior != ruta) borrarFoto(anterior)
     }
 
     /** Corrige centro, tren, línea o estrato sin volver al formulario. */
@@ -137,7 +142,16 @@ class BorradorMuestraViewModel(
         }
     }
 
-    /** Se llama al terminar el muestreo, para empezar el siguiente desde cero. */
+    /**
+     * Abandona la muestra a medio registrar (por ejemplo al cerrar sesión) y borra su foto.
+     * No usar después de guardar: esa foto ya pertenece a la muestra (para eso está [limpiar]).
+     */
+    fun descartar() {
+        _borrador.value.fotoRuta?.let(borrarFoto)
+        limpiar()
+    }
+
+    /** Se llama al terminar el muestreo, para empezar el siguiente desde cero. La foto se conserva. */
     fun limpiar() {
         _borrador.value = BorradorMuestra()
     }
