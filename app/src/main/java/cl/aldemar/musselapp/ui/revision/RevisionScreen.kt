@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -225,6 +227,9 @@ fun RevisionScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    // Con el teclado abierto se puede desplazar hasta el comentario técnico sin que quede tapado
+                    .consumeWindowInsets(innerPadding)
+                    .imePadding()
                     .verticalScroll(rememberScrollState()),
             ) {
                 // ── 1. Contextual Header de Supervisión ──────────────────────
