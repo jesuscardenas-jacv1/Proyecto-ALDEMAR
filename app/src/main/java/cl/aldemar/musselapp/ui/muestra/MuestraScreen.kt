@@ -238,7 +238,7 @@ private fun EncabezadoPasos() {
                         .weight(1f)
                         .height(6.dp)
                         .clip(RoundedCornerShape(3.dp))
-                        .background(if (i == 0) Paleta.Acento else Paleta.BordeCampo)
+                        .background(if (i == 0) Paleta.Acento else Paleta.Borde)
                 )
             }
         }
