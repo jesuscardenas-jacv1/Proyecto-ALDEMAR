@@ -230,7 +230,9 @@ fun MusselNavHost(
             DetalleRoute(
                 muestraId = muestraId,
                 usuario = sesion,
+                centro = loginState.centro,
                 onVolver = ::volver,
+                onCerrarSesion = loginViewModel::onCerrarSesion,
                 onIrARevision = { navController.navigate(Rutas.REVISION) },
             )
         }
@@ -242,6 +244,7 @@ fun MusselNavHost(
                 centro = loginState.centro,
                 onVolver = ::volver,
                 onNavegar = ::navegarDesdeMenu,
+                onCerrarSesion = loginViewModel::onCerrarSesion,
             )
         }
     }

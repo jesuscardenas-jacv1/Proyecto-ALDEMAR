@@ -75,11 +75,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.aldemar.musselapp.R
+import cl.aldemar.musselapp.data.model.CentroCultivo
 import cl.aldemar.musselapp.data.model.EstadoMuestra
 import cl.aldemar.musselapp.data.model.Muestra
 import cl.aldemar.musselapp.data.model.Rol
 import cl.aldemar.musselapp.data.model.Usuario
-import cl.aldemar.musselapp.ui.componentes.Avatar
+import cl.aldemar.musselapp.ui.componentes.MenuPerfil
 import cl.aldemar.musselapp.ui.componentes.ChipEstado
 import cl.aldemar.musselapp.ui.theme.AlertaFondo
 import cl.aldemar.musselapp.ui.theme.AlertaTexto
@@ -96,7 +97,9 @@ import java.util.Locale
 fun DetalleRoute(
     muestraId: Long,
     usuario: Usuario,
+    centro: CentroCultivo,
     onVolver: () -> Unit,
+    onCerrarSesion: () -> Unit,
     onIrARevision: ((Long) -> Unit)? = null,
     viewModel: DetalleViewModel = viewModel(factory = DetalleViewModel.Factory(muestraId)),
 ) {
@@ -105,7 +108,9 @@ fun DetalleRoute(
     DetalleScreen(
         uiState = uiState,
         usuario = usuario,
+        centro = centro,
         onVolver = onVolver,
+        onCerrarSesion = onCerrarSesion,
         onIrARevision = onIrARevision,
         onAlternarZoom = viewModel::alternarModalZoom,
         onMostrarMensaje = viewModel::mostrarMensaje,
@@ -122,6 +127,8 @@ fun DetalleScreen(
     onAlternarZoom: (Boolean) -> Unit,
     onMostrarMensaje: (String) -> Unit,
     onLimpiarMensaje: () -> Unit,
+    centro: CentroCultivo = CentroCultivo.disponibles.first(),
+    onCerrarSesion: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -182,8 +189,8 @@ fun DetalleScreen(
                             color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
                         )
                     }
-                    Avatar(nombre = usuario.nombre, tamano = 34, claro = true)
-                    Spacer(Modifier.width(8.dp))
+                    // Al tocar el avatar se ve el perfil y se puede cerrar sesión, como en las demás pantallas
+                    MenuPerfil(usuario = usuario, centro = centro, onCerrarSesion = onCerrarSesion)
                 }
             }
         },

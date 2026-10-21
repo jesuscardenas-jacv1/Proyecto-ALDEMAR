@@ -77,7 +77,7 @@ import cl.aldemar.musselapp.data.model.CentroCultivo
 import cl.aldemar.musselapp.data.model.EstadoMuestra
 import cl.aldemar.musselapp.data.model.Muestra
 import cl.aldemar.musselapp.data.model.Usuario
-import cl.aldemar.musselapp.ui.componentes.Avatar
+import cl.aldemar.musselapp.ui.componentes.MenuPerfil
 import cl.aldemar.musselapp.ui.componentes.ChipEstado
 import cl.aldemar.musselapp.ui.componentes.NavegacionInferior
 import cl.aldemar.musselapp.ui.principal.Destino
@@ -92,6 +92,7 @@ fun RevisionRoute(
     centro: CentroCultivo,
     onVolver: () -> Unit,
     onNavegar: (Destino) -> Unit,
+    onCerrarSesion: () -> Unit,
     viewModel: RevisionViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -102,6 +103,7 @@ fun RevisionRoute(
         centro = centro,
         onVolver = onVolver,
         onNavegar = onNavegar,
+        onCerrarSesion = onCerrarSesion,
         onSeleccionarMuestra = viewModel::seleccionarMuestra,
         onElegirEstado = viewModel::elegirEstado,
         onActualizarComentario = viewModel::actualizarComentario,
@@ -127,6 +129,7 @@ fun RevisionScreen(
     onAlternarZoom: (Boolean) -> Unit,
     onGuardar: () -> Unit,
     onLimpiarMensaje: () -> Unit,
+    onCerrarSesion: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -198,8 +201,8 @@ fun RevisionScreen(
                             )
                         }
                     }
-                    Avatar(nombre = usuario.nombre, tamano = 34, claro = true)
-                    Spacer(Modifier.width(8.dp))
+                    // Al tocar el avatar se ve el perfil y se puede cerrar sesión, como en las demás pantallas
+                    MenuPerfil(usuario = usuario, centro = centro, onCerrarSesion = onCerrarSesion)
                 }
             }
         },
