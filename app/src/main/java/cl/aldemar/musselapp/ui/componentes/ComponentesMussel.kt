@@ -82,7 +82,6 @@ fun BarraSuperiorMussel(
     /** Al tocar el logo de la app se vuelve a la Pantalla Principal. */
     onIrAInicio: () -> Unit,
 ) {
-    var menuAbierto by remember { mutableStateOf(false) }
     Surface(color = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary) {
         Row(
             modifier = Modifier
@@ -130,28 +129,43 @@ fun BarraSuperiorMussel(
             IconButton(onClick = onSincronizar, enabled = !sincronizando) {
                 IconoGiratorio(Icons.Filled.Sync, girando = sincronizando, descripcion = "Sincronizar", tinte = MaterialTheme.colorScheme.onPrimary)
             }
-            Box {
-                IconButton(onClick = { menuAbierto = true }) {
-                    Avatar(nombre = usuario.nombre, tamano = 36, claro = true)
-                }
-                DropdownMenu(
-                    expanded = menuAbierto,
-                    onDismissRequest = { menuAbierto = false },
-                    shape = RoundedCornerShape(16.dp),
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ) {
-                    PerfilUsuario(usuario = usuario, centro = centro)
-                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainer)
-                    DropdownMenuItem(
-                        text = { Text("Cerrar sesión") },
-                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null) },
-                        onClick = {
-                            menuAbierto = false
-                            onCerrarSesion()
-                        },
-                    )
-                }
-            }
+            MenuPerfil(usuario = usuario, centro = centro, onCerrarSesion = onCerrarSesion, tamano = 36)
+        }
+    }
+}
+
+/**
+ * Avatar que al tocarlo abre el perfil de la sesión y la opción de cerrar sesión.
+ * Se usa en todas las barras superiores para que el avatar funcione igual en cada pantalla.
+ */
+@Composable
+fun MenuPerfil(
+    usuario: Usuario,
+    centro: CentroCultivo,
+    onCerrarSesion: () -> Unit,
+    tamano: Int = 34,
+) {
+    var menuAbierto by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { menuAbierto = true }) {
+            Avatar(nombre = usuario.nombre, tamano = tamano, claro = true)
+        }
+        DropdownMenu(
+            expanded = menuAbierto,
+            onDismissRequest = { menuAbierto = false },
+            shape = RoundedCornerShape(16.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+        ) {
+            PerfilUsuario(usuario = usuario, centro = centro)
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainer)
+            DropdownMenuItem(
+                text = { Text("Cerrar sesión") },
+                leadingIcon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null) },
+                onClick = {
+                    menuAbierto = false
+                    onCerrarSesion()
+                },
+            )
         }
     }
 }
