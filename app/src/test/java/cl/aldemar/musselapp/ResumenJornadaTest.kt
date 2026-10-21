@@ -33,6 +33,21 @@ class ResumenJornadaTest {
     }
 
     @Test
+    fun lineasMuestreadas_distingueElTren() {
+        val resumen = ResumenJornada.desde(
+            listOf(
+                muestra(4, 70, 400, EstadoMuestra.VALIDADO).copy(tren = "A"),
+                muestra(4, 70, 400, EstadoMuestra.VALIDADO).copy(tren = "B"),
+                muestra(4, 70, 400, EstadoMuestra.PENDIENTE).copy(tren = "B"),
+            ),
+        )
+        // L04 del tren A y L04 del tren B son dos líneas; repetir la del tren B no suma
+        assertEquals(2, resumen.lineasMuestreadas)
+        assertEquals(36, resumen.lineasTotales)
+        assertEquals(2f / 36f, resumen.avanceLineas, 0.0001f)
+    }
+
+    @Test
     fun sinMuestras_noFalla() {
         val resumen = ResumenJornada.desde(emptyList())
         assertEquals(0, resumen.tallaPromedioMm)
