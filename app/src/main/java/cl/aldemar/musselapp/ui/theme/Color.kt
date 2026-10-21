@@ -19,10 +19,6 @@ val EstadoValidadoFondo = Color(0xFFDBEAFE)
 val EstadoValidadoTexto = Color(0xFF1E3A8A)
 val EstadoObservadoFondo = Color(0xFFFEE2E2)
 val EstadoObservadoTexto = Color(0xFFB91C1C)
-val EstadoPendienteFondo = Color(0xFFE2E8F0)
-val EstadoPendienteTexto = Color(0xFF334155)
-val EstadoCorregidoFondo = Color(0xFFFEF3C7)
-val EstadoCorregidoTexto = Color(0xFF92400E)
 
 // Pendiente y Corregido comparten color: los dos esperan revisión del supervisor.
 // Se distinguen por la etiqueta y el ícono, así la pantalla no suma colores.
