@@ -111,6 +111,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import cl.aldemar.musselapp.ui.muestra.Paleta
 import cl.aldemar.musselapp.ui.muestra.VisorFoto
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
+import cl.aldemar.musselapp.util.AlmacenFotos
 import java.io.File
 
 // Colores del sistema de diseño (DESIGN.md)
@@ -186,10 +187,9 @@ fun CaptureScreen(
     // El operario confirma que la foto salió bien: recién ahí se guarda
     fun confirmarFoto() {
         val temporal = fotoArchivo ?: return
-        val destino = nuevoArchivoMuestra(context)
-        try {
-            temporal.copyTo(destino, overwrite = true)
-            temporal.delete()
+        // La foto confirmada pasa a la carpeta privada de la app (filesDir/fotos)
+        val destino = try {
+            AlmacenFotos.guardar(context, temporal)
         } catch (e: Exception) {
             Toast.makeText(context, "No se pudo guardar la foto", Toast.LENGTH_SHORT).show()
             return
@@ -825,13 +825,6 @@ private fun VistaPreviaCamara(
             previewView
         }
     )
-}
-
-// Crea un archivo nuevo en la carpeta de muestras de la app
-private fun nuevoArchivoMuestra(context: Context): File {
-    val carpeta = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "muestras")
-    carpeta.mkdirs()
-    return File(carpeta, "muestra_${System.currentTimeMillis()}.jpg")
 }
 
 // Archivo temporal: la foto solo pasa a la carpeta de la app si el operario la confirma
