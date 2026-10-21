@@ -1,5 +1,6 @@
 package cl.aldemar.musselapp.ui.principal
 
+import cl.aldemar.musselapp.data.local.DatosIniciales
 import cl.aldemar.musselapp.data.model.EstadoMuestra
 import cl.aldemar.musselapp.data.model.Muestra
 import kotlin.math.roundToInt
@@ -43,7 +44,8 @@ data class ResumenJornada(
         get() = if (lineasTotales == 0) 0f else lineasMuestreadas.toFloat() / lineasTotales
 
     companion object {
-        const val LINEAS_POR_CENTRO = 12
+        /** Cada centro tiene los trenes A, B y C con 12 líneas cada uno (36 en total). */
+        val LINEAS_POR_CENTRO = DatosIniciales.TRENES.size * DatosIniciales.LINEAS_POR_TREN
 
         /**
          * [muestras] son las de la jornada (métricas y contadores); [todas] sirven para
@@ -57,7 +59,8 @@ data class ResumenJornada(
             totalMuestras = muestras.size,
             tallaPromedioMm = muestras.map { it.tallaMm }.average().takeUnless { it.isNaN() }?.roundToInt() ?: 0,
             conteoPromedioIndM = muestras.map { it.conteoIndM }.average().takeUnless { it.isNaN() }?.roundToInt() ?: 0,
-            lineasMuestreadas = muestras.map { it.linea }.distinct().size,
+            // Una línea se identifica por tren + número: la L04 del tren A y la del tren B son distintas
+            lineasMuestreadas = muestras.map { it.tren to it.linea }.distinct().size,
             lineasTotales = lineasTotales,
             validadas = muestras.count { it.estado == EstadoMuestra.VALIDADO },
             pendientes = muestras.count { it.esperaRevision },
