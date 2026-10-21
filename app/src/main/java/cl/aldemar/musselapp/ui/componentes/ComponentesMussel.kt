@@ -65,14 +65,8 @@ import cl.aldemar.musselapp.data.model.EstadoMuestra
 import cl.aldemar.musselapp.data.model.Rol
 import cl.aldemar.musselapp.data.model.Usuario
 import cl.aldemar.musselapp.ui.principal.Destino
-import cl.aldemar.musselapp.ui.theme.EstadoCorregidoFondo
-import cl.aldemar.musselapp.ui.theme.EstadoCorregidoTexto
-import cl.aldemar.musselapp.ui.theme.EstadoObservadoFondo
-import cl.aldemar.musselapp.ui.theme.EstadoObservadoTexto
-import cl.aldemar.musselapp.ui.theme.EstadoPendienteFondo
-import cl.aldemar.musselapp.ui.theme.EstadoPendienteTexto
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
-import cl.aldemar.musselapp.ui.theme.EstadoValidadoTexto
+import cl.aldemar.musselapp.ui.theme.colores
 
 // Componentes compartidos por las pantallas con sesión iniciada (Principal, Historial, ...)
 
@@ -267,11 +261,13 @@ fun NavegacionInferior(rol: Rol, seleccionado: Destino, onNavegar: (Destino) -> 
 
 @Composable
 fun ChipEstado(estado: EstadoMuestra) {
-    val (fondo, texto, icono) = when (estado) {
-        EstadoMuestra.VALIDADO -> Triple(EstadoValidadoFondo, EstadoValidadoTexto, Icons.Filled.CheckCircle)
-        EstadoMuestra.OBSERVADO -> Triple(EstadoObservadoFondo, EstadoObservadoTexto, Icons.Filled.Warning)
-        EstadoMuestra.CORREGIDO -> Triple(EstadoCorregidoFondo, EstadoCorregidoTexto, Icons.Filled.EditNote)
-        EstadoMuestra.PENDIENTE -> Triple(EstadoPendienteFondo, EstadoPendienteTexto, Icons.Filled.Schedule)
+    // El color viene de ColoresEstado; el ícono distingue Pendiente (reloj) de Corregido (lápiz)
+    val (fondo, texto) = estado.colores
+    val icono = when (estado) {
+        EstadoMuestra.VALIDADO -> Icons.Filled.CheckCircle
+        EstadoMuestra.OBSERVADO -> Icons.Filled.Warning
+        EstadoMuestra.CORREGIDO -> Icons.Filled.EditNote
+        EstadoMuestra.PENDIENTE -> Icons.Filled.Schedule
     }
     Row(
         modifier = Modifier

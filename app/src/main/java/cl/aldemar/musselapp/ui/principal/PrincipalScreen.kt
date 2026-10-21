@@ -67,8 +67,8 @@ import cl.aldemar.musselapp.ui.componentes.ChipEstado
 import cl.aldemar.musselapp.ui.componentes.NavegacionInferior
 import cl.aldemar.musselapp.ui.theme.EstadoObservadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoObservadoTexto
-import cl.aldemar.musselapp.ui.theme.EstadoPendienteFondo
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
+import cl.aldemar.musselapp.ui.theme.SuperficieCampo
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
 import cl.aldemar.musselapp.util.Fechas
 
@@ -362,9 +362,10 @@ private fun TarjetaHistorial(resumen: ResumenJornada, onVerTodo: () -> Unit) {
                     Text("Ver todo", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
             }
+            // Contadores en gris neutro para no saturar el resumen; solo Observadas se destaca en rojo
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ContadorEstado(resumen.validadas, "VALIDADAS", EstadoPendienteFondo, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
-                ContadorEstado(resumen.pendientes, "PENDIENTES", EstadoPendienteFondo, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
+                ContadorEstado(resumen.validadas, "VALIDADAS", SuperficieCampo, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
+                ContadorEstado(resumen.pendientes, "PENDIENTES", SuperficieCampo, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
                 ContadorEstado(resumen.observadas, "OBSERVADAS", EstadoObservadoFondo, EstadoObservadoTexto, Modifier.weight(1f))
             }
         }

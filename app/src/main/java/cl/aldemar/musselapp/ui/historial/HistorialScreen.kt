@@ -93,6 +93,7 @@ import cl.aldemar.musselapp.ui.theme.EstadoObservadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoObservadoTexto
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoTexto
+import cl.aldemar.musselapp.ui.theme.colores
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
 import cl.aldemar.musselapp.util.Fechas
 import java.util.Locale
@@ -377,11 +378,7 @@ private fun acentoDe(filtro: FiltroEstado): Color? = when (filtro) {
     FiltroEstado.OBSERVADOS -> AcentoObservado
 }
 
-private fun acentoDe(estado: EstadoMuestra): Color = when (estado) {
-    EstadoMuestra.VALIDADO -> AcentoValidado
-    EstadoMuestra.PENDIENTE, EstadoMuestra.CORREGIDO -> AcentoPendiente
-    EstadoMuestra.OBSERVADO -> AcentoObservado
-}
+private fun acentoDe(estado: EstadoMuestra): Color = estado.colores.acento
 
 @Composable
 private fun AvisoToque() {
@@ -506,7 +503,8 @@ private fun TarjetaMuestra(
                             observada && muestra.comentarioSupervisor != null ->
                                 Aviso(Icons.Filled.ErrorOutline, muestra.comentarioSupervisor, EstadoObservadoFondo, EstadoObservadoTexto)
                             muestra.estado == EstadoMuestra.CORREGIDO ->
-                                Aviso(Icons.Filled.Replay, "Corregida: a la espera de una nueva revisión", EstadoValidadoFondo, EstadoValidadoTexto)
+                                // Mismo ámbar que su chip y su franja (antes era azul, el color de Validado)
+                                Aviso(Icons.Filled.Replay, "Corregida: a la espera de una nueva revisión", muestra.estado.colores.fondo, muestra.estado.colores.texto)
                         }
                         EstadoEnvio(muestra)
                         AccionesTarjeta(
