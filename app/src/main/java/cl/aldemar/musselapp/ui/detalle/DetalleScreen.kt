@@ -52,7 +52,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.graphics.ImageBitmap
+import android.content.ActivityNotFoundException
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -88,6 +94,8 @@ import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoTexto
 import cl.aldemar.musselapp.ui.theme.colores
 import cl.aldemar.musselapp.util.Fechas
+import cl.aldemar.musselapp.util.FichaMuestra
+import cl.aldemar.musselapp.util.FichaPdf
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -131,6 +139,41 @@ fun DetalleScreen(
     onCerrarSesion: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    // La ficha PDF se genera fuera del hilo principal (lee la foto y escribe un archivo)
+    fun conFicha(accion: (File) -> Unit) {
+        val muestra = uiState.muestra ?: return
+        scope.launch {
+            try {
+                val pdf = withContext(Dispatchers.IO) { FichaPdf.generar(context, muestra) }
+                accion(pdf)
+            } catch (e: ActivityNotFoundException) {
+                onMostrarMensaje("No hay una app instalada para esta acción")
+            } catch (e: Exception) {
+                onMostrarMensaje("No se pudo generar la ficha técnica")
+            }
+        }
+    }
+
+    // "Descargar": el usuario elige dónde guardar el PDF (por ejemplo, Descargas)
+    val guardarFicha = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/pdf"),
+    ) { destino ->
+        if (destino != null) {
+            conFicha { pdf ->
+                scope.launch {
+                    try {
+                        withContext(Dispatchers.IO) { FichaPdf.guardarEn(context, pdf, destino) }
+                        onMostrarMensaje("Ficha técnica guardada")
+                    } catch (e: Exception) {
+                        onMostrarMensaje("No se pudo guardar la ficha técnica")
+                    }
+                }
+            }
+        }
+    }
 
     LaunchedEffect(uiState.mensajeToast) {
         val mensaje = uiState.mensajeToast
@@ -225,8 +268,8 @@ fun DetalleScreen(
                     // ── 1. Franja Contextual Superior ─────────────────────────
                     FranjaContextualDetalle(
                         muestra = muestra,
-                        onCompartir = { onMostrarMensaje("Enlace de muestra copiado al portapapeles") },
-                        onImprimir = { onMostrarMensaje("Enviando informe a cola de impresión...") },
+                        onCompartir = { conFicha { pdf -> FichaPdf.compartir(context, pdf, muestra) } },
+                        onImprimir = { conFicha { pdf -> FichaPdf.imprimir(context, pdf, muestra) } },
                     )
 
                     Column(
@@ -262,7 +305,7 @@ fun DetalleScreen(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
                             Button(
-                                onClick = { onMostrarMensaje("Generando reporte técnico SERNAPESCA...") },
+                                onClick = { guardarFicha.launch(FichaMuestra.nombreArchivo(muestra)) },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(52.dp),

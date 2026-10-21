@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Archivos que la app puede compartir con otras apps (FileProvider): solo las fichas PDF -->
+<paths>
+    <cache-path name="fichas" path="fichas/" />
+</paths>
