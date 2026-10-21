@@ -85,6 +85,7 @@ import cl.aldemar.musselapp.ui.theme.EstadoObservadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoObservadoTexto
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoTexto
+import cl.aldemar.musselapp.ui.theme.colores
 import cl.aldemar.musselapp.util.Fechas
 import java.io.File
 import java.text.SimpleDateFormat
@@ -609,11 +610,11 @@ private fun TarjetaDictamenTecnico(
     esSupervisor: Boolean,
     onIrARevision: () -> Unit,
 ) {
+    // Pendiente y Corregido usan el ámbar de ColoresEstado (antes: ámbar y azul escritos a mano)
     val colorBordeEstado = when (muestra.estado) {
         EstadoMuestra.VALIDADO -> EstadoValidadoTexto
         EstadoMuestra.OBSERVADO -> EstadoObservadoTexto
-        EstadoMuestra.CORREGIDO -> Color(0xFF2563EB)
-        EstadoMuestra.PENDIENTE -> Color(0xFFD97706)
+        EstadoMuestra.CORREGIDO, EstadoMuestra.PENDIENTE -> muestra.estado.colores.acento
     }
 
     Surface(
