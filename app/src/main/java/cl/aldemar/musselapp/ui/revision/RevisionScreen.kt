@@ -33,7 +33,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.VerifiedUser
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -81,10 +81,9 @@ import cl.aldemar.musselapp.ui.componentes.Avatar
 import cl.aldemar.musselapp.ui.componentes.ChipEstado
 import cl.aldemar.musselapp.ui.componentes.NavegacionInferior
 import cl.aldemar.musselapp.ui.principal.Destino
-import cl.aldemar.musselapp.ui.theme.EstadoObservadoFondo
-import cl.aldemar.musselapp.ui.theme.EstadoObservadoTexto
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoTexto
+import cl.aldemar.musselapp.ui.theme.colores
 import java.io.File
 
 @Composable
@@ -547,7 +546,7 @@ fun RevisionScreen(
                                         fontWeight = FontWeight.Bold,
                                     )
 
-                                    // Botones de Decisión (Validar / Observar)
+                                    // Botones de Decisión (Validar / Corregir)
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -574,26 +573,27 @@ fun RevisionScreen(
                                             Text("VALIDAR", fontWeight = FontWeight.Bold)
                                         }
 
-                                        // Botón OBSERVAR
-                                        val esObservado = uiState.estadoElegido == EstadoMuestra.OBSERVADO
+                                        // Botón CORREGIR: mismos colores que el chip Corregido
+                                        val esCorregido = uiState.estadoElegido == EstadoMuestra.CORREGIDO
+                                        val coloresCorregido = EstadoMuestra.CORREGIDO.colores
                                         Button(
-                                            onClick = { onElegirEstado(EstadoMuestra.OBSERVADO) },
+                                            onClick = { onElegirEstado(EstadoMuestra.CORREGIDO) },
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .height(56.dp),
                                             shape = RoundedCornerShape(10.dp),
                                             colors = ButtonDefaults.buttonColors(
-                                                containerColor = if (esObservado) EstadoObservadoTexto else EstadoObservadoFondo,
-                                                contentColor = if (esObservado) Color.White else EstadoObservadoTexto,
+                                                containerColor = if (esCorregido) coloresCorregido.texto else coloresCorregido.fondo,
+                                                contentColor = if (esCorregido) Color.White else coloresCorregido.texto,
                                             ),
                                             border = androidx.compose.foundation.BorderStroke(
-                                                width = if (esObservado) 2.dp else 1.5.dp,
-                                                color = EstadoObservadoTexto,
+                                                width = if (esCorregido) 2.dp else 1.5.dp,
+                                                color = coloresCorregido.texto,
                                             ),
                                         ) {
-                                            Icon(Icons.Filled.Warning, contentDescription = null, modifier = Modifier.size(18.dp))
+                                            Icon(Icons.Filled.EditNote, contentDescription = null, modifier = Modifier.size(18.dp))
                                             Spacer(Modifier.width(6.dp))
-                                            Text("OBSERVAR", fontWeight = FontWeight.Bold)
+                                            Text("CORREGIR", fontWeight = FontWeight.Bold)
                                         }
                                     }
 
@@ -610,7 +610,7 @@ fun RevisionScreen(
                                                 .horizontalScroll(rememberScrollState()),
                                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                                         ) {
-                                            MotivoChip("Densidad bajo umbral (< 350 ind/m)") { onAgregarMotivo("Densidad bajo el rango mínimo estándar (< 350 ind/m). Requiere reconteo") }
+                                            MotivoChip("Densidad bajo umbral (< 350 ind/m)") { onAgregarMotivo("Densidad bajo el rango mínimo estándar (< 350 ind/m)") }
                                             MotivoChip("Epifauna / Fouling detectado") { onAgregarMotivo("Presencia notable de epifauna y fouling en el tramo") }
                                             MotivoChip("Talla irregular") { onAgregarMotivo("Dispersión de calibre anómala para el ciclo de engorda") }
                                             MotivoChip("Fijación débil") { onAgregarMotivo("Biso débil en cuerda, verificar anclaje") }
@@ -621,8 +621,8 @@ fun RevisionScreen(
                                     OutlinedTextField(
                                         value = uiState.comentarioTecnico,
                                         onValueChange = onActualizarComentario,
-                                        label = { Text("Comentario u observación técnica") },
-                                        placeholder = { Text("Ingresa el fundamento del dictamen o instrucciones para el operador...") },
+                                        label = { Text("Comentario técnico") },
+                                        placeholder = { Text("Ingresa el fundamento del dictamen o qué se corrigió...") },
                                         modifier = Modifier.fillMaxWidth(),
                                         minLines = 3,
                                         shape = RoundedCornerShape(8.dp),
@@ -631,7 +631,7 @@ fun RevisionScreen(
                                             if (uiState.errorComentario != null) {
                                                 Text(uiState.errorComentario, color = MaterialTheme.colorScheme.error)
                                             } else {
-                                                Text("Obligatorio al Observar; opcional al Validar.")
+                                                Text("Obligatorio al Corregir; opcional al Validar.")
                                             }
                                         },
                                         colors = OutlinedTextFieldDefaults.colors(

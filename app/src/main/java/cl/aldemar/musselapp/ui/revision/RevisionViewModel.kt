@@ -25,7 +25,8 @@ class RevisionViewModel(
     private fun observarMuestras() {
         viewModelScope.launch {
             repository.muestras.collect { todas ->
-                val pendientes = todas.filter { it.estado == EstadoMuestra.PENDIENTE || it.estado == EstadoMuestra.OBSERVADO }
+                // Validado y Corregido son dictámenes finales: la cola tiene solo las pendientes
+                val pendientes = todas.filter { it.estado == EstadoMuestra.PENDIENTE }
                 _uiState.update { estadoActual ->
                     val actualValido = pendientes.any { it.id == estadoActual.muestraSeleccionadaId }
                     val nuevaSeleccionada = if (actualValido) estadoActual.muestraSeleccionadaId else pendientes.firstOrNull()?.id
@@ -75,12 +76,12 @@ class RevisionViewModel(
         val nuevoEstado = estadoActual.estadoElegido
 
         if (nuevoEstado == null) {
-            _uiState.update { it.copy(errorComentario = "Debes seleccionar un dictamen: Validar u Observar") }
+            _uiState.update { it.copy(errorComentario = "Debes seleccionar un dictamen: Validar o Corregir") }
             return
         }
 
-        if (nuevoEstado == EstadoMuestra.OBSERVADO && estadoActual.comentarioTecnico.isBlank()) {
-            _uiState.update { it.copy(errorComentario = "Debes ingresar una justificación técnica para observar la muestra") }
+        if (nuevoEstado == EstadoMuestra.CORREGIDO && estadoActual.comentarioTecnico.isBlank()) {
+            _uiState.update { it.copy(errorComentario = "Debes indicar qué se corrigió en la muestra") }
             return
         }
 
