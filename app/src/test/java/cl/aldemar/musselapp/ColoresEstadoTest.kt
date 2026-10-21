@@ -6,7 +6,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
-/** Pendiente y Corregido se ven iguales; Validado y Observado se distinguen de ellos. */
+/** Pendiente y Corregido se ven iguales; Validado se distingue de ellos. */
 class ColoresEstadoTest {
 
     @Test
@@ -15,10 +15,10 @@ class ColoresEstadoTest {
     }
 
     @Test
-    fun soloHayTresColoresDeEstado() {
+    fun validado_seDistingueDeLosDemas() {
+        // Tres estados y dos colores: azul para Validado, ámbar para Pendiente y Corregido
         val distintos = EstadoMuestra.entries.map { it.colores }.toSet()
-        assertEquals(3, distintos.size)
+        assertEquals(2, distintos.size)
         assertNotEquals(EstadoMuestra.PENDIENTE.colores, EstadoMuestra.VALIDADO.colores)
-        assertNotEquals(EstadoMuestra.PENDIENTE.colores, EstadoMuestra.OBSERVADO.colores)
     }
 }

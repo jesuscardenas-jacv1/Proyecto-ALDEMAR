@@ -47,10 +47,10 @@ class MusselDatabaseTest {
     fun muestraCompleta_traeLineaTrenOperadorYUltimaRevision() = runBlocking {
         val muestras = db.muestraDao().observarTodas().first().map { it.aModelo() }
         assertTrue(muestras.zipWithNext().all { (a, b) -> a.registradaEn >= b.registradaEn })
-        val observada = muestras.first { it.estado == EstadoMuestra.OBSERVADO }
-        assertEquals("Carla Vera", observada.operador)
-        assertEquals("Diego Muñoz", observada.revisadaPor)
-        assertNotNull(observada.comentarioSupervisor)
+        val corregida = muestras.first { it.estado == EstadoMuestra.CORREGIDO }
+        assertEquals("Carla Vera", corregida.operador)
+        assertEquals("Diego Muñoz", corregida.revisadaPor)
+        assertNotNull(corregida.comentarioSupervisor)
     }
 
     @Test
@@ -59,7 +59,7 @@ class MusselDatabaseTest {
         val pendiente = dao.observarTodas().first().first { it.muestra.estado == EstadoMuestra.PENDIENTE }
         val id = pendiente.muestra.id
 
-        dao.registrarRevision(id, EstadoMuestra.OBSERVADO, "Repetir conteo", DatosIniciales.RUT_SUPERVISOR, 1_000L)
+        dao.registrarRevision(id, EstadoMuestra.CORREGIDO, "Repetir conteo", DatosIniciales.RUT_SUPERVISOR, 1_000L)
         dao.registrarRevision(id, EstadoMuestra.VALIDADO, "Conteo corregido", DatosIniciales.RUT_SUPERVISOR, 2_000L)
 
         val actualizada = dao.observarPorId(id).first()!!.aModelo()
