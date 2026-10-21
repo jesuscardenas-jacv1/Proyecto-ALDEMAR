@@ -79,6 +79,8 @@ fun MusselNavHost(
                 popUpTo(Rutas.LOGIN) { inclusive = true }
             }
         } else if (usuario == null && rutaActual != null && rutaActual != Rutas.LOGIN) {
+            // Una muestra a medio registrar no pasa al siguiente usuario (ni su foto queda guardada)
+            borradorViewModel.descartar()
             navController.navigate(Rutas.LOGIN) {
                 popUpTo(navController.graph.id) { inclusive = true }
             }
