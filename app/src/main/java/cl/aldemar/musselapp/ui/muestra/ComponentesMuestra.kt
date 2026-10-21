@@ -49,11 +49,11 @@ internal object Paleta {
     val Superficie = Color(0xFFFFFFFF) // tarjetas
     val Campo = Color(0xFFE2E8F0) // campos y filas dentro de una tarjeta
     val Borde = Color(0xFFCBD5E1) // borde de tarjetas
-    val BordeCampo = Color(0xFF94A3B8) // borde de opciones sin elegir
+    val BordeCampo = Color(0xFF64748B) // borde de opciones sin elegir (4,8:1 sobre blanco, mínimo 3:1)
     val BordeFuerte = Color(0xFF64748B) // borde de campos y filas, bien marcado
     val Texto = Color(0xFF0F172A)
     val Etiqueta = Color(0xFF334155) // Slate
-    val TextoSuave = Color(0xFF64748B)
+    val TextoSuave = Color(0xFF475569) // texto secundario (6,1:1 sobre Campo y 6,9:1 sobre Fondo, mínimo 4,5:1)
     val TextoBarra = Color(0xFF94A3B8) // texto secundario sobre la barra Navy
     val Acento = Color(0xFF1E3A8A) // etiquetas y bordes de lo ya elegido
     val AcentoSuave = Color(0xFFDBEAFE) // fondo de lo elegido y de los recuadros de íconos
