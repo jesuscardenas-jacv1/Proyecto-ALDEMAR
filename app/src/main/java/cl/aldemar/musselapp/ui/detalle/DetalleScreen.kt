@@ -81,8 +81,8 @@ import cl.aldemar.musselapp.data.model.Rol
 import cl.aldemar.musselapp.data.model.Usuario
 import cl.aldemar.musselapp.ui.componentes.Avatar
 import cl.aldemar.musselapp.ui.componentes.ChipEstado
-import cl.aldemar.musselapp.ui.theme.EstadoObservadoFondo
-import cl.aldemar.musselapp.ui.theme.EstadoObservadoTexto
+import cl.aldemar.musselapp.ui.theme.AlertaFondo
+import cl.aldemar.musselapp.ui.theme.AlertaTexto
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoTexto
 import cl.aldemar.musselapp.ui.theme.colores
@@ -613,7 +613,6 @@ private fun TarjetaDictamenTecnico(
     // Pendiente y Corregido usan el ámbar de ColoresEstado (antes: ámbar y azul escritos a mano)
     val colorBordeEstado = when (muestra.estado) {
         EstadoMuestra.VALIDADO -> EstadoValidadoTexto
-        EstadoMuestra.OBSERVADO -> EstadoObservadoTexto
         EstadoMuestra.CORREGIDO, EstadoMuestra.PENDIENTE -> muestra.estado.colores.acento
     }
 
@@ -757,12 +756,12 @@ private fun TarjetaResumenBiometrico(muestra: Muestra) {
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
-                        .background(if (esBajo) EstadoObservadoFondo else EstadoValidadoFondo)
+                        .background(if (esBajo) AlertaFondo else EstadoValidadoFondo)
                         .padding(horizontal = 6.dp, vertical = 2.dp),
                 ) {
                     Text(
                         "${if (desvio >= 0) "+$desvio%" else "$desvio%"} DESVÍO",
-                        color = if (esBajo) EstadoObservadoTexto else EstadoValidadoTexto,
+                        color = if (esBajo) AlertaTexto else EstadoValidadoTexto,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                     )
@@ -798,14 +797,14 @@ private fun TarjetaResumenBiometrico(muestra: Muestra) {
                             Icon(
                                 if (esBajo) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward,
                                 contentDescription = null,
-                                tint = if (esBajo) EstadoObservadoTexto else EstadoValidadoTexto,
+                                tint = if (esBajo) AlertaTexto else EstadoValidadoTexto,
                                 modifier = Modifier.size(14.dp),
                             )
                             Spacer(Modifier.width(2.dp))
                             Text(
                                 "$desvio% respecto al histórico (${Muestra.DENSIDAD_ESTANDAR_IND_M} ind/m)",
                                 fontSize = 11.sp,
-                                color = if (esBajo) EstadoObservadoTexto else EstadoValidadoTexto,
+                                color = if (esBajo) AlertaTexto else EstadoValidadoTexto,
                                 fontWeight = FontWeight.Medium,
                             )
                         }
@@ -826,7 +825,7 @@ private fun TarjetaResumenBiometrico(muestra: Muestra) {
                                 .width(9.dp)
                                 .height(alturaBarraActual.dp)
                                 .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
-                                .background(if (esBajo) EstadoObservadoTexto else EstadoValidadoTexto),
+                                .background(if (esBajo) AlertaTexto else EstadoValidadoTexto),
                         )
                     }
                 }

@@ -87,8 +87,8 @@ import cl.aldemar.musselapp.ui.componentes.ChipEstado
 import cl.aldemar.musselapp.ui.componentes.NavegacionInferior
 import cl.aldemar.musselapp.ui.principal.Destino
 import cl.aldemar.musselapp.ui.theme.AcentoValidado
-import cl.aldemar.musselapp.ui.theme.EstadoObservadoFondo
-import cl.aldemar.musselapp.ui.theme.EstadoObservadoTexto
+import cl.aldemar.musselapp.ui.theme.AlertaFondo
+import cl.aldemar.musselapp.ui.theme.AlertaTexto
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoTexto
 import cl.aldemar.musselapp.ui.theme.colores
@@ -528,12 +528,12 @@ private fun MetricasMuestra(muestra: Muestra) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(if (densidadBaja) EstadoObservadoFondo.copy(alpha = 0.5f) else MaterialTheme.colorScheme.background)
+            .background(if (densidadBaja) AlertaFondo.copy(alpha = 0.5f) else MaterialTheme.colorScheme.background)
             .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
         Metrica(
             "Densidad", "${muestra.conteoIndM} ind/m", Modifier.weight(1.1f),
-            color = if (densidadBaja) EstadoObservadoTexto else null,
+            color = if (densidadBaja) AlertaTexto else null,
         )
         Metrica("Talla Media", "${muestra.tallaMm} mm", Modifier.weight(1f))
         Metrica("Profundidad", "${muestra.profundidadM} m", Modifier.weight(1f))

@@ -17,15 +17,16 @@ val Error = Color(0xFFB91C1C)
 // Estados de una muestra (chips del historial y la pantalla principal)
 val EstadoValidadoFondo = Color(0xFFDBEAFE)
 val EstadoValidadoTexto = Color(0xFF1E3A8A)
-val EstadoObservadoFondo = Color(0xFFFEE2E2)
-val EstadoObservadoTexto = Color(0xFFB91C1C)
 
-// Pendiente y Corregido comparten color: los dos esperan revisión del supervisor.
-// Se distinguen por la etiqueta y el ícono, así la pantalla no suma colores.
+// Pendiente y Corregido comparten color para no saturar la pantalla.
+// Se distinguen por la etiqueta y el ícono.
 val EstadoEnEsperaFondo = Color(0xFFFEF3C7)
 val EstadoEnEsperaTexto = Color(0xFF92400E)
 
 // Franja lateral de las tarjetas del Historial según el estado
 val AcentoValidado = Color(0xFF16A34A)
 val AcentoPendiente = Color(0xFFD97706)
-val AcentoObservado = Color(0xFFDC2626)
+
+// Alertas que no son un estado (por ejemplo, densidad bajo el mínimo)
+val AlertaFondo = Color(0xFFFEE2E2)
+val AlertaTexto = Color(0xFFB91C1C)
