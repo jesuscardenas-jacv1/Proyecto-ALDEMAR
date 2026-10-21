@@ -18,18 +18,27 @@ class PrincipalViewModel(
     private val muestraRepository: MuestraRepository = MusselApplication.contenedor.muestraRepository,
 ) : ViewModel() {
 
-    private data class EstadoLocal(val sincronizando: Boolean = false, val mensaje: String? = null)
+    private data class EstadoLocal(
+        val sincronizando: Boolean = false,
+        val mensaje: String? = null,
+        /** Centro con el que se inició sesión; null resume todos los centros. */
+        val centroId: String? = null,
+    )
 
     private val local = MutableStateFlow(EstadoLocal())
 
     val uiState: StateFlow<PrincipalUiState> =
         combine(muestraRepository.muestras, local) { todas, estado ->
-            // Las métricas resumen solo la jornada de hoy; las recientes y las colas
-            // de revisión y sincronización incluyen días anteriores
-            val deHoy = todas.filter { it.registradaEn >= Fechas.inicioDelDia() }
+            // Todo se resume para el centro de la sesión, salvo la cola de sincronización:
+            // "Sincronizar" envía las muestras de todos los centros guardadas en el teléfono
+            val delCentro = estado.centroId?.let { id -> todas.filter { it.centroId == id } } ?: todas
+            // Las métricas resumen solo la jornada de hoy; las recientes y la cola
+            // de revisión incluyen días anteriores
+            val deHoy = delCentro.filter { it.registradaEn >= Fechas.inicioDelDia() }
             PrincipalUiState(
-                resumen = ResumenJornada.desde(deHoy, todas),
-                recientes = todas.sortedByDescending { it.registradaEn }.take(CANTIDAD_RECIENTES),
+                resumen = ResumenJornada.desde(deHoy, delCentro)
+                    .copy(pendientesSincronizar = todas.count { !it.sincronizada }),
+                recientes = delCentro.sortedByDescending { it.registradaEn }.take(CANTIDAD_RECIENTES),
                 sincronizando = estado.sincronizando,
                 mensaje = estado.mensaje,
             )
@@ -50,6 +59,9 @@ class PrincipalViewModel(
     }
 
     fun onMensajeMostrado() = local.update { it.copy(mensaje = null) }
+
+    /** Resume solo las muestras del centro con el que se inició sesión. */
+    fun mostrarCentro(centroId: String) = local.update { it.copy(centroId = centroId) }
 
     private companion object {
         const val CANTIDAD_RECIENTES = 3

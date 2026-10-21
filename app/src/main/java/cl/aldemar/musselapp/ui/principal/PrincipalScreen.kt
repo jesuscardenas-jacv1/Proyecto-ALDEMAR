@@ -100,6 +100,8 @@ fun PrincipalRoute(
     viewModel: PrincipalViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    // La Principal resume el centro con el que se inició sesión
+    LaunchedEffect(centro.id) { viewModel.mostrarCentro(centro.id) }
     PrincipalScreen(
         usuario = usuario,
         centro = centro,
