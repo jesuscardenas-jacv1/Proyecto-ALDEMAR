@@ -1,12 +1,9 @@
 package cl.aldemar.musselapp.ui.muestra
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
-import android.net.Uri
-import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -92,6 +89,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import cl.aldemar.musselapp.data.model.CentroCultivo
 import cl.aldemar.musselapp.ui.theme.MusselAppTheme
+import cl.aldemar.musselapp.util.AlmacenFotos
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -150,9 +148,9 @@ fun VistaPreviaScreen(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) {
-            val archivo = copiarEnApp(context, uri)
+            val archivo = AlmacenFotos.copiarDesdeUri(context, uri)
             if (archivo != null) {
-                borrarArchivo(rutaFoto)
+                AlmacenFotos.borrar(context, rutaFoto)
                 onFotoCambiada(archivo.absolutePath)
             } else {
                 Toast.makeText(context, "No se pudo abrir la imagen", Toast.LENGTH_SHORT).show()
@@ -406,7 +404,7 @@ fun VistaPreviaScreen(
             confirmButton = {
                 TextButton(onClick = {
                     eliminando = false
-                    borrarArchivo(rutaFoto)
+                    AlmacenFotos.borrar(context, rutaFoto)
                     onFotoCambiada(null)
                 }) { Text("ELIMINAR", color = Paleta.Error, fontWeight = FontWeight.Bold) }
             },
@@ -834,27 +832,6 @@ private fun Fila(etiqueta: String, valor: String) {
             modifier = Modifier.weight(0.6f)
         )
     }
-}
-
-// Copia la foto elegida en la galería a la carpeta de muestras de la app
-private fun copiarEnApp(context: Context, uri: Uri): File? {
-    return try {
-        val carpeta = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "muestras")
-        carpeta.mkdirs()
-        val archivo = File(carpeta, "muestra_${System.currentTimeMillis()}.jpg")
-        context.contentResolver.openInputStream(uri)?.use { entrada ->
-            archivo.outputStream().use { salida -> entrada.copyTo(salida) }
-        } ?: return null
-        archivo
-    } catch (e: Exception) {
-        null
-    }
-}
-
-// Borra la copia de la app; la que está en la galería del teléfono no se toca
-private fun borrarArchivo(ruta: String?) {
-    if (ruta == null) return
-    runCatching { File(ruta).delete() }
 }
 
 // Lee la foto reducida y la gira según la orientación que guardó la cámara
