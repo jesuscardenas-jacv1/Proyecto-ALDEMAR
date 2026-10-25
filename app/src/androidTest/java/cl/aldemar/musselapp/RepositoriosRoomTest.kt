@@ -104,4 +104,26 @@ class RepositoriosRoomTest {
         assertTrue(auth.login("11.111.111-1", "1234", Rol.SUPERVISOR).isFailure)
         assertTrue(auth.login("99.999.999-9", "1234", Rol.OPERARIO).isFailure)
     }
+
+    @Test
+    fun login_bloqueaTrasCincoPinIncorrectos() = runBlocking {
+        val auth = RoomAuthRepository(db.usuarioDao(), latenciaMs = 0)
+        repeat(4) { assertTrue(auth.login("22.222.222-2", "0000", Rol.SUPERVISOR).isFailure) }
+        val quinto = auth.login("22.222.222-2", "0000", Rol.SUPERVISOR).exceptionOrNull()?.message.orEmpty()
+        assertTrue(quinto, quinto.startsWith("Demasiados intentos"))
+        // Bloqueado: ni el PIN correcto entra hasta que pase la espera
+        val conPinCorrecto = auth.login("22.222.222-2", "1234", Rol.SUPERVISOR).exceptionOrNull()?.message.orEmpty()
+        assertTrue(conPinCorrecto, conPinCorrecto.startsWith("Demasiados intentos"))
+        // Otro RUT no queda afectado
+        assertEquals("Carla Vera", auth.login("11.111.111-1", "1234", Rol.OPERARIO).getOrThrow().nombre)
+    }
+
+    @Test
+    fun login_mismoMensajeSiElRutNoExisteOElPinEsIncorrecto() = runBlocking {
+        val auth = RoomAuthRepository(db.usuarioDao(), latenciaMs = 0)
+        val rutInexistente = auth.login("99.999.999-9", "1234", Rol.OPERARIO).exceptionOrNull()?.message
+        val pinIncorrecto = auth.login("11.111.111-1", "0000", Rol.OPERARIO).exceptionOrNull()?.message
+        assertEquals("RUT o PIN incorrectos", rutInexistente)
+        assertEquals(rutInexistente, pinIncorrecto)
+    }
 }

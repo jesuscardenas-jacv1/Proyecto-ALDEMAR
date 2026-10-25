@@ -53,8 +53,10 @@ abstract class MusselDatabase : RoomDatabase() {
                 })
                 // Migraciones conocidas: conservan las muestras guardadas
                 .addMigrations(*Migraciones.TODAS)
-                // Si falta una migración se recrea la base (se pierden los datos de prueba)
-                .fallbackToDestructiveMigration(dropAllTables = true)
+                // Sin migración destructiva: si falta una migración la app falla al abrir la base
+                // en vez de borrar en silencio las muestras. Solo al instalar una versión ANTERIOR
+                // (cambiar de rama durante el desarrollo) se recrea la base.
+                .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
                 .build()
             return instancia
         }
