@@ -15,4 +15,5 @@ data class MuestraCompleta(
     @ColumnInfo(name = "operador_nombre") val operadorNombre: String,
     @ColumnInfo(name = "supervisor_nombre") val supervisorNombre: String?,
     @ColumnInfo(name = "comentario_supervisor") val comentarioSupervisor: String?,
+    @ColumnInfo(name = "revisada_en") val revisadaEn: Long?,
 )

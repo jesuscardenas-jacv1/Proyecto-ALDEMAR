@@ -1,0 +1,413 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "02a5b37f714355d855f314117c0c09fb",
+    "entities": [
+      {
+        "tableName": "centros",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `nombre` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "trenes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `centro_id` TEXT NOT NULL, `codigo` TEXT NOT NULL, FOREIGN KEY(`centro_id`) REFERENCES `centros`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "centroId",
+            "columnName": "centro_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "codigo",
+            "columnName": "codigo",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_trenes_centro_id_codigo",
+            "unique": true,
+            "columnNames": [
+              "centro_id",
+              "codigo"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_trenes_centro_id_codigo` ON `${TABLE_NAME}` (`centro_id`, `codigo`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "centros",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "centro_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "lineas",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tren_id` INTEGER NOT NULL, `numero` INTEGER NOT NULL, FOREIGN KEY(`tren_id`) REFERENCES `trenes`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trenId",
+            "columnName": "tren_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numero",
+            "columnName": "numero",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_lineas_tren_id_numero",
+            "unique": true,
+            "columnNames": [
+              "tren_id",
+              "numero"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_lineas_tren_id_numero` ON `${TABLE_NAME}` (`tren_id`, `numero`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "trenes",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tren_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "usuarios",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rut` TEXT NOT NULL, `nombre` TEXT NOT NULL, `rol` TEXT NOT NULL, `pin` TEXT NOT NULL, PRIMARY KEY(`rut`))",
+        "fields": [
+          {
+            "fieldPath": "rut",
+            "columnName": "rut",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rol",
+            "columnName": "rol",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pin",
+            "columnName": "pin",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "rut"
+          ]
+        }
+      },
+      {
+        "tableName": "muestras",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `linea_id` INTEGER NOT NULL, `operador_rut` TEXT NOT NULL, `profundidad_m` INTEGER NOT NULL, `talla_mm` INTEGER NOT NULL, `conteo_ind_m` INTEGER NOT NULL, `observacion` TEXT NOT NULL, `estado` TEXT NOT NULL, `registrada_en` INTEGER NOT NULL, `sincronizada` INTEGER NOT NULL, `foto_ruta` TEXT, FOREIGN KEY(`linea_id`) REFERENCES `lineas`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`operador_rut`) REFERENCES `usuarios`(`rut`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lineaId",
+            "columnName": "linea_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "operadorRut",
+            "columnName": "operador_rut",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "profundidadM",
+            "columnName": "profundidad_m",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tallaMm",
+            "columnName": "talla_mm",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "conteoIndM",
+            "columnName": "conteo_ind_m",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "observacion",
+            "columnName": "observacion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estado",
+            "columnName": "estado",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "registradaEn",
+            "columnName": "registrada_en",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sincronizada",
+            "columnName": "sincronizada",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fotoRuta",
+            "columnName": "foto_ruta",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_muestras_linea_id",
+            "unique": false,
+            "columnNames": [
+              "linea_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_muestras_linea_id` ON `${TABLE_NAME}` (`linea_id`)"
+          },
+          {
+            "name": "index_muestras_operador_rut",
+            "unique": false,
+            "columnNames": [
+              "operador_rut"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_muestras_operador_rut` ON `${TABLE_NAME}` (`operador_rut`)"
+          },
+          {
+            "name": "index_muestras_estado",
+            "unique": false,
+            "columnNames": [
+              "estado"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_muestras_estado` ON `${TABLE_NAME}` (`estado`)"
+          },
+          {
+            "name": "index_muestras_registrada_en",
+            "unique": false,
+            "columnNames": [
+              "registrada_en"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_muestras_registrada_en` ON `${TABLE_NAME}` (`registrada_en`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "lineas",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "linea_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "usuarios",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "operador_rut"
+            ],
+            "referencedColumns": [
+              "rut"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "revisiones",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `muestra_id` INTEGER NOT NULL, `supervisor_rut` TEXT NOT NULL, `estado_asignado` TEXT NOT NULL, `comentario` TEXT, `revisada_en` INTEGER NOT NULL, FOREIGN KEY(`muestra_id`) REFERENCES `muestras`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`supervisor_rut`) REFERENCES `usuarios`(`rut`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "muestraId",
+            "columnName": "muestra_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supervisorRut",
+            "columnName": "supervisor_rut",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estadoAsignado",
+            "columnName": "estado_asignado",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comentario",
+            "columnName": "comentario",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "revisadaEn",
+            "columnName": "revisada_en",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_revisiones_muestra_id",
+            "unique": false,
+            "columnNames": [
+              "muestra_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_revisiones_muestra_id` ON `${TABLE_NAME}` (`muestra_id`)"
+          },
+          {
+            "name": "index_revisiones_supervisor_rut",
+            "unique": false,
+            "columnNames": [
+              "supervisor_rut"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_revisiones_supervisor_rut` ON `${TABLE_NAME}` (`supervisor_rut`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "muestras",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "muestra_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "usuarios",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "supervisor_rut"
+            ],
+            "referencedColumns": [
+              "rut"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '02a5b37f714355d855f314117c0c09fb')"
+    ]
+  }
+}

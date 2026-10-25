@@ -8,6 +8,7 @@ import cl.aldemar.musselapp.data.local.MusselDatabase
 import cl.aldemar.musselapp.data.model.EstadoMuestra
 import cl.aldemar.musselapp.data.model.Muestra
 import cl.aldemar.musselapp.data.model.Rol
+import cl.aldemar.musselapp.data.model.Usuario
 import cl.aldemar.musselapp.data.repository.RoomAuthRepository
 import cl.aldemar.musselapp.data.repository.RoomMuestraRepository
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +31,7 @@ class RepositoriosRoomTest {
     private lateinit var db: MusselDatabase
     private lateinit var alcance: CoroutineScope
     private lateinit var repositorio: RoomMuestraRepository
+    private val supervisor = Usuario("22.222.222-2", "Diego Muñoz", Rol.SUPERVISOR)
 
     @Before
     fun preparar() = runBlocking {
@@ -66,13 +68,26 @@ class RepositoriosRoomTest {
     }
 
     @Test
-    fun actualizarEstado_porNombreDelSupervisor_guardaDictamen() = runBlocking {
+    fun actualizarEstado_porRutDelSupervisor_guardaDictamenYFecha() = runBlocking {
         val id = db.muestraDao().observarTodas().first().first { it.muestra.estado == EstadoMuestra.PENDIENTE }.muestra.id
-        repositorio.actualizarEstado(id, EstadoMuestra.VALIDADO, "Conforme", revisadaPor = "Diego Muñoz")
+        val antes = System.currentTimeMillis()
+        repositorio.actualizarEstado(id, EstadoMuestra.VALIDADO, "Conforme", supervisor = supervisor)
         val muestra = repositorio.obtenerPorId(id).first()!!
         assertEquals(EstadoMuestra.VALIDADO, muestra.estado)
         assertEquals("Diego Muñoz", muestra.revisadaPor)
         assertEquals("Conforme", muestra.comentarioSupervisor)
+        assertTrue((muestra.revisadaEn ?: 0L) >= antes)
+    }
+
+    @Test
+    fun actualizarEstado_supervisorInexistente_fallaSinCambiarLaMuestra() = runBlocking {
+        val id = db.muestraDao().observarTodas().first().first { it.muestra.estado == EstadoMuestra.PENDIENTE }.muestra.id
+        val desconocido = Usuario("99.999.999-9", "Diego Muñoz", Rol.SUPERVISOR) // mismo nombre, otro RUT
+        val resultado = runCatching {
+            repositorio.actualizarEstado(id, EstadoMuestra.VALIDADO, null, supervisor = desconocido)
+        }
+        assertTrue(resultado.isFailure)
+        assertEquals(EstadoMuestra.PENDIENTE, repositorio.obtenerPorId(id).first()!!.estado)
     }
 
     @Test

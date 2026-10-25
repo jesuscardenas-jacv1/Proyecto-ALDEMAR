@@ -5,6 +5,7 @@ import cl.aldemar.musselapp.data.local.aModelo
 import cl.aldemar.musselapp.data.local.entidad.MuestraEntity
 import cl.aldemar.musselapp.data.model.EstadoMuestra
 import cl.aldemar.musselapp.data.model.Muestra
+import cl.aldemar.musselapp.data.model.Usuario
 import cl.aldemar.musselapp.util.RutValidator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -40,10 +41,11 @@ class RoomMuestraRepository(
         id: Long,
         nuevoEstado: EstadoMuestra,
         comentario: String?,
-        revisadaPor: String,
+        supervisor: Usuario,
     ) {
-        val supervisorRut = buscarRut(revisadaPor)
-            ?: error("Supervisor no registrado: $revisadaPor")
+        // Se busca por RUT (único); el nombre puede repetirse entre usuarios
+        val supervisorRut = buscarRut(supervisor.rut)
+            ?: error("Supervisor no registrado: ${supervisor.rut}")
         muestraDao.registrarRevision(id, nuevoEstado, comentario, supervisorRut, System.currentTimeMillis())
     }
 
@@ -51,8 +53,8 @@ class RoomMuestraRepository(
     override suspend fun agregarMuestra(muestra: Muestra) {
         val lineaId = db.catalogoDao().buscarLineaId(muestra.centroId, muestra.tren, muestra.linea)
             ?: error("No existe la línea ${muestra.linea} del tren ${muestra.tren} en ${muestra.centroId}")
-        val operadorRut = buscarRut(muestra.operadorRut.ifBlank { muestra.operador })
-            ?: error("Operario no registrado: ${muestra.operador}")
+        val operadorRut = buscarRut(muestra.operadorRut)
+            ?: error("Operario no registrado: ${muestra.operadorRut}")
         muestraDao.insertar(
             MuestraEntity(
                 lineaId = lineaId,
@@ -74,8 +76,7 @@ class RoomMuestraRepository(
         return muestraDao.marcarSincronizadas()
     }
 
-    /** Acepta un RUT (con o sin formato) o el nombre del usuario y devuelve su RUT normalizado. */
-    private suspend fun buscarRut(rutONombre: String): String? =
-        usuarioDao.buscarPorRut(RutValidator.normalizar(rutONombre))?.rut
-            ?: usuarioDao.buscarPorNombre(rutONombre)?.rut
+    /** Acepta un RUT con o sin formato y devuelve el RUT normalizado si el usuario existe. */
+    private suspend fun buscarRut(rut: String): String? =
+        usuarioDao.buscarPorRut(RutValidator.normalizar(rut))?.rut
 }

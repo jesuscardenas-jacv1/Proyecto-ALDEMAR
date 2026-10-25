@@ -23,6 +23,7 @@ fun MuestraCompleta.aModelo() = Muestra(
     operador = operadorNombre,
     operadorRut = muestra.operadorRut,
     revisadaPor = supervisorNombre,
+    revisadaEn = revisadaEn,
     comentarioSupervisor = comentarioSupervisor,
     fotoRuta = muestra.fotoRuta,
 )

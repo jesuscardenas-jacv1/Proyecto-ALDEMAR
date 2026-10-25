@@ -18,7 +18,8 @@ private const val SELECT_COMPLETA = """
            l.numero AS linea_numero,
            op.nombre AS operador_nombre,
            sup.nombre AS supervisor_nombre,
-           r.comentario AS comentario_supervisor
+           r.comentario AS comentario_supervisor,
+           r.revisada_en AS revisada_en
     FROM muestras m
     JOIN lineas l ON l.id = m.linea_id
     JOIN trenes t ON t.id = l.tren_id
