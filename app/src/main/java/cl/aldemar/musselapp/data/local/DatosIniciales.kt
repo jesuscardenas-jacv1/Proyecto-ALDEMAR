@@ -10,6 +10,7 @@ import cl.aldemar.musselapp.data.local.entidad.UsuarioEntity
 import cl.aldemar.musselapp.data.model.CentroCultivo
 import cl.aldemar.musselapp.data.model.Rol
 import cl.aldemar.musselapp.data.repository.FakeMuestraRepository
+import cl.aldemar.musselapp.util.HashPin
 
 /** Datos ficticios que se cargan al crear la base por primera vez (caso académico). */
 object DatosIniciales {
@@ -20,9 +21,12 @@ object DatosIniciales {
     const val RUT_OPERARIO = "111111111"
     const val RUT_SUPERVISOR = "222222222"
 
-    val usuarios = listOf(
-        UsuarioEntity(rut = RUT_OPERARIO, nombre = "Carla Vera", rol = Rol.OPERARIO, pin = "1234"),
-        UsuarioEntity(rut = RUT_SUPERVISOR, nombre = "Diego Muñoz", rol = Rol.SUPERVISOR, pin = "1234"),
+    /** PIN de prueba de ambos usuarios; en la base solo se guarda su hash. */
+    const val PIN_PRUEBA = "1234"
+
+    fun usuarios() = listOf(
+        UsuarioEntity(rut = RUT_OPERARIO, nombre = "Carla Vera", rol = Rol.OPERARIO, pin = HashPin.generar(PIN_PRUEBA)),
+        UsuarioEntity(rut = RUT_SUPERVISOR, nombre = "Diego Muñoz", rol = Rol.SUPERVISOR, pin = HashPin.generar(PIN_PRUEBA)),
     )
 
     suspend fun poblar(db: MusselDatabase, ahora: Long = System.currentTimeMillis()) = db.withTransaction {
@@ -36,7 +40,7 @@ object DatosIniciales {
             }
         }
 
-        db.usuarioDao().insertar(usuarios)
+        db.usuarioDao().insertar(usuarios())
 
         // Las mismas muestras de prueba que usa FakeMuestraRepository, ahora persistidas
         val muestraDao = db.muestraDao()
@@ -63,7 +67,7 @@ object DatosIniciales {
                         supervisorRut = RUT_SUPERVISOR,
                         estadoAsignado = m.estado,
                         comentario = m.comentarioSupervisor,
-                        revisadaEn = m.registradaEn + 30 * 60_000L,
+                        revisadaEn = m.revisadaEn ?: m.registradaEn,
                     ),
                 )
             }

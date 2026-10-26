@@ -15,7 +15,4 @@ interface UsuarioDao {
     /** [rut] normalizado: solo dígitos y K. */
     @Query("SELECT * FROM usuarios WHERE rut = :rut")
     suspend fun buscarPorRut(rut: String): UsuarioEntity?
-
-    @Query("SELECT * FROM usuarios WHERE nombre = :nombre LIMIT 1")
-    suspend fun buscarPorNombre(nombre: String): UsuarioEntity?
 }

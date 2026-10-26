@@ -1,6 +1,5 @@
 package cl.aldemar.musselapp.ui.detalle
 
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,7 +34,6 @@ import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.Button
@@ -50,8 +48,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.produceState
-import androidx.compose.ui.graphics.ImageBitmap
 import android.content.ActivityNotFoundException
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -69,7 +65,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -88,6 +83,7 @@ import cl.aldemar.musselapp.data.model.Rol
 import cl.aldemar.musselapp.data.model.Usuario
 import cl.aldemar.musselapp.ui.componentes.MenuPerfil
 import cl.aldemar.musselapp.ui.componentes.ChipEstado
+import cl.aldemar.musselapp.ui.componentes.FotoMuestra
 import cl.aldemar.musselapp.ui.theme.AlertaFondo
 import cl.aldemar.musselapp.ui.theme.AlertaTexto
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
@@ -96,6 +92,7 @@ import cl.aldemar.musselapp.ui.theme.colores
 import cl.aldemar.musselapp.util.Fechas
 import cl.aldemar.musselapp.util.FichaMuestra
 import cl.aldemar.musselapp.util.FichaPdf
+import cl.aldemar.musselapp.util.RutValidator
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -278,8 +275,8 @@ fun DetalleScreen(
                             .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        // ── 2. Inspección Visual IA (Muestreo Biométrico) ─────
-                        TarjetaInspeccionVisual(
+                        // ── 2. Fotografía de la muestra ───────────────────────
+                        TarjetaFotoMuestra(
                             muestra = muestra,
                             onExpandir = { onAlternarZoom(true) },
                         )
@@ -291,11 +288,11 @@ fun DetalleScreen(
                             onIrARevision = { onIrARevision?.invoke(muestra.id) },
                         )
 
-                        // ── 4. Resumen Biométrico y Población ─────────────────
+                        // ── 4. Resumen biométrico ─────────────────────────────
                         TarjetaResumenBiometrico(muestra = muestra)
 
-                        // ── 5. Trazabilidad Técnica ───────────────────────────
-                        TarjetaTrazabilidadTecnica(muestra = muestra)
+                        // ── 5. Trazabilidad ───────────────────────────────────
+                        TarjetaTrazabilidad(muestra = muestra)
 
                         // ── 6. Acciones Finales ───────────────────────────────
                         Column(
@@ -338,8 +335,9 @@ fun DetalleScreen(
         }
     }
 
-    // Modal de zoom en alta resolución
-    if (uiState.modalZoomAbierto && uiState.muestra != null) {
+    // Foto ampliada (solo si la muestra tiene foto)
+    val muestraZoom = uiState.muestra
+    if (uiState.modalZoomAbierto && muestraZoom != null && muestraZoom.fotoRuta != null) {
         Dialog(onDismissRequest = { onAlternarZoom(false) }) {
             Surface(
                 modifier = Modifier
@@ -354,7 +352,7 @@ fun DetalleScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            "Inspección en Alta Resolución",
+                            "Fotografía ${muestraZoom.codigo}",
                             color = Color.White,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
@@ -370,14 +368,15 @@ fun DetalleScreen(
                             .aspectRatio(1f)
                             .clip(RoundedCornerShape(8.dp)),
                     ) {
-                        RenderImagenMuestra(
-                            fotoRuta = uiState.muestra.fotoRuta,
+                        FotoMuestra(
+                            fotoRuta = muestraZoom.fotoRuta,
                             modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit,
                         )
                     }
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        "Calibración SERNAPESCA • Conteo: ${uiState.muestra.conteoIndM} ind/m",
+                        "Conteo: ${muestraZoom.conteoIndM} ind/m • Talla media: ${muestraZoom.tallaMm} mm",
                         color = Color.LightGray,
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.Center,
@@ -444,7 +443,7 @@ private fun FranjaContextualDetalle(
             ) {
                 ItemMicroMetrica("PROF.", "${muestra.profundidadM} m", Modifier.weight(1f))
                 ItemMicroMetrica("DENSIDAD", "${muestra.conteoIndM} /m", Modifier.weight(1f))
-                ItemMicroMetrica("CALIBRE", "${muestra.tallaMm} mm", Modifier.weight(1f))
+                ItemMicroMetrica("TALLA", "${muestra.tallaMm} mm", Modifier.weight(1f))
                 ItemMicroMetrica("REND.", "${muestra.rendimientoKgM} kg/m", Modifier.weight(1f))
             }
         }
@@ -477,8 +476,9 @@ private fun ItemMicroMetrica(etiqueta: String, valor: String, modifier: Modifier
     }
 }
 
+/** Foto real de la muestra y la fecha de registro; sin foto se muestra "Sin fotografía". */
 @Composable
-private fun TarjetaInspeccionVisual(
+private fun TarjetaFotoMuestra(
     muestra: Muestra,
     onExpandir: () -> Unit,
 ) {
@@ -489,169 +489,65 @@ private fun TarjetaInspeccionVisual(
         border = androidx.compose.foundation.BorderStroke(1.5.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Filled.CenterFocusStrong,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        "Inspección Visual IA (Muestreo Biométrico)",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .padding(horizontal = 8.dp, vertical = 2.dp),
-                ) {
-                    Text(
-                        "CHIL-${muestra.linea * 10}B",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Filled.CenterFocusStrong,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(6.dp))
+                Text("Fotografía de la muestra", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
             }
 
             Spacer(Modifier.height(10.dp))
 
-            // Lienzo con la foto y bounding boxes
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(4f / 3f)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFE2E8F0)),
+                    .clip(RoundedCornerShape(8.dp)),
             ) {
-                RenderImagenMuestra(
-                    fotoRuta = muestra.fotoRuta,
-                    modifier = Modifier.fillMaxSize(),
-                )
+                FotoMuestra(fotoRuta = muestra.fotoRuta, modifier = Modifier.fillMaxSize())
 
-                // Overlays superiores
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color(0xCC0F172A))
-                            .padding(horizontal = 6.dp, vertical = 3.dp),
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.Verified, contentDescription = null, tint = Color(0xFF60A5FA), modifier = Modifier.size(12.dp))
-                            Spacer(Modifier.width(4.dp))
-                            Text("SERNAPESCA ID: 1042-CL", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color(0xEEFFFFFF))
-                            .padding(horizontal = 6.dp, vertical = 3.dp),
-                    ) {
-                        val fechaStr = SimpleDateFormat("dd/MM/yyyy • HH:mm", Locale.forLanguageTag("es-CL")).format(Date(muestra.registradaEn))
-                        Text(fechaStr, color = Color(0xFF0F172A), fontSize = 10.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                // Bounding boxes simulados
+                // Fecha y hora en que el operario registró la muestra
                 Box(
                     modifier = Modifier
-                        .padding(start = 24.dp, top = 48.dp)
-                        .size(width = 80.dp, height = 48.dp)
-                        .border(1.5.dp, Color(0x992563EB), RoundedCornerShape(4.dp))
-                        .background(Color(0x222563EB)),
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(Color(0xDD0F172A))
-                            .padding(horizontal = 4.dp, vertical = 1.dp),
-                    ) {
-                        Text("CAL: ${muestra.tallaMm}mm", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                // Overlay inferior con botón zoom
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
-                        .background(Color(0x990F172A))
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color(0xEEFFFFFF))
+                        .padding(horizontal = 6.dp, vertical = 3.dp),
                 ) {
                     Text(
-                        "Lente Polarizado • ${muestra.conteoIndM} ind. detectados",
-                        color = Color.White,
+                        fechaHora(muestra.registradaEn),
+                        color = Color(0xFF0F172A),
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
                     )
+                }
+
+                if (muestra.fotoRuta != null) {
                     Box(
                         modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(8.dp)
                             .clip(RoundedCornerShape(50))
                             .background(Color.White)
-                            .clickable(onClick = onExpandir)
-                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                            .clickable(onClickLabel = "Ampliar la fotografía", onClick = onExpandir)
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.ZoomIn, contentDescription = null, tint = Color(0xFF0F172A), modifier = Modifier.size(14.dp))
+                            Icon(Icons.Filled.ZoomIn, contentDescription = null, tint = Color(0xFF0F172A), modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text("Expandir", color = Color(0xFF0F172A), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text("Expandir", color = Color(0xFF0F172A), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
         }
     }
-}
-
-// Decodifica la foto reducida (la original de la cámara pesa varios MB) y fuera del hilo principal
-private fun decodificarFotoReducida(ruta: String, ladoMaxPx: Int = 1280): ImageBitmap? {
-    val limites = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-    BitmapFactory.decodeFile(ruta, limites)
-    if (limites.outWidth <= 0 || limites.outHeight <= 0) return null
-    var muestreo = 1
-    while (maxOf(limites.outWidth, limites.outHeight) / (muestreo * 2) >= ladoMaxPx) muestreo *= 2
-    val opciones = BitmapFactory.Options().apply { inSampleSize = muestreo }
-    return BitmapFactory.decodeFile(ruta, opciones)?.asImageBitmap()
-}
-
-@Composable
-private fun RenderImagenMuestra(fotoRuta: String?, modifier: Modifier = Modifier) {
-    if (fotoRuta != null) {
-        val bitmap by produceState<ImageBitmap?>(initialValue = null, fotoRuta) {
-            value = withContext(Dispatchers.IO) { decodificarFotoReducida(fotoRuta) }
-        }
-        val foto = bitmap
-        if (foto != null) {
-            Image(bitmap = foto, contentDescription = "Fotografía de muestra", modifier = modifier, contentScale = ContentScale.Crop)
-            return
-        }
-    }
-    // Imagen acuícola realista incorporada en el diseño
-    Image(
-        painter = painterResource(R.drawable.muestra_choritos),
-        contentDescription = "Muestra de choritos sobre tabla de calibración",
-        modifier = modifier,
-        contentScale = ContentScale.Crop,
-    )
 }
 
 @Composable
@@ -660,7 +556,7 @@ private fun TarjetaDictamenTecnico(
     esSupervisor: Boolean,
     onIrARevision: () -> Unit,
 ) {
-    // Pendiente y Corregido usan el ámbar de ColoresEstado (antes: ámbar y azul escritos a mano)
+    // Pendiente y Corregido usan el ámbar de ColoresEstado
     val colorBordeEstado = when (muestra.estado) {
         EstadoMuestra.VALIDADO -> EstadoValidadoTexto
         EstadoMuestra.CORREGIDO, EstadoMuestra.PENDIENTE -> muestra.estado.colores.acento
@@ -684,12 +580,12 @@ private fun TarjetaDictamenTecnico(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.RateReview, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Resolución y Dictamen Técnico", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text("Dictamen del supervisor", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                 }
                 ChipEstado(muestra.estado)
             }
 
-            // Información del revisor o estado
+            // Quién revisó y cuándo (datos de la tabla revisiones)
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
@@ -701,68 +597,43 @@ private fun TarjetaDictamenTecnico(
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text(
-                            muestra.revisadaPor ?: "Pendiente de revisión técnica",
+                            muestra.revisadaPor ?: "Pendiente de revisión",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
                         )
-                        if (muestra.revisadaPor != null) {
+                        muestra.revisadaEn?.let { revisada ->
                             Text(
-                                Fechas.relativa(muestra.registradaEn),
+                                Fechas.relativa(revisada),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.secondary,
                             )
                         }
                     }
                     Text(
-                        if (muestra.revisadaPor != null) "Biólogo Marino • Supervisor Técnico (Reg. SERNAPESCA #BM-2091)" else "En espera de validación de calidad en centro de cultivo",
+                        if (muestra.revisadaPor != null) "Supervisor de Calidad" else "En espera de la revisión del supervisor de calidad",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary,
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                     )
                 }
             }
 
-            // Caja de observación con borde izquierdo de color
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(8.dp),
-                    )
-                    .drawLeftBorder(color = colorBordeEstado, strokeWidth = 4.dp)
-                    .padding(12.dp),
-            ) {
-                Column {
-                    Text(
-                        "OBSERVACIÓN REGISTRADA",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp,
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    val textoObs = muestra.comentarioSupervisor?.takeIf { it.isNotBlank() }
-                        ?: muestra.observacion.takeIf { it.isNotBlank() }
-                        ?: "Muestra sin observaciones adicionales de terreno."
-                    Text(
-                        "\"$textoObs\"",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFF1E293B),
-                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                    )
-                }
+            muestra.comentarioSupervisor?.takeIf { it.isNotBlank() }?.let { comentario ->
+                CajaTexto(etiqueta = "COMENTARIO DEL SUPERVISOR", texto = comentario, colorBorde = colorBordeEstado)
             }
+            CajaTexto(
+                etiqueta = "OBSERVACIÓN DEL OPERARIO",
+                texto = muestra.observacion.takeIf { it.isNotBlank() } ?: "Sin observaciones de terreno.",
+                colorBorde = MaterialTheme.colorScheme.outline,
+            )
 
-            // Si es supervisor, botón para dictaminar
-            if (esSupervisor) {
+            // Solo una muestra pendiente se puede dictaminar: Validado y Corregido son finales
+            if (esSupervisor && muestra.estado == EstadoMuestra.PENDIENTE) {
                 Button(
                     onClick = onIrARevision,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondary,
@@ -771,9 +642,43 @@ private fun TarjetaDictamenTecnico(
                 ) {
                     Icon(Icons.Filled.RateReview, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Revisar y Modificar Dictamen", fontWeight = FontWeight.Bold)
+                    Text("Revisar esta muestra", fontWeight = FontWeight.Bold)
                 }
             }
+        }
+    }
+}
+
+/** Texto destacado con una franja de color a la izquierda. */
+@Composable
+private fun CajaTexto(etiqueta: String, texto: String, colorBorde: Color) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(8.dp),
+            )
+            .drawLeftBorder(color = colorBorde, strokeWidth = 4.dp)
+            .padding(12.dp),
+    ) {
+        Column {
+            Text(
+                etiqueta,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.secondary,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                texto,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF1E293B),
+            )
         }
     }
 }
@@ -782,6 +687,8 @@ private fun TarjetaDictamenTecnico(
 private fun TarjetaResumenBiometrico(muestra: Muestra) {
     val desvio = muestra.desvioDensidadPct
     val esBajo = desvio < 0
+    val desvioTexto = if (desvio >= 0) "+$desvio%" else "$desvio%"
+    val colorDesvio = if (esBajo) AlertaTexto else EstadoValidadoTexto
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -801,7 +708,7 @@ private fun TarjetaResumenBiometrico(muestra: Muestra) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Analytics, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Resumen Biométrico y Población", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text("Resumen biométrico", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                 }
                 Box(
                     modifier = Modifier
@@ -809,86 +716,53 @@ private fun TarjetaResumenBiometrico(muestra: Muestra) {
                         .background(if (esBajo) AlertaFondo else EstadoValidadoFondo)
                         .padding(horizontal = 6.dp, vertical = 2.dp),
                 ) {
-                    Text(
-                        "${if (desvio >= 0) "+$desvio%" else "$desvio%"} DESVÍO",
-                        color = if (esBajo) AlertaTexto else EstadoValidadoTexto,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
+                    Text("$desvioTexto DESVÍO", color = colorDesvio, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
-            // Bloque de densidad principal
+            // Densidad medida por el operario frente a la densidad de referencia
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column {
-                        Text("Densidad Poblacional", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
-                        Row(verticalAlignment = Alignment.Bottom) {
-                            Text(
-                                "${muestra.conteoIndM}",
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text("ind / m", fontSize = 14.sp, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.padding(bottom = 4.dp))
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                if (esBajo) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward,
-                                contentDescription = null,
-                                tint = if (esBajo) AlertaTexto else EstadoValidadoTexto,
-                                modifier = Modifier.size(14.dp),
-                            )
-                            Spacer(Modifier.width(2.dp))
-                            Text(
-                                "$desvio% respecto al histórico (${Muestra.DENSIDAD_ESTANDAR_IND_M} ind/m)",
-                                fontSize = 11.sp,
-                                color = if (esBajo) AlertaTexto else EstadoValidadoTexto,
-                                fontWeight = FontWeight.Medium,
-                            )
-                        }
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text("Densidad (conteo manual)", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text(
+                            "${muestra.conteoIndM}",
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text("ind / m", fontSize = 14.sp, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.padding(bottom = 4.dp))
                     }
-
-                    // Gráfica de barras miniatura
-                    Row(
-                        modifier = Modifier.height(48.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.Bottom,
-                    ) {
-                        Box(Modifier.width(9.dp).height(32.dp).clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp)).background(Color(0xFFCBD5E1)))
-                        Box(Modifier.width(9.dp).height(40.dp).clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp)).background(Color(0xFFCBD5E1)))
-                        Box(Modifier.width(9.dp).height(48.dp).clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp)).background(Color(0xFFCBD5E1)))
-                        val alturaBarraActual = (muestra.conteoIndM.toFloat() / 500f * 48f).coerceIn(16f, 48f)
-                        Box(
-                            Modifier
-                                .width(9.dp)
-                                .height(alturaBarraActual.dp)
-                                .clip(RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
-                                .background(if (esBajo) AlertaTexto else EstadoValidadoTexto),
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            if (esBajo) Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward,
+                            contentDescription = null,
+                            tint = colorDesvio,
+                            modifier = Modifier.size(14.dp),
+                        )
+                        Spacer(Modifier.width(2.dp))
+                        Text(
+                            "$desvioTexto respecto a la densidad de referencia (${Muestra.DENSIDAD_ESTANDAR_IND_M} ind/m)",
+                            fontSize = 12.sp,
+                            color = colorDesvio,
+                            fontWeight = FontWeight.Medium,
                         )
                     }
                 }
             }
 
-            // Grid de 3 métricas
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                ItemMetricaBiometrica("Talla Media", "${muestra.tallaMm}", "milímetros", Modifier.weight(1f))
-                ItemMetricaBiometrica("Biomasa Est.", "${muestra.rendimientoKgM}", "kg / metro", Modifier.weight(1f))
-                ItemMetricaBiometrica("Fijación Biso", "Normal", "resistencia 4/5", Modifier.weight(1f))
+                ItemMetricaBiometrica("Talla media", "${muestra.tallaMm}", "milímetros", Modifier.weight(1f))
+                ItemMetricaBiometrica("Rendimiento", "${muestra.rendimientoKgM}", "kg / m (estimado)", Modifier.weight(1f))
+                ItemMetricaBiometrica("Profundidad", "${muestra.profundidadM}", "metros", Modifier.weight(1f))
             }
         }
     }
@@ -905,17 +779,18 @@ private fun ItemMetricaBiometrica(titulo: String, valor: String, unidad: String,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(titulo, fontSize = 11.sp, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Medium)
+            Text(titulo, fontSize = 12.sp, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Medium)
             Spacer(Modifier.height(2.dp))
             Text(valor, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.height(1.dp))
-            Text(unidad, fontSize = 10.sp, color = MaterialTheme.colorScheme.secondary)
+            Text(unidad, fontSize = 11.sp, color = MaterialTheme.colorScheme.secondary, textAlign = TextAlign.Center)
         }
     }
 }
 
+/** Quién registró y revisó la muestra, y si ya se envió: todo sale de la base. */
 @Composable
-private fun TarjetaTrazabilidadTecnica(muestra: Muestra) {
+private fun TarjetaTrazabilidad(muestra: Muestra) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -929,20 +804,26 @@ private fun TarjetaTrazabilidadTecnica(muestra: Muestra) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.VerifiedUser, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("Trazabilidad Técnica", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                Text("Trazabilidad", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                ItemFilaTrazabilidad("Operario en Terreno:", muestra.operador.ifBlank { "Carla Vera (ID: OP-418)" })
-                ItemFilaTrazabilidad("Equipo de Captura:", "Tablet Rugged PTN-02 (Offline)")
-                ItemFilaTrazabilidad("Firma Criptográfica:", "SHA-256: 9e4f71a0b3c%04d".format(muestra.id), esHash = true)
+                ItemFilaTrazabilidad("Código", muestra.codigo)
+                ItemFilaTrazabilidad("Operario", muestra.operador.ifBlank { "—" })
+                ItemFilaTrazabilidad(
+                    "RUT operario",
+                    muestra.operadorRut.takeIf { it.isNotBlank() }?.let(RutValidator::formatear) ?: "—",
+                )
+                ItemFilaTrazabilidad("Registrada", fechaHora(muestra.registradaEn))
+                ItemFilaTrazabilidad("Revisada", muestra.revisadaEn?.let(::fechaHora) ?: "Pendiente")
+                ItemFilaTrazabilidad("Envío", if (muestra.sincronizada) "Sincronizada" else "Pendiente de envío")
             }
         }
     }
 }
 
 @Composable
-private fun ItemFilaTrazabilidad(label: String, valor: String, esHash: Boolean = false) {
+private fun ItemFilaTrazabilidad(label: String, valor: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -951,15 +832,20 @@ private fun ItemFilaTrazabilidad(label: String, valor: String, esHash: Boolean =
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+        Spacer(Modifier.width(12.dp))
         Text(
             valor,
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = if (esHash) FontWeight.Normal else FontWeight.Bold,
-            fontFamily = if (esHash) FontFamily.Monospace else FontFamily.Default,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.End,
         )
     }
 }
+
+/** "24/10/2026 • 09:30" en hora local. */
+private fun fechaHora(instante: Long): String =
+    SimpleDateFormat("dd/MM/yyyy • HH:mm", Locale.forLanguageTag("es-CL")).format(Date(instante))
 
 private fun Modifier.drawLeftBorder(color: Color, strokeWidth: androidx.compose.ui.unit.Dp): Modifier = this.then(
     Modifier.drawWithContent {

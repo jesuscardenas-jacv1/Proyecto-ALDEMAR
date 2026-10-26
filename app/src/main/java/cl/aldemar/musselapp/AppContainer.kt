@@ -3,6 +3,8 @@ package cl.aldemar.musselapp
 import android.content.Context
 import cl.aldemar.musselapp.data.local.MusselDatabase
 import cl.aldemar.musselapp.data.repository.AuthRepository
+import cl.aldemar.musselapp.data.repository.BloqueoLogin
+import cl.aldemar.musselapp.data.repository.PreferenciasIntentos
 import cl.aldemar.musselapp.data.repository.MuestraRepository
 import cl.aldemar.musselapp.data.repository.RoomAuthRepository
 import cl.aldemar.musselapp.data.repository.RoomMuestraRepository
@@ -26,7 +28,9 @@ class AppContainer(context: Context) {
 
     val muestraRepository: MuestraRepository by lazy { RoomMuestraRepository(database, alcanceApp) }
 
-    val authRepository: AuthRepository by lazy { RoomAuthRepository(database.usuarioDao()) }
+    val authRepository: AuthRepository by lazy {
+        RoomAuthRepository(database.usuarioDao(), bloqueo = BloqueoLogin(PreferenciasIntentos(appContext)))
+    }
 
     /** Borra una foto de la app (los ViewModels no tienen Context). */
     fun borrarFoto(ruta: String?) = AlmacenFotos.borrar(appContext, ruta)

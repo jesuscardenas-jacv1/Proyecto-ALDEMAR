@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cl.aldemar.musselapp.MusselApplication
 import cl.aldemar.musselapp.data.model.EstadoMuestra
+import cl.aldemar.musselapp.data.model.Usuario
 import cl.aldemar.musselapp.data.repository.MuestraRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -70,8 +72,20 @@ class RevisionViewModel(
         _uiState.update { it.copy(modalZoomAbierto = abierto) }
     }
 
-    fun guardarDictamen(supervisorNombre: String, onExito: () -> Unit = {}) {
+    /**
+     * Deja seleccionada la muestra que se abrió desde el Detalle.
+     * Si ya no está pendiente, la cola mantiene su selección habitual.
+     */
+    fun enfocarMuestra(id: Long) {
+        _uiState.update { actual ->
+            if (actual.muestraSeleccionadaId == id) actual
+            else actual.copy(muestraSeleccionadaId = id, estadoElegido = null, comentarioTecnico = "", errorComentario = null)
+        }
+    }
+
+    fun guardarDictamen(supervisor: Usuario, onExito: () -> Unit = {}) {
         val estadoActual = _uiState.value
+        if (estadoActual.guardando) return // evita registrar dos veces el mismo dictamen
         val muestra = estadoActual.muestraActual ?: return
         val nuevoEstado = estadoActual.estadoElegido
 
@@ -85,31 +99,39 @@ class RevisionViewModel(
             return
         }
 
+        // Solo se guarda lo que escribió el supervisor; no se inventa un comentario por él
+        val comentario = estadoActual.comentarioTecnico.trim().ifBlank { null }
+
+        _uiState.update { it.copy(guardando = true) }
         viewModelScope.launch {
-            _uiState.update { it.copy(guardando = true) }
-            val comentarioFinal = if (estadoActual.comentarioTecnico.isNotBlank()) {
-                estadoActual.comentarioTecnico
-            } else if (nuevoEstado == EstadoMuestra.VALIDADO) {
-                "Muestra validada sin anomalías biométricas."
-            } else null
-
-            repository.actualizarEstado(
-                id = muestra.id,
-                nuevoEstado = nuevoEstado,
-                comentario = comentarioFinal,
-                revisadaPor = supervisorNombre,
-            )
-
-            _uiState.update {
-                it.copy(
-                    guardando = false,
-                    estadoElegido = null,
-                    comentarioTecnico = "",
-                    errorComentario = null,
-                    mensajeToast = "Dictamen registrado para muestra #${muestra.codigo}",
+            try {
+                repository.actualizarEstado(
+                    id = muestra.id,
+                    nuevoEstado = nuevoEstado,
+                    comentario = comentario,
+                    supervisor = supervisor,
                 )
+                _uiState.update {
+                    it.copy(
+                        guardando = false,
+                        estadoElegido = null,
+                        comentarioTecnico = "",
+                        errorComentario = null,
+                        mensajeToast = "Dictamen registrado para muestra ${muestra.codigo}",
+                    )
+                }
+                onExito()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Antes un error aquí cerraba la app; ahora se avisa y el dictamen escrito se conserva
+                _uiState.update {
+                    it.copy(
+                        guardando = false,
+                        mensajeToast = "No se pudo guardar el dictamen: ${e.message ?: "error de la base de datos"}",
+                    )
+                }
             }
-            onExito()
         }
     }
 

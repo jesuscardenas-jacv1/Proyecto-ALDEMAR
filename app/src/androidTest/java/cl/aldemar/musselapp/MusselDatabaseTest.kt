@@ -9,6 +9,7 @@ import cl.aldemar.musselapp.data.local.MusselDatabase
 import cl.aldemar.musselapp.data.local.aModelo
 import cl.aldemar.musselapp.data.local.entidad.MuestraEntity
 import cl.aldemar.musselapp.data.model.EstadoMuestra
+import cl.aldemar.musselapp.util.HashPin
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -41,6 +42,13 @@ class MusselDatabaseTest {
         assertNotNull(db.catalogoDao().buscarLineaId("dalcahue", "B", 12))
         assertEquals("Carla Vera", db.usuarioDao().buscarPorRut(DatosIniciales.RUT_OPERARIO)?.nombre)
         assertEquals(14, db.muestraDao().contar())
+    }
+
+    @Test
+    fun datosIniciales_guardanElHashDelPinNoElPin() = runBlocking {
+        val pin = db.usuarioDao().buscarPorRut(DatosIniciales.RUT_OPERARIO)!!.pin
+        assertTrue(pin != DatosIniciales.PIN_PRUEBA)
+        assertTrue(HashPin.verificar(DatosIniciales.PIN_PRUEBA, pin))
     }
 
     @Test

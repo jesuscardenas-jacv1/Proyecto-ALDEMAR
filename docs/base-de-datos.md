@@ -33,7 +33,7 @@ erDiagram
         TEXT rut PK "normalizado: 111111111"
         TEXT nombre
         TEXT rol "OPERARIO / SUPERVISOR"
-        TEXT pin
+        TEXT pin "hash PBKDF2, nunca el PIN"
     }
     MUESTRAS {
         INTEGER id PK
@@ -77,8 +77,9 @@ erDiagram
 - **Historial de revisiones:** cada dictamen es una fila nueva en `revisiones`, para mantener la trazabilidad. El estado vigente queda también en `muestras.estado`, y ambos se actualizan en una sola transacción (`MuestraDao.registrarRevision`).
 - **Integridad:** claves foráneas entre todas las tablas. No se puede registrar una muestra en una línea o con un operario que no existe.
 - **Datos iniciales:** al crear la base por primera vez se cargan centros, trenes A–C, líneas 1–12, los 2 usuarios de prueba y 14 muestras ficticias (`DatosIniciales.kt`).
-- **PIN en texto plano:** aceptable solo porque es un MVP académico con usuarios ficticios.
-- **Migraciones:** `data/local/Migraciones.kt`. La v2 convierte el estado Observado (eliminado) en Corregido sin perder muestras (`MigracionesTest`). Si faltara una migración, `fallbackToDestructiveMigration` recrea la base.
+- **PIN como hash:** la columna `pin` guarda `pbkdf2$iteraciones$sal$hash` (PBKDF2 con HmacSHA1, disponible desde minSdk 24), calculado en `util/HashPin.kt`. El login compara contra el hash, nunca contra el PIN.
+- **Sin respaldo en la nube:** `allowBackup="false"` y las reglas de `res/xml/` excluyen la base, las fotos y las preferencias del respaldo y de la transferencia entre teléfonos.
+- **Migraciones:** `data/local/Migraciones.kt`. La v2 convierte el estado Observado (eliminado) en Corregido sin perder muestras; la v3 reemplaza cada PIN en texto plano por su hash (ambas en `MigracionesTest`). Si faltara una migración, `fallbackToDestructiveMigration` recrea la base.
 - **Un solo dispositivo:** Room es local; operario y supervisor deben usar el mismo teléfono en la demo. La columna `sincronizada` y la interfaz `MuestraRepository` dejan listo el camino para sincronizar con un servidor en una etapa futura.
 
 ## Estructura del código

@@ -5,6 +5,7 @@ import cl.aldemar.musselapp.data.model.EstadoMuestra.CORREGIDO
 import cl.aldemar.musselapp.data.model.EstadoMuestra.PENDIENTE
 import cl.aldemar.musselapp.data.model.EstadoMuestra.VALIDADO
 import cl.aldemar.musselapp.data.model.Muestra
+import cl.aldemar.musselapp.data.model.Usuario
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +31,7 @@ class FakeMuestraRepository(
         id: Long,
         nuevoEstado: EstadoMuestra,
         comentario: String?,
-        revisadaPor: String,
+        supervisor: Usuario,
     ) {
         delay(300)
         _muestras.update { lista ->
@@ -39,7 +40,8 @@ class FakeMuestraRepository(
                     muestra.copy(
                         estado = nuevoEstado,
                         comentarioSupervisor = comentario,
-                        revisadaPor = revisadaPor,
+                        revisadaPor = supervisor.nombre,
+                        revisadaEn = System.currentTimeMillis(),
                         sincronizada = false,
                     )
                 } else muestra
@@ -80,6 +82,8 @@ class FakeMuestraRepository(
                 registradaEn = ahora - haceMin * MINUTO, sincronizada = sincronizada,
                 operador = OPERARIO,
                 revisadaPor = if (estado == VALIDADO || estado == CORREGIDO) SUPERVISOR else null,
+                // Revisada a mitad del tiempo transcurrido: nunca antes del registro ni en el futuro
+                revisadaEn = if (estado == VALIDADO || estado == CORREGIDO) ahora - haceMin / 2 * MINUTO else null,
                 comentarioSupervisor = comentario,
             )
 

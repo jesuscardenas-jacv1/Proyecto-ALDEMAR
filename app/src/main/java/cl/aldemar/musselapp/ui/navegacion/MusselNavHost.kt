@@ -233,14 +233,25 @@ fun MusselNavHost(
                 centro = loginState.centro,
                 onVolver = ::volver,
                 onCerrarSesion = loginViewModel::onCerrarSesion,
-                onIrARevision = { navController.navigate(Rutas.REVISION) },
+                // Abre Revisión con esta muestra seleccionada (antes abría la primera de la cola)
+                onIrARevision = { id -> navController.navigate(Rutas.revision(id)) },
             )
         }
 
-        composable(Rutas.REVISION) {
+        composable(
+            route = Rutas.REVISION,
+            arguments = listOf(
+                navArgument(Rutas.ARG_MUESTRA_ID) {
+                    type = NavType.LongType
+                    defaultValue = Rutas.SIN_MUESTRA
+                },
+            ),
+        ) { entrada ->
             val sesion = usuario ?: return@composable
+            val muestraId = entrada.arguments?.getLong(Rutas.ARG_MUESTRA_ID) ?: Rutas.SIN_MUESTRA
             RevisionRoute(
                 usuario = sesion,
+                muestraIdInicial = muestraId.takeIf { it != Rutas.SIN_MUESTRA },
                 centro = loginState.centro,
                 onVolver = ::volver,
                 onNavegar = ::navegarDesdeMenu,

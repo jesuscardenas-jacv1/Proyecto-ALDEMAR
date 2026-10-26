@@ -1,6 +1,5 @@
 package cl.aldemar.musselapp.ui.revision
 
-import android.graphics.BitmapFactory
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,7 +28,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AssignmentTurnedIn
-import androidx.compose.material.icons.filled.CenterFocusStrong
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -51,10 +49,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.produceState
-import androidx.compose.ui.graphics.ImageBitmap
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -63,7 +57,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -81,12 +74,12 @@ import cl.aldemar.musselapp.data.model.Muestra
 import cl.aldemar.musselapp.data.model.Usuario
 import cl.aldemar.musselapp.ui.componentes.MenuPerfil
 import cl.aldemar.musselapp.ui.componentes.ChipEstado
+import cl.aldemar.musselapp.ui.componentes.FotoMuestra
 import cl.aldemar.musselapp.ui.componentes.NavegacionInferior
 import cl.aldemar.musselapp.ui.principal.Destino
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoFondo
 import cl.aldemar.musselapp.ui.theme.EstadoValidadoTexto
 import cl.aldemar.musselapp.ui.theme.colores
-import java.io.File
 
 @Composable
 fun RevisionRoute(
@@ -95,9 +88,12 @@ fun RevisionRoute(
     onVolver: () -> Unit,
     onNavegar: (Destino) -> Unit,
     onCerrarSesion: () -> Unit,
+    /** Muestra abierta desde el Detalle; null abre la cola desde la primera pendiente. */
+    muestraIdInicial: Long? = null,
     viewModel: RevisionViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(muestraIdInicial) { muestraIdInicial?.let(viewModel::enfocarMuestra) }
 
     RevisionScreen(
         uiState = uiState,
@@ -111,7 +107,7 @@ fun RevisionRoute(
         onActualizarComentario = viewModel::actualizarComentario,
         onAgregarMotivo = viewModel::agregarMotivoRapido,
         onAlternarZoom = viewModel::alternarModalZoom,
-        onGuardar = { viewModel.guardarDictamen(supervisorNombre = usuario.nombre) },
+        onGuardar = { viewModel.guardarDictamen(supervisor = usuario) },
         onLimpiarMensaje = viewModel::limpiarMensaje,
     )
 }
@@ -481,7 +477,7 @@ fun RevisionScreen(
                                 }
                             }
 
-                            // ── 3. Canvas de Inspección IA ──────────────────────
+                            // ── 3. Fotografía de la muestra ─────────────────────
                             Surface(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
@@ -492,45 +488,27 @@ fun RevisionScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .aspectRatio(4f / 3f)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(Color(0xFFE2E8F0)),
+                                        .clip(RoundedCornerShape(12.dp)),
                                 ) {
-                                    RenderImagenRevision(
+                                    FotoMuestra(
                                         fotoRuta = muestra.fotoRuta,
                                         modifier = Modifier.fillMaxSize(),
                                     )
 
-                                    // Overlays de IA
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(10.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                    ) {
+                                    if (muestra.fotoRuta != null) {
                                         Box(
                                             modifier = Modifier
-                                                .clip(RoundedCornerShape(4.dp))
-                                                .background(Color(0xCC0F172A))
-                                                .padding(horizontal = 8.dp, vertical = 4.dp),
-                                        ) {
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Icon(Icons.Filled.CenterFocusStrong, contentDescription = null, tint = Color(0xFF60A5FA), modifier = Modifier.size(14.dp))
-                                                Spacer(Modifier.width(4.dp))
-                                                Text("Detección IA (98.4%)", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                            }
-                                        }
-
-                                        Box(
-                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .padding(10.dp)
                                                 .clip(RoundedCornerShape(50))
                                                 .background(Color.White)
-                                                .clickable { onAlternarZoom(true) }
-                                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                                                .clickable(onClickLabel = "Ampliar la fotografía") { onAlternarZoom(true) }
+                                                .padding(horizontal = 12.dp, vertical = 8.dp),
                                         ) {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 Icon(Icons.Filled.ZoomIn, contentDescription = null, tint = Color(0xFF0F172A), modifier = Modifier.size(16.dp))
                                                 Spacer(Modifier.width(2.dp))
-                                                Text("Zoom", color = Color(0xFF0F172A), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                                Text("Zoom", color = Color(0xFF0F172A), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                             }
                                         }
                                     }
@@ -680,7 +658,7 @@ fun RevisionScreen(
 
     // Modal Zoom
     val muestraZoom = uiState.muestraActual
-    if (uiState.modalZoomAbierto && muestraZoom != null) {
+    if (uiState.modalZoomAbierto && muestraZoom != null && muestraZoom.fotoRuta != null) {
         Dialog(onDismissRequest = { onAlternarZoom(false) }) {
             Surface(
                 modifier = Modifier
@@ -701,7 +679,7 @@ fun RevisionScreen(
                     }
                     Spacer(Modifier.height(10.dp))
                     Box(modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(8.dp))) {
-                        RenderImagenRevision(fotoRuta = muestraZoom.fotoRuta, modifier = Modifier.fillMaxSize())
+                        FotoMuestra(fotoRuta = muestraZoom.fotoRuta, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
                     }
                 }
             }
@@ -726,35 +704,4 @@ private fun MotivoChip(texto: String, onClick: () -> Unit) {
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
         )
     }
-}
-
-// Decodifica la foto reducida (la original de la cámara pesa varios MB) y fuera del hilo principal
-private fun decodificarFotoReducida(ruta: String, ladoMaxPx: Int = 1280): ImageBitmap? {
-    val limites = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-    BitmapFactory.decodeFile(ruta, limites)
-    if (limites.outWidth <= 0 || limites.outHeight <= 0) return null
-    var muestreo = 1
-    while (maxOf(limites.outWidth, limites.outHeight) / (muestreo * 2) >= ladoMaxPx) muestreo *= 2
-    val opciones = BitmapFactory.Options().apply { inSampleSize = muestreo }
-    return BitmapFactory.decodeFile(ruta, opciones)?.asImageBitmap()
-}
-
-@Composable
-private fun RenderImagenRevision(fotoRuta: String?, modifier: Modifier = Modifier) {
-    if (fotoRuta != null) {
-        val bitmap by produceState<ImageBitmap?>(initialValue = null, fotoRuta) {
-            value = withContext(Dispatchers.IO) { decodificarFotoReducida(fotoRuta) }
-        }
-        val foto = bitmap
-        if (foto != null) {
-            Image(bitmap = foto, contentDescription = "Fotografía de muestra", modifier = modifier, contentScale = ContentScale.Crop)
-            return
-        }
-    }
-    Image(
-        painter = painterResource(R.drawable.muestra_choritos),
-        contentDescription = "Muestra de choritos para supervisión",
-        modifier = modifier,
-        contentScale = ContentScale.Crop,
-    )
 }

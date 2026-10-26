@@ -18,6 +18,8 @@ data class Muestra(
     val operadorRut: String = "",
     /** Supervisor que revisó la muestra (Validado / Corregido). */
     val revisadaPor: String? = null,
+    /** Momento del último dictamen del supervisor; null si sigue pendiente. */
+    val revisadaEn: Long? = null,
     /** Comentario técnico del supervisor al validar o corregir la muestra. */
     val comentarioSupervisor: String? = null,
     val fotoRuta: String? = null,

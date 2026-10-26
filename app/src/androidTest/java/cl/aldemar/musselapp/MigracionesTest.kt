@@ -5,7 +5,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import cl.aldemar.musselapp.data.local.Migraciones
 import cl.aldemar.musselapp.data.local.MusselDatabase
+import cl.aldemar.musselapp.util.HashPin
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,6 +63,27 @@ class MigracionesTest {
             c.moveToNext()
             assertEquals("CORREGIDO", c.getString(0))
             assertEquals("Repetir conteo", c.getString(1))
+        }
+    }
+
+    @Test
+    fun de2a3_elPinPasaAHash() {
+        // Base en versión 2 con los PIN en texto plano, como quedaron en los teléfonos
+        helper.createDatabase(nombre, 2).apply {
+            execSQL("INSERT INTO usuarios (rut, nombre, rol, pin) VALUES ('111111111', 'Carla Vera', 'OPERARIO', '1234')")
+            execSQL("INSERT INTO usuarios (rut, nombre, rol, pin) VALUES ('222222222', 'Diego Muñoz', 'SUPERVISOR', '5678')")
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(nombre, 3, true, Migraciones.DE_2_A_3)
+
+        db.query("SELECT rut, pin FROM usuarios ORDER BY rut").use { c ->
+            c.moveToNext()
+            assertTrue(HashPin.esHash(c.getString(1)))
+            assertTrue(HashPin.verificar("1234", c.getString(1)))
+            c.moveToNext()
+            assertTrue(HashPin.verificar("5678", c.getString(1)))
+            assertTrue(!HashPin.verificar("1234", c.getString(1)))
         }
     }
 }
