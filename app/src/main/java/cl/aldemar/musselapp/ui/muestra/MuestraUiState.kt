@@ -9,7 +9,9 @@ import cl.aldemar.musselapp.data.model.CentroCultivo
  */
 data class MuestraUiState(
     val centro: CentroCultivo? = null,
+    val trenesDisponibles: List<String> = emptyList(),
     val tren: String? = null, // código del tren: "A", "B" o "C"
+    val lineasDisponibles: List<Int> = emptyList(),
     val linea: Int? = null,
     val profundidadM: Int? = null,
     val errorCentro: String? = null,

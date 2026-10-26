@@ -78,7 +78,7 @@ internal enum class Estrato(val rango: String, val nombre: String, val profundid
     }
 }
 
-// TODO: mover trenes y líneas al repositorio cuando existan datos reales
+// Valores base y de respaldo cuando no hay conexion a base de datos o en vistas previas
 // El código (A, B, C) es el que usa Muestra.tren; el texto es solo para mostrar
 internal val Trenes = listOf(
     "A" to "Tren A - Longline Sur",

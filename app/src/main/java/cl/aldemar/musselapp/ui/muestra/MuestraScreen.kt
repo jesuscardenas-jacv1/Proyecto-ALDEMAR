@@ -105,25 +105,26 @@ fun MuestraScreen(
                     error = state.errorCentro,
                     onElegir = { i -> vm.cambiarCentro(CentroCultivo.disponibles[i]) }
                 )
+                val trenesOpciones = state.trenesDisponibles.ifEmpty { Trenes.map { it.first } }
                 Selector(
                     etiqueta = "Tren de Cultivo (Longline)",
                     valor = state.tren?.let { nombreTren(it) },
                     vacio = "Selecciona un tren",
                     icono = Icons.Filled.DirectionsBoat,
-                    opciones = Trenes.map { it.second },
+                    opciones = trenesOpciones.map { nombreTren(it) },
                     error = state.errorTren,
-                    onElegir = { i -> vm.cambiarTren(Trenes[i].first) }
+                    onElegir = { i -> vm.cambiarTren(trenesOpciones[i]) }
                 )
+                val lineasOpciones = state.lineasDisponibles.ifEmpty { Lineas }
                 Selector(
                     etiqueta = "Línea de Siembra",
                     valor = state.linea?.let { etiquetaLinea(it) },
                     vacio = "Selecciona una línea",
                     icono = Icons.Filled.Anchor,
-                    opciones = Lineas.map { etiquetaLinea(it) },
+                    opciones = lineasOpciones.map { etiquetaLinea(it) },
                     error = state.errorLinea,
-                    onElegir = { i -> vm.cambiarLinea(Lineas[i]) }
+                    onElegir = { i -> vm.cambiarLinea(lineasOpciones[i]) }
                 )
-            }
 
             Tarjeta {
                 Row(verticalAlignment = Alignment.CenterVertically) {

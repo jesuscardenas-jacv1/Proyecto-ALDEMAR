@@ -28,8 +28,21 @@ interface CatalogoDao {
     @Query("SELECT * FROM trenes WHERE centro_id = :centroId ORDER BY codigo")
     fun observarTrenes(centroId: String): Flow<List<TrenEntity>>
 
+    @Query("SELECT codigo FROM trenes WHERE centro_id = :centroId ORDER BY codigo")
+    fun observarCodigosTren(centroId: String): Flow<List<String>>
+
     @Query("SELECT * FROM lineas WHERE tren_id = :trenId ORDER BY numero")
     fun observarLineas(trenId: Long): Flow<List<LineaEntity>>
+
+    @Query(
+        """
+        SELECT l.numero FROM lineas l
+        JOIN trenes t ON t.id = l.tren_id
+        WHERE t.centro_id = :centroId AND t.codigo = :trenCodigo
+        ORDER BY l.numero
+        """
+    )
+    fun observarNumerosLinea(centroId: String, trenCodigo: String): Flow<List<Int>>
 
     /** Busca la línea a partir de lo que elige el operario en el formulario. */
     @Query(
