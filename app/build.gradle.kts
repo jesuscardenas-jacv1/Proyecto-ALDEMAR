@@ -58,7 +58,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     // room-testing (MigrationTestHelper) necesita kotlinx-serialization 1.8.1; la app traía 1.7.3 y la
     // prueba de migración fallaba con AbstractMethodError. Se fija la versión para que coincidan.
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.1")
+    implementation(libs.kotlinx.serialization.core)
     ksp(libs.androidx.room.compiler)
     androidTestImplementation(libs.androidx.room.testing)
     testImplementation(libs.junit)
@@ -68,10 +68,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
-    val cameraxVersion = "1.6.2"
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.camera:camera-core:$cameraxVersion")
-    implementation("androidx.camera:camera-camera2:$cameraxVersion")
-    implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
-    implementation("androidx.camera:camera-view:$cameraxVersion")
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
 }

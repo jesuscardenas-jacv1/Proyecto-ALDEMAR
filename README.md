@@ -93,7 +93,7 @@ Diseños generados con **Google Stitch** (Material Design 3) y guardados en [`do
 | Detalle | Ver en detalle una muestra seleccionada | `docs/diseno/interfaces/07-detalle.png` |
 | Revisión del Supervisor | Gestionar el estado de las muestras | `docs/diseno/interfaces/08-revision.png` |
 
-> Interfaces visuales pendientes de subir por el equipo (ver `docs/diseno/interfaces/`).
+> Interfaces visuales disponibles en [`docs/diseno/interfaces/`](docs/diseno/interfaces/).
 
 ### Navegación
 
