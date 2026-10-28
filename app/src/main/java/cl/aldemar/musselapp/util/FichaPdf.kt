@@ -80,7 +80,7 @@ object FichaPdf {
             putExtra(Intent.EXTRA_TEXT, FichaMuestra.textoCompartir(muestra))
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        context.startActivity(Intent.createChooser(envio, "Compartir ficha ${muestra.codigo}"))
+        context.startActivity(Intent.createChooser(envio, "Compartir ficha de la ${muestra.nombre}"))
     }
 
     /** Envía el PDF al servicio de impresión de Android (también permite "Guardar como PDF"). */

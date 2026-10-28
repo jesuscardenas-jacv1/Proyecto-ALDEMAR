@@ -469,7 +469,7 @@ private fun TarjetaMuestra(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        "Muestra %03d · L%02d Tren %s".format(muestra.id, muestra.linea, muestra.tren),
+                        "${muestra.nombre} · ${muestra.codigoLinea} Tren ${muestra.tren}",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
@@ -514,7 +514,7 @@ private fun TarjetaMuestra(
                         }
                         EstadoEnvio(muestra)
                         AccionesTarjeta(
-                            codigo = muestra.codigo,
+                            nombre = muestra.nombre,
                             puedeRecontar = corregida && puedeRecontar,
                             onRecontar = onRecontar,
                             onVerDetalle = onVerDetalle,
@@ -582,7 +582,7 @@ private fun Aviso(icono: ImageVector, texto: String, fondo: Color, colorTexto: C
 }
 
 @Composable
-private fun AccionesTarjeta(codigo: String, puedeRecontar: Boolean, onRecontar: () -> Unit, onVerDetalle: () -> Unit) {
+private fun AccionesTarjeta(nombre: String, puedeRecontar: Boolean, onRecontar: () -> Unit, onVerDetalle: () -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         if (puedeRecontar) {
             OutlinedButton(
@@ -606,7 +606,7 @@ private fun AccionesTarjeta(codigo: String, puedeRecontar: Boolean, onRecontar: 
         ) {
             Text("Ver detalle", fontWeight = FontWeight.Bold, maxLines = 1)
             Spacer(Modifier.width(6.dp))
-            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Ver detalle de #$codigo", modifier = Modifier.size(18.dp))
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Ver detalle de $nombre", modifier = Modifier.size(18.dp))
         }
     }
 }
