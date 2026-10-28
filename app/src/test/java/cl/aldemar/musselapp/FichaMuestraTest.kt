@@ -22,8 +22,8 @@ class FichaMuestraTest {
 
     @Test
     fun nombreYTitulo_usanElCodigoDeLaMuestra() {
-        assertEquals("Ficha_MST-012.pdf", FichaMuestra.nombreArchivo(muestra))
-        assertEquals("Ficha técnica · Muestra MST-012", FichaMuestra.titulo(muestra))
+        assertEquals("Ficha_Muestra_012.pdf", FichaMuestra.nombreArchivo(muestra))
+        assertEquals("Ficha técnica · Muestra 012", FichaMuestra.titulo(muestra))
     }
 
     @Test

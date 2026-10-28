@@ -117,7 +117,7 @@ class RevisionViewModel(
                         estadoElegido = null,
                         comentarioTecnico = "",
                         errorComentario = null,
-                        mensajeToast = "Dictamen registrado para muestra ${muestra.codigo}",
+                        mensajeToast = "Dictamen registrado para la ${muestra.nombre}",
                     )
                 }
                 onExito()

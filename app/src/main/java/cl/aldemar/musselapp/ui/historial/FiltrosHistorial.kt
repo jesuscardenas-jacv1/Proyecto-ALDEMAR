@@ -73,7 +73,7 @@ object FiltrosHistorial {
     /** Texto donde se busca: código, línea (con y sin cero), tren, observación, operador, estado y fecha. */
     private fun textoBuscable(m: Muestra): String = normalizar(
         listOf(
-            m.codigo, "#${m.codigo}", m.codigoLinea,
+            m.codigo, "#${m.codigo}", m.nombre, m.codigoLinea,
             "linea ${m.linea}", "linea %02d".format(m.linea),
             "tren ${m.tren}", m.observacion, m.operador, m.estado.etiqueta,
             Fechas.relativa(m.registradaEn),

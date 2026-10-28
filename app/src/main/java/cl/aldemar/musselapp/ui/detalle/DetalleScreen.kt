@@ -352,7 +352,7 @@ fun DetalleScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            "Fotografía ${muestraZoom.codigo}",
+                            "Fotografía · ${muestraZoom.nombre}",
                             color = Color.White,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
@@ -418,7 +418,7 @@ private fun FranjaContextualDetalle(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        "Muestra #${muestra.codigo} • Tren ${muestra.tren} • ${muestra.codigoLinea}",
+                        "${muestra.nombre} • Tren ${muestra.tren} • ${muestra.codigoLinea}",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -808,7 +808,7 @@ private fun TarjetaTrazabilidad(muestra: Muestra) {
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                ItemFilaTrazabilidad("Código", muestra.codigo)
+                ItemFilaTrazabilidad("Muestra", "%03d".format(muestra.id))
                 ItemFilaTrazabilidad("Operario", muestra.operador.ifBlank { "—" })
                 ItemFilaTrazabilidad(
                     "RUT operario",

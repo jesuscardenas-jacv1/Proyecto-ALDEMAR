@@ -363,7 +363,7 @@ fun RevisionScreen(
                                 ) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text(
-                                            m.codigo,
+                                            m.nombre,
                                             style = MaterialTheme.typography.labelMedium,
                                             fontWeight = FontWeight.Bold,
                                             color = if (seleccionada) Color.White else MaterialTheme.colorScheme.onSurface,
@@ -408,7 +408,7 @@ fun RevisionScreen(
                                                 fontWeight = FontWeight.Bold,
                                             )
                                             Text(
-                                                "#${muestra.codigo}",
+                                                muestra.nombre,
                                                 style = MaterialTheme.typography.headlineSmall,
                                                 fontWeight = FontWeight.Bold,
                                                 color = MaterialTheme.colorScheme.onSurface,
